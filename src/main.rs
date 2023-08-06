@@ -1,14 +1,18 @@
 mod ui;
 mod worker;
 mod error;
+mod api;
+mod types;
+mod defines;
 
 use ui::daenerys::DaenerysApp;
 use eframe::egui;
 
+//TODO: factorize types with backend.
 fn main() -> Result<(), eframe::Error> {
 
     tracing_subscriber::fmt()
-    .with_max_level(tracing::Level::INFO)
+    .with_max_level(tracing::Level::DEBUG)
     .init();
 
     // Set window options.

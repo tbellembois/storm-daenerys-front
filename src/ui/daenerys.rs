@@ -1,11 +1,18 @@
 use std::thread;
 use std::sync::mpsc::{Sender, Receiver, self};
+use std::sync::Once;
 
 use eframe::CreationContext;
+use egui::{FontFamily, FontId, TextStyle};
+use poll_promise::Promise;
 
 use crate::error::apperror::AppError;
+use crate::{types, api};
+use crate::types::directory::Directory;
 use crate::ui::pages::main;
 use crate::worker::{message::{ToWorker, ToApp, ToAppMessage}, worker::Worker};
+
+static START: Once = Once::new();
 
 // Applications pages.
 #[derive(Default)]
@@ -18,6 +25,11 @@ enum Page {
 pub struct DaenerysApp {
     // Current active page.
     page: Page,
+
+    // Directory list.
+    pub directories: Option<Vec<types::directory::Directory>>,
+    // Promise returned when calling the backend GET /folders endpoint.
+    pub get_directories_promise: Option<Promise<Result<Option<Vec<Directory>>, String>>>,
 
     // Channels for communication beetween
     // application (GUI) and worker.
@@ -63,6 +75,10 @@ impl DaenerysApp {
         app.sender = Some(app_tx);
         app.receiver = Some(worker_rx);
 
+        // Set custom fonts and styles.
+        setup_custom_fonts(&cc.egui_ctx);
+        setup_custom_styles(&cc.egui_ctx);
+
         app
 
     }
@@ -97,10 +113,148 @@ impl eframe::App for DaenerysApp {
 
         }
 
+        // Check promises.
+        if let Some(p) = &self.get_directories_promise {
+
+            match p.ready() {
+                None => (),
+                Some(try_directories) => {
+                    match try_directories {
+                        Ok(directories) => {
+                            self.directories = directories.clone();
+                        },
+                        Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
+                    };
+                },
+            }
+
+        }
+
         // Render page.
         match self.page {
             Page::Main => main::ui::update(self, ctx, frame),
         }
+
+        // Get initial directory list.
+        START.call_once(|| {
+            self.get_directories_promise = Some(api::directory::get_root_directories(ctx));
+        });
+
     }
 
+}
+
+fn setup_custom_fonts(ctx: &egui::Context) {
+
+    // Start with the default fonts (we will be adding to them rather than replacing them).
+    let mut fonts = egui::FontDefinitions::default();
+
+    // Install custom fonts.
+    // .ttf and .otf files supported.
+    fonts.font_data.insert(
+        "B612-Bold".to_owned(),
+        egui::FontData::from_static(include_bytes!(
+            "fonts/B612-Bold.ttf"
+        )),
+    );
+    fonts.font_data.insert(
+        "B612-BoldItalic".to_owned(),
+        egui::FontData::from_static(include_bytes!(
+            "fonts/B612-BoldItalic.ttf"
+        )),
+    );
+    fonts.font_data.insert(
+        "B612-Italic".to_owned(),
+        egui::FontData::from_static(include_bytes!(
+            "fonts/B612-Italic.ttf"
+        )),
+    );
+    fonts.font_data.insert(
+        "B612-Regular".to_owned(),
+        egui::FontData::from_static(include_bytes!(
+            "fonts/B612-Regular.ttf"
+        )),
+    );
+    fonts.font_data.insert(
+        "Font-Awesome-6-Brands-Regular-400".to_owned(),
+        egui::FontData::from_static(include_bytes!(
+            "fonts/Font-Awesome-6-Brands-Regular-400.otf"
+        )),
+    );
+    fonts.font_data.insert(
+        "Font-Awesome-6-Free-Regular-400".to_owned(),
+        egui::FontData::from_static(include_bytes!(
+            "fonts/Font-Awesome-6-Free-Regular-400.otf"
+        )),
+    );
+    fonts.font_data.insert(
+        "Font-Awesome-6-Free-Solid-900".to_owned(),
+        egui::FontData::from_static(include_bytes!(
+            "fonts/Font-Awesome-6-Free-Solid-900.otf"
+        )),
+    );
+
+    // Put my font first (highest priority) for proportional text:
+    fonts
+        .families
+        .entry(egui::FontFamily::Proportional)
+        .or_default()
+        .insert(0, "B612-Regular".to_owned());
+    fonts
+        .families
+        .entry(egui::FontFamily::Proportional)
+        .or_default()
+        .insert(1, "B612-Bold".to_owned());
+    fonts
+        .families
+        .entry(egui::FontFamily::Proportional)
+        .or_default()
+        .insert(2, "B612-BoldItalic".to_owned());
+    fonts
+        .families
+        .entry(egui::FontFamily::Proportional)
+        .or_default()
+        .insert(3, "B612-Italic".to_owned());
+
+    fonts
+        .families
+        .entry(egui::FontFamily::Proportional)
+        .or_default()
+        .insert(3, "Font-Awesome-6-Brands-Regular-400".to_owned());
+    fonts
+        .families
+        .entry(egui::FontFamily::Proportional)
+        .or_default()
+        .insert(3, "Font-Awesome-6-Free-Regular-400".to_owned());
+    fonts
+        .families
+        .entry(egui::FontFamily::Proportional)
+        .or_default()
+        .insert(3, "Font-Awesome-6-Free-Solid-900".to_owned());
+
+    // Put my font as last fallback for monospace:
+    fonts
+        .families
+        .entry(egui::FontFamily::Monospace)
+        .or_default()
+        .push("B612-Regular".to_owned());
+
+    // Tell egui to use these fonts:
+    ctx.set_fonts(fonts);
+
+}
+
+fn setup_custom_styles(ctx: &egui::Context) {
+
+    use FontFamily::{Proportional};
+
+    let mut style = (*ctx.style()).clone();
+    style.text_styles = [
+        (TextStyle::Heading, FontId::new(25.0, Proportional)),
+        (TextStyle::Body, FontId::new(16.0, Proportional)),
+        (TextStyle::Button, FontId::new(25.0, Proportional)),
+    ]
+    .into();
+    ctx.set_style(style);
+    
 }

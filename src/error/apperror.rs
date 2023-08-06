@@ -5,6 +5,7 @@ pub enum AppError {
     ChannelClosed,
     ChannelReceiveError,
     ChannelSendError,
+    InternalError(String),
 }
 
 // Implement std::fmt::Display for AppError
@@ -15,6 +16,7 @@ impl fmt::Display for AppError {
             AppError::ChannelClosed => write!(f, "channel closed"),
             AppError::ChannelReceiveError =>  write!(f, "channel receive error"),
             AppError::ChannelSendError =>  write!(f, "channel send error"),
+            AppError::InternalError(e) => write!(f, "internal error: {}", e),
         }
     }
 }

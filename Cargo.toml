@@ -9,5 +9,10 @@ edition = "2021"
 eframe = "0.22.0"
 egui = "0.22.0"
 egui_extras = { version = "0.22.0", features = ["svg"] }
+ehttp = "0.3.0"
+poll-promise = "0.2.0"
+posix-acl = "1.1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }

@@ -53,7 +53,7 @@ impl Worker {
                 },
                 Err(e) => {
                     if self.sender.send(ToApp { message: ToAppMessage::Error(AppError::ChannelReceiveError)}).is_err() {
-                        tracing::error!("failed to send ToAppMessage::Error");
+                        tracing::error!("failed to send ToAppMessage::Error for {}", e);
                     };
                 },
 
