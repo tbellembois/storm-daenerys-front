@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::thread;
 use std::sync::mpsc::{Sender, Receiver, self};
 use std::sync::Once;
@@ -7,6 +8,7 @@ use egui::{FontFamily, FontId, TextStyle};
 use poll_promise::Promise;
 
 use crate::error::apperror::AppError;
+use crate::types::acl::AclEntry;
 use crate::{types, api};
 use crate::types::directory::Directory;
 use crate::ui::pages::main;
@@ -28,6 +30,9 @@ pub struct DaenerysApp {
 
     // Directory list.
     pub directories: Option<Vec<types::directory::Directory>>,
+    // The same list as a map.
+    pub directories_map: HashMap<String, Vec<AclEntry>>,
+
     // Promise returned when calling the backend GET /folders endpoint.
     pub get_directories_promise: Option<Promise<Result<Option<Vec<Directory>>, String>>>,
 
@@ -43,6 +48,14 @@ pub struct DaenerysApp {
 
      // Icons.
     pub storm_logo: Option<egui_extras::RetainedImage>,
+
+    //
+    // UI widget states
+    //
+    // Directory button clicked
+    pub directory_button_clicked: Option<String>,
+
+
 }
 
 impl DaenerysApp {
@@ -122,13 +135,17 @@ impl eframe::App for DaenerysApp {
                     match try_directories {
                         Ok(directories) => {
                             self.directories = directories.clone();
+                            self.directories_map = self.directories.as_ref().unwrap().iter().map(|d| (d.name.to_owned(), d.acls.to_owned())).collect();
+                            self.directory_button_clicked = None;
                         },
                         Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
                     };
                 },
             }
 
-        }
+            self.get_directories_promise = None;
+
+        }   
 
         // Render page.
         match self.page {

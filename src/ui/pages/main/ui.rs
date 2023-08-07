@@ -1,5 +1,6 @@
 
 use egui::{RichText, Color32, ScrollArea};
+use tracing::debug;
 use tracing_subscriber::fmt::format;
 
 use crate::{ui::daenerys::DaenerysApp, worker::message::{ToWorker, ToWorkerMessage}, error::apperror::AppError};
@@ -23,22 +24,6 @@ pub fn update(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &mut eframe::F
 
     egui::CentralPanel::default().show(ctx, |ui| {
 
-        // A test button.
-        // if ui.button("ping").clicked() {
-            
-        //     if let Some(sender) = &app.sender {
-        //         if sender.send(ToWorker{ message: ToWorkerMessage::Ping}).is_err() {
-        //             app.current_error = Some(AppError::ChannelSendError);
-        //         };
-        //     }
-
-        // }
-
-        // Trigger an error button.
-        // if ui.button("error").clicked() {
-        //     app.current_error = Some(AppError::TestError);
-        // }
-
         egui::SidePanel::left("left").resizable(false)
         .show(ctx, |ui| {
 
@@ -49,9 +34,12 @@ pub fn update(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &mut eframe::F
 
                     ui.horizontal_top(|ui| {
 
+                        // Refresh directory list button.
                         if ui.button(crate::defines::AF_REFRESH_CODE.to_string()).clicked() {
+                            app.get_directories_promise = Some(api::directory::get_root_directories(ctx));
                         }
 
+                        // Create new directory button.
                         if ui.button(crate::defines::AF_FOLDER_CREATE_CODE.to_string()).clicked() {
                         }
 
@@ -61,19 +49,36 @@ pub fn update(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &mut eframe::F
 
                     ui.vertical_centered_justified(|ui| {
 
+                        // Create directories buttons.
                         if app.directories.is_some() {                         
 
                             for directory in app.directories.as_ref().unwrap().iter() {
                             
                                 let button_label = format!("{} {}", crate::defines::AF_FOLDER_CODE, &directory.name);
 
+                                // Save the clicked directory name.
                                 if ui.button(button_label).clicked() {
+                                    app.directory_button_clicked = Some(directory.name.clone());
                                 }
+
                             }
                 
                         }
                     });
                 });
+        });
+
+        egui::CentralPanel::default().show(ctx, |ui| {
+
+            ui.label("prout");
+
+            debug!(app.directory_button_clicked);
+
+            // If a directory is clicked then displau its acls.
+            if let Some(d) = &app.directory_button_clicked {
+                ui.label(d);
+            }
+
         });
 
     });
