@@ -70,13 +70,17 @@ pub fn update(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &mut eframe::F
 
         egui::CentralPanel::default().show(ctx, |ui| {
 
-            ui.label("prout");
-
-            debug!(app.directory_button_clicked);
-
-            // If a directory is clicked then displau its acls.
+            // If a directory is clicked then display its acls.
             if let Some(d) = &app.directory_button_clicked {
-                ui.label(d);
+
+                ui.heading(d);
+
+                let acls = app.directories_map.get(d).unwrap(); // this should never panic as the key always exists
+
+                for acl in acls {
+                    ui.label(format!("{} {:?} {}", acl.qualifier, acl.qualifier_cn, acl.perm));
+                }
+
             }
 
         });

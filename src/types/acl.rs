@@ -3,7 +3,7 @@ use std::fmt;
 use posix_acl::ACLEntry;
 use serde::{Serialize, Deserialize};
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Ord, Eq, PartialEq, PartialOrd, Clone, Debug)]
 pub enum Qualifier {
     /// Unrecognized/corrupt entries
     Undefined,
@@ -21,7 +21,7 @@ pub enum Qualifier {
     Mask,
 }
 
-impl fmt::Debug for Qualifier {
+impl fmt::Display for Qualifier {
 
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 
@@ -39,16 +39,17 @@ impl fmt::Debug for Qualifier {
 
 }
 
-#[derive(Serialize, Deserialize,Clone)]
+#[derive(Serialize, Deserialize, Ord, Eq, PartialEq, PartialOrd, Clone)]
 pub struct AclEntry {
     pub qualifier: Qualifier, // the subject of a permission grant
+    pub qualifier_cn: Option<String>, // optionnal user or group name when qualifier is User(u32) or Group(u32)
     pub perm: u32,
 }
 
 impl fmt::Debug for AclEntry {
 
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}: {}", self.qualifier, self.perm)
+        write!(f, "{:?}: {:?} {}", self.qualifier, self.qualifier_cn, self.perm)
     }
 
 }
@@ -69,7 +70,7 @@ impl AclEntry {
 
         let perm = entry.perm;
 
-        AclEntry { qualifier, perm }
+        AclEntry { qualifier, perm, qualifier_cn: None }
 
     }
 
