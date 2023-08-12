@@ -2,7 +2,6 @@ mod ui;
 mod worker;
 mod error;
 mod api;
-mod types;
 mod defines;
 
 use ui::daenerys::DaenerysApp;

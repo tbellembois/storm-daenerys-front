@@ -3,14 +3,14 @@ use std::thread;
 use std::sync::mpsc::{Sender, Receiver, self};
 use std::sync::Once;
 
+use storm_daenerys_common::types::{acl::AclEntry, directory::Directory};
+
 use eframe::CreationContext;
 use egui::{FontFamily, FontId, TextStyle};
 use poll_promise::Promise;
 
 use crate::error::apperror::AppError;
-use crate::types::acl::AclEntry;
-use crate::{types, api};
-use crate::types::directory::Directory;
+use crate::api;
 use crate::ui::pages::main;
 use crate::worker::{message::{ToWorker, ToApp, ToAppMessage}, worker::Worker};
 
@@ -29,7 +29,7 @@ pub struct DaenerysApp {
     page: Page,
 
     // Directory list.
-    pub directories: Option<Vec<types::directory::Directory>>,
+    pub directories: Option<Vec<Directory>>,
     // The same list as a map.
     pub directories_map: HashMap<String, Vec<AclEntry>>,
 

@@ -1,6 +1,6 @@
 use poll_promise::Promise;
 
-use crate::types::directory::Directory;
+use storm_daenerys_common::types::directory::Directory;
 
 pub fn get_root_directories(ctx: &egui::Context) -> Promise<Result<Option<Vec<Directory>>, String>> {
     
