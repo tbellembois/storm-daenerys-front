@@ -3,7 +3,7 @@ use egui::{RichText, Color32, ScrollArea};
 use tracing::debug;
 use tracing_subscriber::fmt::format;
 
-use crate::{ui::daenerys::DaenerysApp, worker::message::{ToWorker, ToWorkerMessage}, error::apperror::AppError};
+use crate::{ui::daenerys::DaenerysApp, worker::message::{ToWorker, ToWorkerMessage}, error::apperror::AppError, defines::{AF_USER_CODE, AF_GROUP_CODE}};
 use crate::api;
 
 pub fn update(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &mut eframe::Frame) {
@@ -40,8 +40,8 @@ pub fn update(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &mut eframe::F
                         }
 
                         // Create new directory button.
-                        if ui.button(crate::defines::AF_FOLDER_CREATE_CODE.to_string()).clicked() {
-                        }
+                        // if ui.button(crate::defines::AF_FOLDER_CREATE_CODE.to_string()).clicked() {
+                        // }
 
                     });
 
@@ -49,7 +49,7 @@ pub fn update(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &mut eframe::F
 
                     ui.vertical_centered_justified(|ui| {
 
-                        // Create directories buttons.
+                        // Directories buttons.
                         if app.directories.is_some() {                         
 
                             for directory in app.directories.as_ref().unwrap().iter() {
@@ -75,11 +75,86 @@ pub fn update(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &mut eframe::F
 
                 ui.heading(d);
 
+                ui.separator();
+
                 let acls = app.directories_map.get(d).unwrap(); // this should never panic as the key always exists
 
+                egui::Grid::new("acl_list").num_columns(2).show(ui, |ui| {
+               
+
                 for acl in acls {
-                    ui.label(format!("{} {:?} {}", acl.qualifier, acl.qualifier_cn, acl.perm));
+                    match acl.qualifier {
+                        storm_daenerys_common::types::acl::Qualifier::User(_) => {
+
+                                // ui.add_sized(
+                                //     [20., 35.], 
+                                //     egui::Label::new(AF_USER_CODE.to_string()),
+                                // );
+
+                                // ui.add_sized(
+                                //     [200., 35.], 
+                                //     egui::Label::new(format!("{} {}", acl.qualifier_cn.as_ref().unwrap(), acl.perm)),
+                                // );
+
+                                ui.label(AF_USER_CODE.to_string());
+                                ui.label(format!("{} {}", acl.qualifier_cn.as_ref().unwrap(), acl.perm));
+
+                                ui.end_row();
+
+                            // ui.horizontal(|ui| {
+                            //     ui.add_sized(
+                            //         [20., 10.], 
+                            //         egui::Label::new(AF_USER_CODE.to_string()),
+                            //     );
+                                
+                            //     ui.with_layout(egui::Layout::left_to_right(egui::Align::Min), |ui| {
+                            //         ui.add_sized(
+                            //             [200., 10.], 
+                            //             egui::Label::new(format!("{} {}", acl.qualifier_cn.as_ref().unwrap(), acl.perm)),
+                            //         );
+                            //     })
+                            // });
+
+                 
+                            //ui.label(format!("{} {} {}", AF_USER_CODE, acl.qualifier_cn.as_ref().unwrap(), acl.perm));
+                        },
+                        storm_daenerys_common::types::acl::Qualifier::Group(_) => {
+
+                            // ui.add_sized(
+                            //     [20., 35.], 
+                            //     egui::Label::new(AF_GROUP_CODE.to_string()),
+                            // );
+                            // ui.add_sized(
+                            //     [200., 35.], 
+                            //     egui::Label::new(format!("{} {}", acl.qualifier_cn.as_ref().unwrap(), acl.perm)),
+                            // );
+
+                            ui.label(AF_GROUP_CODE.to_string());
+                            ui.label(format!("{} {}", acl.qualifier_cn.as_ref().unwrap(), acl.perm));
+                            
+                            ui.end_row();
+                            // ui.horizontal(|ui| {
+                            //     ui.add_sized(
+                            //         [20., 10.], 
+                            //         egui::Label::new(AF_GROUP_CODE.to_string()),
+                            //     );
+                                
+                            //     ui.with_layout(egui::Layout::left_to_right(egui::Align::Min), |ui| {
+                            //         ui.add_sized(
+                            //             [200., 10.], 
+                            //             egui::Label::new(format!("{} {}", acl.qualifier_cn.as_ref().unwrap(), acl.perm)),
+                            //         );
+                            //     })
+                            // });
+
+                            //ui.label(format!("{} {} {}", AF_GROUP_CODE, acl.qualifier_cn.as_ref().unwrap(), acl.perm));
+                        },
+                        _ => (),
+                    }
+
                 }
+
+            });
 
             }
 

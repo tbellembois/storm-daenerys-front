@@ -129,6 +129,8 @@ impl eframe::App for DaenerysApp {
         // Check promises.
         if let Some(p) = &self.get_directories_promise {
 
+            println!("get_directories_promise");
+
             match p.ready() {
                 None => (),
                 Some(try_directories) => {
@@ -137,13 +139,13 @@ impl eframe::App for DaenerysApp {
                             self.directories = directories.clone();
                             self.directories_map = self.directories.as_ref().unwrap().iter().map(|d| (d.name.to_owned(), d.acls.to_owned())).collect();
                             self.directory_button_clicked = None;
+
+                            self.get_directories_promise = None;
                         },
                         Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
                     };
                 },
             }
-
-            self.get_directories_promise = None;
 
         }   
 
@@ -263,12 +265,12 @@ fn setup_custom_fonts(ctx: &egui::Context) {
 
 fn setup_custom_styles(ctx: &egui::Context) {
 
-    use FontFamily::{Proportional};
+    use FontFamily::Proportional;
 
     let mut style = (*ctx.style()).clone();
     style.text_styles = [
         (TextStyle::Heading, FontId::new(25.0, Proportional)),
-        (TextStyle::Body, FontId::new(16.0, Proportional)),
+        (TextStyle::Body, FontId::new(20.0, Proportional)),
         (TextStyle::Button, FontId::new(25.0, Proportional)),
     ]
     .into();
