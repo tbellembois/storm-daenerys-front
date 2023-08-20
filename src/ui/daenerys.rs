@@ -3,6 +3,7 @@ use std::thread;
 use std::sync::mpsc::{Sender, Receiver, self};
 use std::sync::Once;
 
+use storm_daenerys_common::types::group::Group;
 use storm_daenerys_common::types::{acl::AclEntry, directory::Directory};
 
 use eframe::CreationContext;
@@ -33,8 +34,15 @@ pub struct DaenerysApp {
     // The same list as a map.
     pub directories_map: HashMap<String, Vec<AclEntry>>,
 
+    // Group list.
+    pub groups: Option<Vec<Group>>,
+    // The same list as a map.
+    pub groups_map: HashMap<String, Group>,
+
     // Promise returned when calling the backend GET /folders endpoint.
     pub get_directories_promise: Option<Promise<Result<Option<Vec<Directory>>, String>>>,
+    // Promise returned when calling the backend GET /groups endpoint.
+    pub get_groups_promise: Option<Promise<Result<Option<Vec<Group>>, String>>>,
 
     // Channels for communication beetween
     // application (GUI) and worker.
@@ -54,6 +62,8 @@ pub struct DaenerysApp {
     //
     // Directory button clicked
     pub directory_button_clicked: Option<String>,
+    // Group button clicked
+    pub group_button_clicked: Option<String>,
 
 
 }
@@ -147,16 +157,39 @@ impl eframe::App for DaenerysApp {
                 },
             }
 
-        }   
+        }
+
+        if let Some(p) = &self.get_groups_promise {
+
+            println!("get_groups_promise");
+
+            match p.ready() {
+                None => (),
+                Some(try_groups) => {
+                    match try_groups {
+                        Ok(groups) => {
+                            self.groups = groups.clone();
+                            self.groups_map = self.groups.as_ref().unwrap().iter().map(|g| (g.cn.to_owned(), g.to_owned())).collect();
+                            self.group_button_clicked = None;
+
+                            self.get_groups_promise = None;
+                        },
+                        Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
+                    };
+                },
+            }
+
+        }  
 
         // Render page.
         match self.page {
             Page::Main => main::ui::update(self, ctx, frame),
         }
 
-        // Get initial directory list.
+        // Get initial directory and group list.
         START.call_once(|| {
             self.get_directories_promise = Some(api::directory::get_root_directories(ctx));
+            self.get_groups_promise = Some(api::group::get_groups(ctx));
         });
 
     }
