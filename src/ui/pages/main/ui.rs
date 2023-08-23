@@ -1,9 +1,12 @@
 
-use egui::{RichText, Color32, ScrollArea};
+use std::collections::HashMap;
+
+use egui::{RichText, Color32};
+use storm_daenerys_common::types::acl::Qualifier;
 use tracing::debug;
 use tracing_subscriber::fmt::format;
 
-use crate::{ui::daenerys::DaenerysApp, worker::message::{ToWorker, ToWorkerMessage}, error::apperror::AppError, defines::{AF_USER_CODE, AF_GROUP_CODE}};
+use crate::{ui::daenerys::DaenerysApp, defines::{AF_USER_CODE, AF_GROUP_CODE}};
 use crate::api;
 
 pub fn update(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &mut eframe::Frame) {
@@ -138,6 +141,46 @@ pub fn update(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &mut eframe::F
                 }
 
             });
+
+            ui.separator();
+
+            // Edit directory button.
+            let button_label = format!("{} {}", crate::defines::AF_EDIT_CODE, "edit directory");
+
+            if ui.button(button_label).clicked() {
+
+                app.edit_directory_clicked = Some(d.to_string());
+                app.edit_group_clicked = None;
+
+                // Initialize the edited_directory_permissions hashmap.
+                let mut edited_directory_widget_state: HashMap<String, (Qualifier, bool)> = HashMap::new();
+                let acls = app.directories_map.get(d).unwrap(); // this should never panic as the key always exists
+
+                for acl in acls {
+                    
+                    tracing::debug!("acl: {:?}", acl);
+                    
+                    // FIXME
+                    // Keep only necessary acls.
+                    match acl.qualifier {
+                        Qualifier::User(_) => (),
+                        Qualifier::Group(_) => (),
+                        _ => continue,
+                    }
+                   
+                    let mut is_read_only = false;
+                    match acl.perm {
+                        4 | 5 | 7 => is_read_only = true,
+                        _ => (),
+                    };
+
+                    edited_directory_widget_state.insert(acl.qualifier_cn.clone().unwrap(),  (acl.qualifier.clone(), is_read_only));
+
+                }
+
+                app.edited_directory_widget_state = Some(edited_directory_widget_state);
+            
+            }
         }
         
         // If a group is clicked then display its members.
@@ -161,10 +204,70 @@ pub fn update(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &mut eframe::F
                     ui.label("no members".to_string());
                 },
             }        
-            
+
+            ui.separator();
+
+            // Edit group button.
+            let button_label = format!("{} {}", crate::defines::AF_EDIT_CODE, "edit group");
+
+            if ui.button(button_label).clicked() {
+                app.edit_group_clicked = Some(g.to_string());
+                app.edit_directory_clicked = None;
+            } 
 
         };
         
+        // Directory edition.
+        if let Some(d) = &app.edit_directory_clicked {
+
+            ui.heading(d);
+
+            ui.separator();
+
+            let acls = app.directories_map.get(d).unwrap(); // this should never panic as the key always exists
+
+            egui::Grid::new("acl_list_edit").num_columns(3).show(ui, |ui| {
+
+                for acl in acls {
+                    match acl.qualifier {
+                        storm_daenerys_common::types::acl::Qualifier::User(_) => {
+
+                                ui.label(AF_USER_CODE.to_string());
+                                ui.label(acl.qualifier_cn.as_ref().unwrap());
+
+                                let (_, mut read_only) = app.edited_directory_widget_state.as_ref().unwrap().get(acl.qualifier_cn.as_ref().unwrap()).unwrap();
+
+                                ui.checkbox(&mut read_only, "read only".to_string());
+
+                                ui.end_row();
+
+                        },
+                        storm_daenerys_common::types::acl::Qualifier::Group(_) => {
+
+                            ui.label(AF_GROUP_CODE.to_string());
+                            ui.label(acl.qualifier_cn.as_ref().unwrap());
+
+                            match acl.perm {
+                                4 | 5 | 7 => ui.label(egui::RichText::new("(read only)").italics()),
+                                _ => ui.label(""), 
+                            };
+
+                            ui.end_row();
+
+                        },
+                        _ => (),
+                    }
+
+                }
+
+            });
+
+        }
+
+        // Group edition.
+        if let Some(g) = &app.edit_group_clicked {
+        }
+
     });
 
 }

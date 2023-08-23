@@ -3,6 +3,7 @@ use std::thread;
 use std::sync::mpsc::{Sender, Receiver, self};
 use std::sync::Once;
 
+use storm_daenerys_common::types::acl::Qualifier;
 use storm_daenerys_common::types::group::Group;
 use storm_daenerys_common::types::{acl::AclEntry, directory::Directory};
 
@@ -60,15 +61,24 @@ pub struct DaenerysApp {
     //
     // UI widget states
     //
-    // Directory button clicked
+    // Directory button clicked.
     pub directory_button_clicked: Option<String>,
-    // Group button clicked
+    // Group button clicked.
     pub group_button_clicked: Option<String>,
 
+    // Edit directory permissions clicked.
+    pub edit_directory_clicked: Option<String>,
+    // Edit group clicked.
+    pub edit_group_clicked: Option<String>,
+
+    // State of the directory (permissions) currently edited.
+    // key: cn of user ou group
+    // value: (User|Group),readonly
+    pub edited_directory_widget_state: Option<HashMap<String, (Qualifier, bool)>>
 
 }
 
-impl DaenerysApp {
+impl DaenerysApp{
 
     pub fn new(cc: &CreationContext) -> Self {
 
@@ -149,6 +159,8 @@ impl eframe::App for DaenerysApp {
                             self.directories = directories.clone();
                             self.directories_map = self.directories.as_ref().unwrap().iter().map(|d| (d.name.to_owned(), d.acls.to_owned())).collect();
                             self.directory_button_clicked = None;
+
+                            tracing::debug!("directories_map: {:?}", self.directories_map);
 
                             self.get_directories_promise = None;
                         },
