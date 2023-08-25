@@ -1,7 +1,7 @@
 use std::collections::HashMap;
-use std::thread;
-use std::sync::mpsc::{Sender, Receiver, self};
+use std::sync::mpsc::{self, Receiver, Sender};
 use std::sync::Once;
+use std::thread;
 
 use storm_daenerys_common::types::acl::Qualifier;
 use storm_daenerys_common::types::group::Group;
@@ -11,10 +11,13 @@ use eframe::CreationContext;
 use egui::{FontFamily, FontId, TextStyle};
 use poll_promise::Promise;
 
-use crate::error::apperror::AppError;
 use crate::api;
+use crate::error::apperror::AppError;
 use crate::ui::pages::main;
-use crate::worker::{message::{ToWorker, ToApp, ToAppMessage}, worker::Worker};
+use crate::worker::{
+    message::{ToApp, ToAppMessage, ToWorker},
+    worker::Worker,
+};
 
 static START: Once = Once::new();
 
@@ -55,38 +58,39 @@ pub struct DaenerysApp {
     // Current info if one.
     pub current_info: Option<String>,
 
-     // Icons.
+    // Icons.
     pub storm_logo: Option<egui_extras::RetainedImage>,
 
     //
     // UI widget states
     //
     // Directory button clicked.
-    pub directory_button_clicked: Option<String>,
+    pub directory_button_clicked: Option<Directory>,
     // Group button clicked.
     pub group_button_clicked: Option<String>,
 
     // Edit directory permissions clicked.
-    pub edit_directory_clicked: Option<String>,
-    // Edit group clicked.
+    pub edit_directory_clicked: Option<Directory>,
+    // // Edit group clicked.
     pub edit_group_clicked: Option<String>,
 
     // State of the directory (permissions) currently edited.
     // key: cn of user ou group
-    // value: (User|Group),readonly
-    pub edited_directory_widget_state: Option<HashMap<String, (Qualifier, bool)>>
-
+    // value: readonly
+    pub edited_directory_acl_widget: Option<HashMap<String, bool>>,
 }
 
-impl DaenerysApp{
-
+impl DaenerysApp {
     pub fn new(cc: &CreationContext) -> Self {
-
         // Create application.
-        let mut app = DaenerysApp { 
-            storm_logo: Some(egui_extras::RetainedImage::from_svg_bytes(
-            "storm.svg",
-            include_bytes!("media/storm.svg")).unwrap()),
+        let mut app = DaenerysApp {
+            storm_logo: Some(
+                egui_extras::RetainedImage::from_svg_bytes(
+                    "storm.svg",
+                    include_bytes!("media/storm.svg"),
+                )
+                .unwrap(),
+            ),
             ..Default::default()
         };
 
@@ -97,7 +101,7 @@ impl DaenerysApp{
         let context = cc.egui_ctx.clone();
 
         tracing::info!("Spawning new worker.");
-        
+
         // Spawn a thread with a new worker.
         thread::spawn(move || {
             Worker::new(worker_tx, app_rx, context).init();
@@ -113,18 +117,13 @@ impl DaenerysApp{
         setup_custom_styles(&cc.egui_ctx);
 
         app
-
     }
-
 }
 
 impl eframe::App for DaenerysApp {
-
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
-
         // Check for ToApp messages.
         if let Some(receiver) = &self.receiver {
-
             let maybe_message = match receiver.try_recv() {
                 Ok(message) => Some(message),
                 Err(e) => match e {
@@ -132,23 +131,21 @@ impl eframe::App for DaenerysApp {
                     mpsc::TryRecvError::Disconnected => {
                         self.current_error = Some(AppError::ChannelClosed);
                         None
-                    },
+                    }
                 },
             };
 
-            if let Some(message) = maybe_message { 
+            if let Some(message) = maybe_message {
                 println!("received = {:?}", message);
                 match message.message {
                     ToAppMessage::Pong => self.current_info = Some("pong".to_string()),
                     ToAppMessage::Error(e) => self.current_error = Some(e), //FIXME: handle fatal errors
                 }
             }
-
         }
 
         // Check promises.
         if let Some(p) = &self.get_directories_promise {
-
             println!("get_directories_promise");
 
             match p.ready() {
@@ -157,22 +154,26 @@ impl eframe::App for DaenerysApp {
                     match try_directories {
                         Ok(directories) => {
                             self.directories = directories.clone();
-                            self.directories_map = self.directories.as_ref().unwrap().iter().map(|d| (d.name.to_owned(), d.acls.to_owned())).collect();
+                            self.directories_map = self
+                                .directories
+                                .as_ref()
+                                .unwrap()
+                                .iter()
+                                .map(|d| (d.name.to_owned(), d.acls.to_owned()))
+                                .collect();
                             self.directory_button_clicked = None;
 
                             tracing::debug!("directories_map: {:?}", self.directories_map);
 
                             self.get_directories_promise = None;
-                        },
+                        }
                         Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
                     };
-                },
+                }
             }
-
         }
 
         if let Some(p) = &self.get_groups_promise {
-
             println!("get_groups_promise");
 
             match p.ready() {
@@ -181,17 +182,22 @@ impl eframe::App for DaenerysApp {
                     match try_groups {
                         Ok(groups) => {
                             self.groups = groups.clone();
-                            self.groups_map = self.groups.as_ref().unwrap().iter().map(|g| (g.cn.to_owned(), g.to_owned())).collect();
+                            self.groups_map = self
+                                .groups
+                                .as_ref()
+                                .unwrap()
+                                .iter()
+                                .map(|g| (g.cn.to_owned(), g.to_owned()))
+                                .collect();
                             self.group_button_clicked = None;
 
                             self.get_groups_promise = None;
-                        },
+                        }
                         Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
                     };
-                },
+                }
             }
-
-        }  
+        }
 
         // Render page.
         match self.page {
@@ -203,13 +209,10 @@ impl eframe::App for DaenerysApp {
             self.get_directories_promise = Some(api::directory::get_root_directories(ctx));
             self.get_groups_promise = Some(api::group::get_groups(ctx));
         });
-
     }
-
 }
 
 fn setup_custom_fonts(ctx: &egui::Context) {
-
     // Start with the default fonts (we will be adding to them rather than replacing them).
     let mut fonts = egui::FontDefinitions::default();
 
@@ -217,27 +220,19 @@ fn setup_custom_fonts(ctx: &egui::Context) {
     // .ttf and .otf files supported.
     fonts.font_data.insert(
         "B612-Bold".to_owned(),
-        egui::FontData::from_static(include_bytes!(
-            "fonts/B612-Bold.ttf"
-        )),
+        egui::FontData::from_static(include_bytes!("fonts/B612-Bold.ttf")),
     );
     fonts.font_data.insert(
         "B612-BoldItalic".to_owned(),
-        egui::FontData::from_static(include_bytes!(
-            "fonts/B612-BoldItalic.ttf"
-        )),
+        egui::FontData::from_static(include_bytes!("fonts/B612-BoldItalic.ttf")),
     );
     fonts.font_data.insert(
         "B612-Italic".to_owned(),
-        egui::FontData::from_static(include_bytes!(
-            "fonts/B612-Italic.ttf"
-        )),
+        egui::FontData::from_static(include_bytes!("fonts/B612-Italic.ttf")),
     );
     fonts.font_data.insert(
         "B612-Regular".to_owned(),
-        egui::FontData::from_static(include_bytes!(
-            "fonts/B612-Regular.ttf"
-        )),
+        egui::FontData::from_static(include_bytes!("fonts/B612-Regular.ttf")),
     );
     fonts.font_data.insert(
         "Font-Awesome-6-Brands-Regular-400".to_owned(),
@@ -247,15 +242,11 @@ fn setup_custom_fonts(ctx: &egui::Context) {
     );
     fonts.font_data.insert(
         "Font-Awesome-6-Free-Regular-400".to_owned(),
-        egui::FontData::from_static(include_bytes!(
-            "fonts/Font-Awesome-6-Free-Regular-400.otf"
-        )),
+        egui::FontData::from_static(include_bytes!("fonts/Font-Awesome-6-Free-Regular-400.otf")),
     );
     fonts.font_data.insert(
         "Font-Awesome-6-Free-Solid-900".to_owned(),
-        egui::FontData::from_static(include_bytes!(
-            "fonts/Font-Awesome-6-Free-Solid-900.otf"
-        )),
+        egui::FontData::from_static(include_bytes!("fonts/Font-Awesome-6-Free-Solid-900.otf")),
     );
 
     // Put my font first (highest priority) for proportional text:
@@ -305,11 +296,9 @@ fn setup_custom_fonts(ctx: &egui::Context) {
 
     // Tell egui to use these fonts:
     ctx.set_fonts(fonts);
-
 }
 
 fn setup_custom_styles(ctx: &egui::Context) {
-
     use FontFamily::Proportional;
 
     let mut style = (*ctx.style()).clone();
@@ -320,5 +309,4 @@ fn setup_custom_styles(ctx: &egui::Context) {
     ]
     .into();
     ctx.set_style(style);
-    
 }
