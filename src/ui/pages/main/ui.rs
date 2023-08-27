@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use crate::ui::daenerys::DaenerysApp;
 
 use super::panel_central::display_central_panel;

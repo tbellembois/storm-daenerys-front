@@ -69,15 +69,15 @@ pub struct DaenerysApp {
     // Group button clicked.
     pub group_button_clicked: Option<String>,
 
-    // Edit directory permissions clicked.
-    pub edit_directory_clicked: Option<Directory>,
-    // // Edit group clicked.
+    // Edit directory clicked.
+    pub edit_directory_clicked: Option<Box<Directory>>,
+    // Edit group clicked.
     pub edit_group_clicked: Option<String>,
 
-    // State of the directory (permissions) currently edited.
-    // key: cn of user ou group
-    // value: readonly
-    pub edited_directory_acl_widget: Option<HashMap<String, bool>>,
+    // Clicking on the delete ACL button: ACL qualifier_cn to remove of the edited directory.
+    pub edited_directory_remove_acl: Option<String>,
+    // Clicking on the ACL read_only checkbox: ACL qualifier_cn of the read_only to set of the edited directory.
+    pub edited_directory_toogle_read_only: Option<(String, bool)>,
 }
 
 impl DaenerysApp {
@@ -199,6 +199,49 @@ impl eframe::App for DaenerysApp {
             }
         }
 
+        // Check directory acl removal.
+        if let Some(edited_directory_remove_acl) = &self.edited_directory_remove_acl {
+            self.edit_directory_clicked
+                .as_mut()
+                .unwrap()
+                .acls
+                .retain(|a| match a.qualifier_cn.clone() {
+                    Some(qualidier_cn) => qualidier_cn.ne(edited_directory_remove_acl),
+                    None => true, // non User(u) or Group(g) acl
+                });
+
+            self.edited_directory_remove_acl = None;
+        }
+
+        // Check directory acl read_only change.
+        if let Some(edited_directory_toogle_read_only) = &self.edited_directory_toogle_read_only {
+            let (qualifier_cn, read_only) = edited_directory_toogle_read_only;
+
+            for acl in self
+                .edit_directory_clicked
+                .as_mut()
+                .unwrap()
+                .acls
+                .iter_mut()
+            {
+                // FIXME
+                // Keep only necessary acls.
+                match acl.qualifier {
+                    Qualifier::User(_) => (),
+                    Qualifier::Group(_) => (),
+                    _ => continue,
+                }
+
+                if acl.qualifier_cn.as_ref().unwrap().eq(qualifier_cn) {
+                    if *read_only {
+                        acl.perm = 4;
+                    } else {
+                        acl.perm = 6;
+                    }
+                }
+            }
+        }
+
         // Render page.
         match self.page {
             Page::Main => main::ui::update(self, ctx, frame),
@@ -305,7 +348,7 @@ fn setup_custom_styles(ctx: &egui::Context) {
     style.text_styles = [
         (TextStyle::Heading, FontId::new(25.0, Proportional)),
         (TextStyle::Body, FontId::new(20.0, Proportional)),
-        (TextStyle::Button, FontId::new(25.0, Proportional)),
+        (TextStyle::Button, FontId::new(22.0, Proportional)),
     ]
     .into();
     ctx.set_style(style);

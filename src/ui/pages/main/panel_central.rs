@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use storm_daenerys_common::types::acl::Qualifier;
+use storm_daenerys_common::types::{acl::Qualifier, directory::Directory};
 
 use crate::{
     defines::{AF_GROUP_CODE, AF_USER_CODE},
@@ -14,13 +14,14 @@ pub fn display_central_panel(
     _frame: &mut eframe::Frame,
 ) {
     egui::CentralPanel::default().show(ctx, |ui| {
-        // If a directory is clicked then display its acls.
-        if let Some(d) = &app.directory_button_clicked {
-            ui.heading(&d.name);
-
+        //
+        // Directory details
+        //
+        if let Some(directory_button_clicked) = &app.directory_button_clicked {
+            ui.heading(&directory_button_clicked.name);
             ui.separator();
 
-            let acls = &app.directory_button_clicked.as_ref().unwrap().acls;
+            let acls = &directory_button_clicked.acls;
 
             egui::Grid::new("acl_list").num_columns(3).show(ui, |ui| {
                 for acl in acls {
@@ -58,39 +59,17 @@ pub fn display_central_panel(
             let button_label = format!("{} {}", crate::defines::AF_EDIT_CODE, "edit directory");
 
             if ui.button(button_label).clicked() {
-                app.edit_directory_clicked = Some(d.clone());
+                app.edit_directory_clicked = Some(Box::new(Directory {
+                    ..directory_button_clicked.clone()
+                }));
+                app.directory_button_clicked = None;
                 app.edit_group_clicked = None;
-
-                // Initialize the edited_directory_permissions hashmap.
-                let mut edited_directory_acl_widget: HashMap<String, bool> = HashMap::new();
-                let acls = &app.directory_button_clicked.as_ref().unwrap().acls;
-
-                for acl in acls {
-                    tracing::debug!("acl: {:?}", acl);
-
-                    // FIXME
-                    // Keep only necessary acls.
-                    match acl.qualifier {
-                        Qualifier::User(_) => (),
-                        Qualifier::Group(_) => (),
-                        _ => continue,
-                    }
-
-                    let mut is_read_only = false;
-                    match acl.perm {
-                        4 | 5 | 7 => is_read_only = true,
-                        _ => (),
-                    };
-
-                    edited_directory_acl_widget
-                        .insert(acl.qualifier_cn.clone().unwrap(), is_read_only);
-                }
-
-                app.edited_directory_acl_widget = Some(edited_directory_acl_widget);
             }
         }
 
-        // If a group is clicked then display its members.
+        //
+        // Group details
+        //
         if let Some(g) = &app.group_button_clicked {
             ui.heading(g);
 
@@ -122,18 +101,20 @@ pub fn display_central_panel(
             }
         };
 
+        //
         // Directory edition.
-        if let Some(directory_clicked) = &app.edit_directory_clicked {
+        //
+        if let Some(edit_directory_clicked) = &app.edit_directory_clicked {
             // Directory title.
-            ui.heading(directory_clicked.name.clone());
+            ui.heading(edit_directory_clicked.name.clone());
 
             ui.separator();
 
             // Get acls.
-            let acls = &app.edit_directory_clicked.as_ref().unwrap().acls;
+            let acls = &edit_directory_clicked.acls;
 
             egui::Grid::new("acl_list_edit")
-                .num_columns(3)
+                .num_columns(4)
                 .show(ui, |ui| {
                     for acl in acls {
                         // FIXME
@@ -144,31 +125,11 @@ pub fn display_central_panel(
                             _ => continue,
                         }
 
-                        // Get the read_only bool from the edited_directory_acl_widget hashmap.
-                        let maybe_edited_directory_acl_widget =
-                            app.edited_directory_acl_widget.as_mut();
+                        let mut read_only: bool;
 
-                        let edited_directory_acl_widget = match maybe_edited_directory_acl_widget {
-                            Some(edited_directory_acl_widget) => edited_directory_acl_widget,
-                            None => {
-                                app.current_error = Some(AppError::InternalError(
-                                    "unexpected None value".to_string(),
-                                ));
-                                return;
-                            }
-                        };
-
-                        let maybe_read_only =
-                            edited_directory_acl_widget.get_mut(acl.qualifier_cn.as_ref().unwrap());
-
-                        let read_only = match maybe_read_only {
-                            Some(read_only) => read_only,
-                            None => {
-                                app.current_error = Some(AppError::InternalError(
-                                    "unexpected None value".to_string(),
-                                ));
-                                return;
-                            }
+                        match acl.perm {
+                            4 | 5 | 7 => read_only = true,
+                            _ => read_only = false,
                         };
 
                         match acl.qualifier {
@@ -178,17 +139,18 @@ pub fn display_central_panel(
                                 // User cn.
                                 ui.label(acl.qualifier_cn.as_ref().unwrap());
 
-                                // FIXME: explain me
-                                // let read_only = app
-                                //     .edited_directory_acl_widget
-                                //     .as_mut()
-                                //     .unwrap()
-                                //     .get_mut(acl.qualifier_cn.as_ref().unwrap())
-                                //     .unwrap();
-
-                                ui.checkbox(read_only, "read only".to_string());
-
-                                ui.end_row();
+                                if ui
+                                    .checkbox(
+                                        &mut read_only,
+                                        egui::RichText::new("read only").italics(),
+                                    )
+                                    .changed()
+                                {
+                                    app.edited_directory_toogle_read_only = Some((
+                                        acl.qualifier_cn.as_ref().unwrap().to_string(),
+                                        read_only,
+                                    ));
+                                };
                             }
                             storm_daenerys_common::types::acl::Qualifier::Group(_) => {
                                 // Group icon.
@@ -196,17 +158,39 @@ pub fn display_central_panel(
                                 // Group cn.
                                 ui.label(acl.qualifier_cn.as_ref().unwrap());
 
-                                ui.checkbox(read_only, "read only".to_string());
-
-                                ui.end_row();
+                                if ui
+                                    .checkbox(
+                                        &mut read_only,
+                                        egui::RichText::new("read only").italics(),
+                                    )
+                                    .changed()
+                                {
+                                    app.edited_directory_toogle_read_only = Some((
+                                        acl.qualifier_cn.as_ref().unwrap().to_string(),
+                                        read_only,
+                                    ));
+                                };
                             }
                             _ => (),
                         }
+
+                        // Delete acl button.
+                        let button_label =
+                            format!("{} {}", crate::defines::AF_DELETE_CODE, "delete entry");
+
+                        if ui.button(button_label).clicked() {
+                            app.edited_directory_remove_acl =
+                                Some(acl.qualifier_cn.as_ref().unwrap().to_string());
+                        }
+
+                        ui.end_row();
                     }
                 });
         }
 
+        //
         // Group edition.
+        //
         if let Some(group_clicked) = &app.edit_group_clicked {}
     });
 }
