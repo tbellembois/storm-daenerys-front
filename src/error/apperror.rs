@@ -6,6 +6,7 @@ pub enum AppError {
     ChannelReceiveError,
     ChannelSendError,
     InternalError(String),
+    // WrongEntryError(String),
 }
 
 // Implement std::fmt::Display for AppError
@@ -14,9 +15,10 @@ impl fmt::Display for AppError {
         match self {
             AppError::TestError => write!(f, "just a test error, nothing anormal"),
             AppError::ChannelClosed => write!(f, "channel closed"),
-            AppError::ChannelReceiveError =>  write!(f, "channel receive error"),
-            AppError::ChannelSendError =>  write!(f, "channel send error"),
+            AppError::ChannelReceiveError => write!(f, "channel receive error"),
+            AppError::ChannelSendError => write!(f, "channel send error"),
             AppError::InternalError(e) => write!(f, "internal error: {}", e),
+            // AppError::WrongEntryError(e) => write!(f, "wrong entry error: {}", e),
         }
     }
 }

@@ -1,10 +1,8 @@
-use std::collections::HashMap;
-
 use storm_daenerys_common::types::{acl::Qualifier, directory::Directory};
 
 use crate::{
+    api,
     defines::{AF_GROUP_CODE, AF_USER_CODE},
-    error::apperror::AppError,
     ui::daenerys::DaenerysApp,
 };
 
@@ -66,40 +64,6 @@ pub fn display_central_panel(
                 app.edit_group_clicked = None;
             }
         }
-
-        //
-        // Group details
-        //
-        if let Some(g) = &app.group_button_clicked {
-            ui.heading(g);
-
-            ui.separator();
-
-            let group = app.groups_map.get(g).unwrap(); // this should never panic as the key always exists
-
-            ui.label(egui::RichText::new(group.description.clone()).italics());
-
-            match &group.member {
-                Some(members) => {
-                    for member in members {
-                        ui.label(member);
-                    }
-                }
-                None => {
-                    ui.label("no members".to_string());
-                }
-            }
-
-            ui.separator();
-
-            // Edit group button.
-            let button_label = format!("{} {}", crate::defines::AF_EDIT_CODE, "edit group");
-
-            if ui.button(button_label).clicked() {
-                app.edit_group_clicked = Some(g.to_string());
-                app.edit_directory_clicked = None;
-            }
-        };
 
         //
         // Directory edition.
@@ -186,7 +150,84 @@ pub fn display_central_panel(
                         ui.end_row();
                     }
                 });
+
+            ui.separator();
+
+            ui.horizontal_top(|ui| {
+                // Add user button.
+                let button_label = format!("{} {}", crate::defines::AF_ADD_CODE, "add user");
+
+                if !app.add_user_clicked && ui.button(button_label).clicked() {
+                    app.add_user_clicked = true;
+                }
+
+                // Add group button.
+                let button_label = format!("{} {}", crate::defines::AF_ADD_CODE, "add group");
+
+                if !app.add_user_clicked && ui.button(button_label).clicked() {}
+            });
+
+            //
+            // Add user.
+            //
+            if app.add_user_clicked {
+                // Search user form.
+                ui.horizontal_top(|ui| {
+                    ui.add(
+                        egui::TextEdit::singleline(&mut app.user_search)
+                            .hint_text("enter at least 2 characters and click search"),
+                    );
+                    // Search user button.
+                    let button_label = format!("{} {}", crate::defines::AF_SEARCH_CODE, "search");
+
+                    if ui.button(button_label).clicked() {
+                        app.get_users_promise =
+                            Some(api::user::get_users(ctx, app.user_search.clone()));
+                    }
+                });
+
+                // Cancel button.
+                let button_label = format!("{} {}", crate::defines::AF_CANCEL_CODE, "cancel");
+
+                if ui.button(button_label).clicked() {
+                    app.add_user_clicked = false;
+                }
+            }
         }
+
+        //
+        // Group details
+        //
+        if let Some(g) = &app.group_button_clicked {
+            ui.heading(g);
+
+            ui.separator();
+
+            let group = app.groups_map.get(g).unwrap(); // this should never panic as the key always exists
+
+            ui.label(egui::RichText::new(group.description.clone()).italics());
+
+            match &group.member {
+                Some(members) => {
+                    for member in members {
+                        ui.label(member);
+                    }
+                }
+                None => {
+                    ui.label("no members".to_string());
+                }
+            }
+
+            ui.separator();
+
+            // Edit group button.
+            let button_label = format!("{} {}", crate::defines::AF_EDIT_CODE, "edit group");
+
+            if ui.button(button_label).clicked() {
+                app.edit_group_clicked = Some(g.to_string());
+                app.edit_directory_clicked = None;
+            }
+        };
 
         //
         // Group edition.

@@ -5,6 +5,7 @@ use std::thread;
 
 use storm_daenerys_common::types::acl::Qualifier;
 use storm_daenerys_common::types::group::Group;
+use storm_daenerys_common::types::user::User;
 use storm_daenerys_common::types::{acl::AclEntry, directory::Directory};
 
 use eframe::CreationContext;
@@ -43,10 +44,15 @@ pub struct DaenerysApp {
     // The same list as a map.
     pub groups_map: HashMap<String, Group>,
 
+    // User list.
+    pub users: Option<Vec<User>>,
+
     // Promise returned when calling the backend GET /folders endpoint.
     pub get_directories_promise: Option<Promise<Result<Option<Vec<Directory>>, String>>>,
     // Promise returned when calling the backend GET /groups endpoint.
     pub get_groups_promise: Option<Promise<Result<Option<Vec<Group>>, String>>>,
+    // Promise returned when calling the backend GET /userss endpoint.
+    pub get_users_promise: Option<Promise<Result<Option<Vec<User>>, String>>>,
 
     // Channels for communication beetween
     // application (GUI) and worker.
@@ -73,11 +79,16 @@ pub struct DaenerysApp {
     pub edit_directory_clicked: Option<Box<Directory>>,
     // Edit group clicked.
     pub edit_group_clicked: Option<String>,
+    // Add user clicked.
+    pub add_user_clicked: bool,
 
     // Clicking on the delete ACL button: ACL qualifier_cn to remove of the edited directory.
     pub edited_directory_remove_acl: Option<String>,
     // Clicking on the ACL read_only checkbox: ACL qualifier_cn of the read_only to set of the edited directory.
     pub edited_directory_toogle_read_only: Option<(String, bool)>,
+
+    // User search input of the add user form.
+    pub user_search: String,
 }
 
 impl DaenerysApp {
@@ -215,31 +226,33 @@ impl eframe::App for DaenerysApp {
 
         // Check directory acl read_only change.
         if let Some(edited_directory_toogle_read_only) = &self.edited_directory_toogle_read_only {
-            let (qualifier_cn, read_only) = edited_directory_toogle_read_only;
+            if self.edit_directory_clicked.is_some() {
+                let (qualifier_cn, read_only) = edited_directory_toogle_read_only;
 
-            for acl in self
-                .edit_directory_clicked
-                .as_mut()
-                .unwrap()
-                .acls
-                .iter_mut()
-            {
-                // FIXME
-                // Keep only necessary acls.
-                match acl.qualifier {
-                    Qualifier::User(_) => (),
-                    Qualifier::Group(_) => (),
-                    _ => continue,
-                }
+                for acl in self
+                    .edit_directory_clicked
+                    .as_mut()
+                    .unwrap()
+                    .acls
+                    .iter_mut()
+                {
+                    // FIXME
+                    // Keep only necessary acls.
+                    match acl.qualifier {
+                        Qualifier::User(_) => (),
+                        Qualifier::Group(_) => (),
+                        _ => continue,
+                    }
 
-                if acl.qualifier_cn.as_ref().unwrap().eq(qualifier_cn) {
-                    if *read_only {
-                        acl.perm = 4;
-                    } else {
-                        acl.perm = 6;
+                    if acl.qualifier_cn.as_ref().unwrap().eq(qualifier_cn) {
+                        if *read_only {
+                            acl.perm = 4;
+                        } else {
+                            acl.perm = 6;
+                        }
                     }
                 }
-            }
+            };
         }
 
         // Render page.

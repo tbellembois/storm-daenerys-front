@@ -2,9 +2,10 @@ use poll_promise::Promise;
 
 use storm_daenerys_common::types::directory::Directory;
 
-pub fn get_root_directories(ctx: &egui::Context) -> Promise<Result<Option<Vec<Directory>>, String>> {
-    
-    dbg!("Get initial directory list.");
+pub fn get_root_directories(
+    ctx: &egui::Context,
+) -> Promise<Result<Option<Vec<Directory>>, String>> {
+    dbg!("Get directory list.");
 
     // Begin download.
     // We download the image using `ehttp`, a library that works both in WASM and on native.
@@ -18,13 +19,13 @@ pub fn get_root_directories(ctx: &egui::Context) -> Promise<Result<Option<Vec<Di
         sender.send(folders);
         ctx.request_repaint(); // wake up UI thread
     });
-    
-    promise
 
+    promise
 }
 
-fn parse_get_directories_response(response: ehttp::Response) -> Result<Option<Vec<Directory>>, String> {
-
+fn parse_get_directories_response(
+    response: ehttp::Response,
+) -> Result<Option<Vec<Directory>>, String> {
     let maybe_text_response = response.text();
 
     tracing::debug!("{:?}", maybe_text_response);
@@ -36,5 +37,4 @@ fn parse_get_directories_response(response: ehttp::Response) -> Result<Option<Ve
         },
         None => Ok(None),
     }
-
 }
