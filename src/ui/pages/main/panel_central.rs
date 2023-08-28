@@ -192,6 +192,15 @@ pub fn display_central_panel(
                 if ui.button(button_label).clicked() {
                     app.add_user_clicked = false;
                 }
+
+                // User list.
+                if app.users.is_some() {
+                    for user in app.users.as_ref().unwrap() {
+                        if ui.link(user.clone().display).clicked() {
+                            
+                        }
+                    }
+                }
             }
         }
 

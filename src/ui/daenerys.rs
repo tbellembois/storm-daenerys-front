@@ -210,6 +210,24 @@ impl eframe::App for DaenerysApp {
             }
         }
 
+        if let Some(p) = &self.get_users_promise {
+            println!("get_users_promise");
+
+            match p.ready() {
+                None => (),
+                Some(try_users) => {
+                    match try_users {
+                        Ok(users) => {
+                            self.users = users.clone();
+                            
+                            self.get_users_promise = None;
+                        }
+                        Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
+                    };
+                }
+            }
+        }
+
         // Check directory acl removal.
         if let Some(edited_directory_remove_acl) = &self.edited_directory_remove_acl {
             self.edit_directory_clicked

@@ -22,8 +22,12 @@ pub fn get_users(ctx: &egui::Context, q: String) -> Promise<Result<Option<Vec<Us
 }
 
 fn parse_get_users_response(response: ehttp::Response) -> Result<Option<Vec<User>>, String> {
+    let status = &response.status;
+    let status_text = &response.status_text;
     let maybe_text_response = response.text();
 
+    tracing::debug!("{:?}", status);
+    tracing::debug!("{:?}", status_text);
     tracing::debug!("{:?}", maybe_text_response);
 
     match maybe_text_response {
