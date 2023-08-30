@@ -1,6 +1,6 @@
 use poll_promise::Promise;
 
-use storm_daenerys_common::types::user::User;
+use storm_daenerys_common::types::{user::User, error::CommonError};
 
 pub fn get_users(ctx: &egui::Context, q: String) -> Promise<Result<Option<Vec<User>>, String>> {
     dbg!("Get user list.");
@@ -30,11 +30,25 @@ fn parse_get_users_response(response: ehttp::Response) -> Result<Option<Vec<User
     tracing::debug!("{:?}", status_text);
     tracing::debug!("{:?}", maybe_text_response);
 
-    match maybe_text_response {
-        Some(text_response) => match serde_json::from_str(text_response) {
-            Ok(json_response) => Ok(json_response),
-            Err(e) => Err(e.to_string()),
+    match status {
+        200 => match maybe_text_response {
+            Some(text_response) => match serde_json::from_str(text_response) {
+                Ok(json_response) => Ok(json_response),
+                Err(e) => Err(e.to_string()),
+            },
+            None => Ok(None),
         },
-        None => Ok(None),
+        _ => match maybe_text_response {
+            Some(text_response) => { 
+                let common_error: CommonError = match serde_json::from_str::<CommonError>(text_response) {
+                    Ok(common_error) => common_error,
+                    Err(e) => CommonError::InternalServerError(e.to_string()),
+                };
+                Err(common_error.to_string())
+            },
+            None => Ok(None),
+        },
+
     }
+
 }

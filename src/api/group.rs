@@ -1,6 +1,6 @@
 use poll_promise::Promise;
 
-use storm_daenerys_common::types::group::Group;
+use storm_daenerys_common::types::{group::Group, error::CommonError};
 
 pub fn get_groups(ctx: &egui::Context) -> Promise<Result<Option<Vec<Group>>, String>> {
     dbg!("Get group list.");
@@ -22,15 +22,33 @@ pub fn get_groups(ctx: &egui::Context) -> Promise<Result<Option<Vec<Group>>, Str
 }
 
 fn parse_get_groups_response(response: ehttp::Response) -> Result<Option<Vec<Group>>, String> {
+    let status = &response.status;
+    let status_text = &response.status_text;
     let maybe_text_response = response.text();
 
+    tracing::debug!("{:?}", status);
+    tracing::debug!("{:?}", status_text);
     tracing::debug!("{:?}", maybe_text_response);
 
-    match maybe_text_response {
-        Some(text_response) => match serde_json::from_str(text_response) {
-            Ok(json_response) => Ok(json_response),
-            Err(e) => Err(e.to_string()),
+    match status {
+        200 => match maybe_text_response {
+            Some(text_response) => match serde_json::from_str(text_response) {
+                Ok(json_response) => Ok(json_response),
+                Err(e) => Err(e.to_string()),
+            },
+            None => Ok(None),
         },
-        None => Ok(None),
+        _ => match maybe_text_response {
+            Some(text_response) => { 
+                let common_error: CommonError = match serde_json::from_str::<CommonError>(text_response) {
+                    Ok(common_error) => common_error,
+                    Err(e) => CommonError::InternalServerError(e.to_string()),
+                };
+                Err(common_error.to_string())
+            },
+            None => Ok(None),
+        },
+
     }
+    
 }

@@ -17,7 +17,7 @@ impl fmt::Display for AppError {
             AppError::ChannelClosed => write!(f, "channel closed"),
             AppError::ChannelReceiveError => write!(f, "channel receive error"),
             AppError::ChannelSendError => write!(f, "channel send error"),
-            AppError::InternalError(e) => write!(f, "internal error: {}", e),
+            AppError::InternalError(e) => write!(f, "error: {}", e),
             // AppError::WrongEntryError(e) => write!(f, "wrong entry error: {}", e),
         }
     }
