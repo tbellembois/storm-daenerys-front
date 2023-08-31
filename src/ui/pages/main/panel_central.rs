@@ -171,7 +171,9 @@ pub fn display_central_panel(
                 // Add group button.
                 let button_label = format!("{} {}", crate::defines::AF_ADD_CODE, "add group");
 
-                if !app.add_user_clicked && ui.button(button_label).clicked() {}
+                if !app.add_user_clicked && ui.button(button_label).clicked() {
+                    app.add_group_clicked = true;
+                }
             });
 
             //
@@ -208,8 +210,33 @@ pub fn display_central_panel(
                 if ui.button(done_label).clicked() {
                     app.add_user_clicked = false;
                 }
-            } else {
-                // Save button.
+            }
+
+            //
+            // Add group.
+            //
+            if app.add_group_clicked {
+                // Group list.
+                if app.groups.is_some() {
+                    for group in app.groups.as_ref().unwrap() {
+                        if ui.link(group.clone().cn).clicked() {
+                            app.edited_directory_add_group = Some(group.cn.clone());
+                        }
+                    }
+                }
+
+                // Done button.
+                let done_label = format!("{} {}", crate::defines::AF_CANCEL_CODE, "done");
+
+                if ui.button(done_label).clicked() {
+                    app.add_group_clicked = false;
+                }
+            }
+
+            //
+            // Save button.
+            //
+            if !app.add_group_clicked && !app.add_user_clicked {
                 let button_label = format!("{} {}", crate::defines::AF_SAVE_CODE, "save");
 
                 if ui.button(button_label).clicked() {

@@ -87,6 +87,8 @@ pub struct DaenerysApp {
     pub edit_group_clicked: Option<String>,
     // Add user clicked.
     pub add_user_clicked: bool,
+    // Add group clicked.
+    pub add_group_clicked: bool,
 
     // Clicking on the delete ACL button: ACL qualifier_cn to remove of the edited directory.
     pub edited_directory_remove_acl: Option<String>,
@@ -94,6 +96,8 @@ pub struct DaenerysApp {
     pub edited_directory_toogle_read_only: Option<(String, bool)>,
     // Clicking on a user (after user search click): user id to add in the edited directory.
     pub edited_directory_add_user: Option<String>,
+    // Clicking on a group : group cn to add in the edited directory.
+    pub edited_directory_add_group: Option<String>,
 
     // User search input of the add user form.
     pub user_search: String,
@@ -298,7 +302,7 @@ impl eframe::App for DaenerysApp {
                     .unwrap()
                     .acls
                     .push(AclEntry {
-                        qualifier: storm_daenerys_common::types::acl::Qualifier::User(0),
+                        qualifier: storm_daenerys_common::types::acl::Qualifier::User(0), // FIXME
                         qualifier_cn: Some(edited_directory_add_user.to_string()),
                         perm: 7,
                     });
@@ -308,6 +312,38 @@ impl eframe::App for DaenerysApp {
             }
 
             self.edited_directory_add_user = None;
+        }
+
+        // Check directory add group.
+        if let Some(edited_directory_add_group) = &self.edited_directory_add_group {
+            // Find already exist.
+            let mut found: bool = false;
+            for acl in &self.edit_directory_clicked.as_ref().unwrap().acls {
+                if let Qualifier::Group(_) = acl.qualifier {
+                    if acl
+                        .qualifier_cn
+                        .as_ref()
+                        .unwrap()
+                        .eq(edited_directory_add_group)
+                    {
+                        found = true;
+                    }
+                }
+            }
+
+            if !found {
+                self.edit_directory_clicked
+                    .as_mut()
+                    .unwrap()
+                    .acls
+                    .push(AclEntry {
+                        qualifier: storm_daenerys_common::types::acl::Qualifier::Group(0), // FIXME
+                        qualifier_cn: Some(edited_directory_add_group.to_string()),
+                        perm: 7,
+                    });
+            }
+
+            self.edited_directory_add_group = None;
         }
 
         // Check directory acl read_only change.
