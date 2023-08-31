@@ -1,7 +1,10 @@
-use storm_daenerys_common::types::{acl::Qualifier, directory::Directory};
+use storm_daenerys_common::types::{
+    acl::{Qualifier, SetAcl},
+    directory::Directory,
+};
 
 use crate::{
-    api,
+    api::{self, acl::save_acl},
     defines::{AF_GROUP_CODE, AF_USER_CODE},
     ui::daenerys::DaenerysApp,
 };
@@ -29,7 +32,9 @@ pub fn display_central_panel(
                             ui.label(acl.qualifier_cn.as_ref().unwrap());
 
                             match acl.perm {
-                                4 | 5 | 7 => ui.label(egui::RichText::new("(read only)").italics()),
+                                0 | 1 | 4 | 5 => {
+                                    ui.label(egui::RichText::new("(read only)").italics())
+                                }
                                 _ => ui.label(""),
                             };
 
@@ -40,7 +45,9 @@ pub fn display_central_panel(
                             ui.label(acl.qualifier_cn.as_ref().unwrap());
 
                             match acl.perm {
-                                4 | 5 | 7 => ui.label(egui::RichText::new("(read only)").italics()),
+                                0 | 1 | 4 | 5 => {
+                                    ui.label(egui::RichText::new("(read only)").italics())
+                                }
                                 _ => ui.label(""),
                             };
 
@@ -92,7 +99,7 @@ pub fn display_central_panel(
                         let mut read_only: bool;
 
                         match acl.perm {
-                            4 | 5 | 7 => read_only = true,
+                            0 | 1 | 4 | 5 => read_only = true,
                             _ => read_only = false,
                         };
 
@@ -186,20 +193,35 @@ pub fn display_central_panel(
                     }
                 });
 
-                // Cancel button.
-                let button_label = format!("{} {}", crate::defines::AF_CANCEL_CODE, "cancel");
-
-                if ui.button(button_label).clicked() {
-                    app.add_user_clicked = false;
-                }
-
                 // User list.
                 if app.users.is_some() {
                     for user in app.users.as_ref().unwrap() {
                         if ui.link(user.clone().display).clicked() {
-                            
+                            app.edited_directory_add_user = Some(user.id.clone());
                         }
                     }
+                }
+
+                // Done button.
+                let done_label = format!("{} {}", crate::defines::AF_CANCEL_CODE, "done");
+
+                if ui.button(done_label).clicked() {
+                    app.add_user_clicked = false;
+                }
+            } else {
+                // Save button.
+                let button_label = format!("{} {}", crate::defines::AF_SAVE_CODE, "save");
+
+                if ui.button(button_label).clicked() {
+                    app.current_info =
+                        Some(format!("saving acl for {}", edit_directory_clicked.name));
+
+                    let set_acl = SetAcl {
+                        name: edit_directory_clicked.name.clone(),
+                        acls: edit_directory_clicked.acls.clone(),
+                    };
+
+                    app.save_directory_acl_promise = Some(save_acl(ctx, set_acl));
                 }
             }
         }

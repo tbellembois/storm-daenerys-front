@@ -9,7 +9,7 @@ use storm_daenerys_common::types::user::User;
 use storm_daenerys_common::types::{acl::AclEntry, directory::Directory};
 
 use eframe::CreationContext;
-use egui::{FontFamily, FontId, TextStyle};
+use egui::{FontFamily, FontId, TextStyle, Visuals};
 use poll_promise::Promise;
 
 use crate::api;
@@ -34,6 +34,9 @@ pub struct DaenerysApp {
     // Current active page.
     page: Page,
 
+    // Current theme:
+    pub theme: Visuals,
+
     // Directory list.
     pub directories: Option<Vec<Directory>>,
     // The same list as a map.
@@ -51,8 +54,11 @@ pub struct DaenerysApp {
     pub get_directories_promise: Option<Promise<Result<Option<Vec<Directory>>, String>>>,
     // Promise returned when calling the backend GET /groups endpoint.
     pub get_groups_promise: Option<Promise<Result<Option<Vec<Group>>, String>>>,
-    // Promise returned when calling the backend GET /userss endpoint.
+    // Promise returned when calling the backend GET /users endpoint.
     pub get_users_promise: Option<Promise<Result<Option<Vec<User>>, String>>>,
+
+    // Promise returned when calling the backend POST /acls endpoint.
+    pub save_directory_acl_promise: Option<Promise<Result<(), String>>>,
 
     // Channels for communication beetween
     // application (GUI) and worker.
@@ -86,6 +92,8 @@ pub struct DaenerysApp {
     pub edited_directory_remove_acl: Option<String>,
     // Clicking on the ACL read_only checkbox: ACL qualifier_cn of the read_only to set of the edited directory.
     pub edited_directory_toogle_read_only: Option<(String, bool)>,
+    // Clicking on a user (after user search click): user id to add in the edited directory.
+    pub edited_directory_add_user: Option<String>,
 
     // User search input of the add user form.
     pub user_search: String,
@@ -127,6 +135,9 @@ impl DaenerysApp {
         setup_custom_fonts(&cc.egui_ctx);
         setup_custom_styles(&cc.egui_ctx);
 
+        // Set default theme.
+        app.theme = Visuals::dark();
+
         app
     }
 }
@@ -155,7 +166,7 @@ impl eframe::App for DaenerysApp {
             }
         }
 
-        // Check promises.
+        // Get directories promises.
         if let Some(p) = &self.get_directories_promise {
             println!("get_directories_promise");
 
@@ -184,6 +195,28 @@ impl eframe::App for DaenerysApp {
             }
         }
 
+        // Save acl promise.
+        if let Some(p) = &self.save_directory_acl_promise {
+            println!("save_acl_promise");
+
+            match p.ready() {
+                None => (),
+                Some(try_result) => {
+                    match try_result {
+                        Ok(_) => {
+                            self.current_info = Some("acl set successfully".to_string());
+                            self.save_directory_acl_promise = None;
+                        }
+                        Err(e) => {
+                            self.current_error = Some(AppError::InternalError(e.to_string()));
+                            self.current_info = None;
+                        }
+                    };
+                }
+            }
+        }
+
+        // Get groups promises.
         if let Some(p) = &self.get_groups_promise {
             println!("get_groups_promise");
 
@@ -219,7 +252,7 @@ impl eframe::App for DaenerysApp {
                     match try_users {
                         Ok(users) => {
                             self.users = users.clone();
-                            
+
                             self.get_users_promise = None;
                         }
                         Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
@@ -240,6 +273,41 @@ impl eframe::App for DaenerysApp {
                 });
 
             self.edited_directory_remove_acl = None;
+        }
+
+        // Check directory add user.
+        if let Some(edited_directory_add_user) = &self.edited_directory_add_user {
+            // Find already exist.
+            let mut found: bool = false;
+            for acl in &self.edit_directory_clicked.as_ref().unwrap().acls {
+                if let Qualifier::User(_) = acl.qualifier {
+                    if acl
+                        .qualifier_cn
+                        .as_ref()
+                        .unwrap()
+                        .eq(edited_directory_add_user)
+                    {
+                        found = true;
+                    }
+                }
+            }
+
+            if !found {
+                self.edit_directory_clicked
+                    .as_mut()
+                    .unwrap()
+                    .acls
+                    .push(AclEntry {
+                        qualifier: storm_daenerys_common::types::acl::Qualifier::User(0),
+                        qualifier_cn: Some(edited_directory_add_user.to_string()),
+                        perm: 7,
+                    });
+
+                self.user_search = "".to_string();
+                self.users = None;
+            }
+
+            self.edited_directory_add_user = None;
         }
 
         // Check directory acl read_only change.
@@ -264,9 +332,9 @@ impl eframe::App for DaenerysApp {
 
                     if acl.qualifier_cn.as_ref().unwrap().eq(qualifier_cn) {
                         if *read_only {
-                            acl.perm = 4;
+                            acl.perm = 5;
                         } else {
-                            acl.perm = 6;
+                            acl.perm = 7;
                         }
                     }
                 }
