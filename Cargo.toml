@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 eframe = "0.22.0"
 egui = "0.22.0"
-egui_extras = { version = "0.22.0", features = ["svg"] }
+egui_extras = { version = "0.22.0", features = ["svg", "image"] }
 ehttp = "0.3.0"
 poll-promise = "0.2.0"
 posix-acl = "1.1"

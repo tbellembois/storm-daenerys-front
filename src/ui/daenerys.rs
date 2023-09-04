@@ -114,10 +114,17 @@ impl DaenerysApp {
     pub fn new(cc: &CreationContext) -> Self {
         // Create application.
         let mut app = DaenerysApp {
+            // storm_logo: Some(
+            //     egui_extras::RetainedImage::from_svg_bytes(
+            //         "storm.svg",
+            //         include_bytes!("media/storm.svg"),
+            //     )
+            //     .unwrap(),
+            // ),
             storm_logo: Some(
-                egui_extras::RetainedImage::from_svg_bytes(
-                    "storm.svg",
-                    include_bytes!("media/storm.svg"),
+                egui_extras::RetainedImage::from_image_bytes(
+                    "storm.png",
+                    include_bytes!("media/storm.png"),
                 )
                 .unwrap(),
             ),
@@ -473,6 +480,10 @@ fn setup_custom_fonts(ctx: &egui::Context) {
     );
 
     fonts.font_data.insert(
+        "LiberationSans-Regular".to_owned(),
+        egui::FontData::from_static(include_bytes!("fonts/LiberationSans-Regular.ttf")),
+    );
+    fonts.font_data.insert(
         "LiberationSans-Bold".to_owned(),
         egui::FontData::from_static(include_bytes!("fonts/LiberationSans-Bold.ttf")),
     );
@@ -518,7 +529,12 @@ fn setup_custom_fonts(ctx: &egui::Context) {
         .families
         .entry(egui::FontFamily::Proportional)
         .or_default()
-        .insert(7, "LiberationSans-Bold".to_owned());
+        .insert(7, "LiberationSans-Regular".to_owned());
+    fonts
+        .families
+        .entry(egui::FontFamily::Proportional)
+        .or_default()
+        .insert(8, "LiberationSans-Bold".to_owned());
 
     // Put my font as last fallback for monospace:
     fonts
