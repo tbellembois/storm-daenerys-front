@@ -2,13 +2,16 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="41.529217mm"
-   height="18.912104mm"
-   viewBox="0 0 41.529217 18.912104"
+   width="297mm"
+   height="210mm"
+   viewBox="0 0 297 210"
    version="1.1"
    id="svg5"
-   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
-   sodipodi:docname="logo.svg"
+   inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
+   sodipodi:docname="storm.svg"
+   inkscape:export-filename="storm.svg"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -25,16 +28,17 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="3.5354761"
-     inkscape:cx="40.44717"
-     inkscape:cy="61.377873"
+     inkscape:cx="134.77676"
+     inkscape:cy="61.236448"
      inkscape:window-width="1904"
-     inkscape:window-height="1115"
-     inkscape:window-x="8"
+     inkscape:window-height="995"
+     inkscape:window-x="1928"
      inkscape:window-y="40"
      inkscape:window-maximized="0"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="g8775"
      inkscape:showpageshadow="2"
-     inkscape:deskcolor="#d1d1d1" />
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:export-bgcolor="#ffffff00" />
   <defs
      id="defs2">
     <path
@@ -103,13 +107,23 @@
        inkscape:export-filename="/tmp/storm.png"
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96">
+      <rect
+         style="font-variation-settings:'wght' 700;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.198247;stroke-opacity:1"
+         id="rect1"
+         width="44.890011"
+         height="24.658392"
+         x="86.666519"
+         y="115.69109"
+         inkscape:export-filename="storm.svg"
+         inkscape:export-xdpi="96"
+         inkscape:export-ydpi="96" />
       <path
-         d="m 87.711236,111.14316 c 0,-3.8678 2.826186,-7.07479 6.529721,-7.6684 0.33974,-0.0523 0.638412,0.224 0.638412,0.57121 v 2.36324 c 0,0.31361 0.242672,0.57121 0.54881,0.61601 3.744604,0.55255 6.619321,3.78194 6.619321,7.67961 0,3.86781 -2.826183,7.0748 -6.529719,7.66841 -0.343473,0.056 -0.638412,-0.22027 -0.638412,-0.56748 v -2.36697 c 0,-0.31361 -0.242671,-0.57122 -0.54881,-0.61602 -3.744603,-0.55254 -6.619323,-3.78193 -6.619323,-7.67961 z m 10.752199,1.79204 a 3.5840666,3.5840666 0 1 0 -7.168132,0 3.5840666,3.5840666 0 1 0 7.168132,0 z m -3.584066,-1.19469 a 1.19469,1.19469 0 1 1 0,2.38938 1.19469,1.19469 0 1 1 0,-2.38938 z"
+         d="m 100.62104,125.93514 c 0,-3.8678 2.82619,-7.07479 6.52972,-7.6684 0.33974,-0.0523 0.63841,0.224 0.63841,0.57121 v 2.36324 c 0,0.31361 0.24268,0.57121 0.54881,0.61601 3.74461,0.55255 6.61932,3.78194 6.61932,7.67961 0,3.86781 -2.82618,7.0748 -6.52971,7.66841 -0.34348,0.056 -0.63842,-0.22027 -0.63842,-0.56748 v -2.36697 c 0,-0.31361 -0.24267,-0.57122 -0.54881,-0.61602 -3.7446,-0.55254 -6.61932,-3.78193 -6.61932,-7.67961 z m 10.7522,1.79204 a 3.5840666,3.5840666 0 1 0 -7.16813,0 3.5840666,3.5840666 0 1 0 7.16813,0 z m -3.58407,-1.19469 a 1.19469,1.19469 0 1 1 0,2.38938 1.19469,1.19469 0 1 1 0,-2.38938 z"
          id="path840"
          style="stroke-width:0.037334" />
       <path
          class="st0"
-         d="m 93.189925,120.95304 c 0,0.20758 -0.167288,0.37487 -0.374871,0.37487 -0.207584,0 -0.374871,-0.16851 -0.374871,-0.37487 0,-0.20759 0.168508,-0.37487 0.374871,-0.37487 0.207583,-0.001 0.374871,0.16728 0.374871,0.37487"
+         d="m 106.09973,135.74502 c 0,0.20758 -0.16729,0.37487 -0.37487,0.37487 -0.20759,0 -0.37487,-0.16851 -0.37487,-0.37487 0,-0.20759 0.16851,-0.37487 0.37487,-0.37487 0.20758,-0.001 0.37487,0.16728 0.37487,0.37487"
          id="path965"
          style="stroke-width:0.0122108" />
       <rect
@@ -120,10 +134,10 @@
          height="231.39999"
          clip-path="url(#SVGID_00000168830874702397088330000011577343275046569908_)"
          id="rect980"
-         transform="matrix(0.01221079,0,0,0.01221079,85.815829,118.49989)" />
+         transform="matrix(0.01221079,0,0,0.01221079,98.725633,133.29187)" />
       <g
          id="g963"
-         transform="matrix(0.02227349,0,0,0.02227349,92.334448,95.715291)">
+         transform="matrix(0.02227349,0,0,0.02227349,105.24425,110.50727)">
         <path
            class="st0"
            d="m 182.9,465.1 v -26.6 l -7.9,13.8 h -8.8 l -7.9,-13.8 v 26.6 H 144.6 V 409.5 H 158 L 170.5,434 183,409.5 h 13.4 v 55.6 z"
@@ -166,8 +180,8 @@
            id="path961" />
       </g>
       <rect
-         x="99.205818"
-         y="103.78275"
+         x="112.11562"
+         y="118.57474"
          class="st3"
          width="4.0493202"
          height="0.089093961"
@@ -175,37 +189,29 @@
          style="stroke-width:0.0222735" />
       <text
          xml:space="preserve"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.5833px;line-height:1.25;font-family:B612;-inkscape-font-specification:'B612, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
-         x="75.387405"
-         y="117.07782"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.5833px;line-height:1.25;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+         x="86.709709"
+         y="131.8698"
          id="text2012"><tspan
            sodipodi:role="line"
            id="tspan2010"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.5833px;font-family:B612;-inkscape-font-specification:'B612, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583"
-           x="75.387405"
-           y="117.07782">ST</tspan></text>
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.5833px;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583"
+           x="86.709709"
+           y="131.8698">ST</tspan></text>
       <text
          xml:space="preserve"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.5833px;line-height:1.25;font-family:B612;-inkscape-font-specification:'B612, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
-         x="102.30109"
-         y="117.13074"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.5833px;line-height:1.25;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+         x="115.21089"
+         y="131.92271"
          id="text3786"><tspan
            sodipodi:role="line"
            id="tspan3784"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.5833px;font-family:B612;-inkscape-font-specification:'B612, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583"
-           x="102.30109"
-           y="117.13074">RM</tspan></text>
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.58330002px;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583"
+           x="115.21089"
+           y="131.92271">RM</tspan></text>
     </g>
   </g>
   <style
      type="text/css"
-     id="style941">
-	.st0{fill:#5497A0;}
-	
-		.st1{clip-path:url(#SVGID_00000090269743448219021940000006031872350393876404_);fill:url(#SVGID_00000183243709503626271370000006372045512019595192_);}
-	.st2{opacity:0.9;fill:url(#SVGID_00000025416795856952458350000005925631089401273984_);}
-	.st3{fill:#CECECD;}
-	.st4{fill:#706F6E;}
-	.st5{fill:#6F6F6E;}
-</style>
+     id="style941">&#10;	.st0{fill:#5497A0;}&#10;	&#10;		.st1{clip-path:url(#SVGID_00000090269743448219021940000006031872350393876404_);fill:url(#SVGID_00000183243709503626271370000006372045512019595192_);}&#10;	.st2{opacity:0.9;fill:url(#SVGID_00000025416795856952458350000005925631089401273984_);}&#10;	.st3{fill:#CECECD;}&#10;	.st4{fill:#706F6E;}&#10;	.st5{fill:#6F6F6E;}&#10;</style>
 </svg>

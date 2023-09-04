@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::sync::mpsc::{self, Receiver, Sender};
 use std::sync::Once;
 use std::thread;
@@ -11,7 +10,6 @@ use storm_daenerys_common::types::{acl::AclEntry, directory::Directory};
 use eframe::CreationContext;
 use egui::{FontFamily, FontId, TextStyle, Visuals};
 use poll_promise::Promise;
-use tracing::debug;
 
 use crate::api;
 use crate::error::apperror::AppError;
@@ -40,13 +38,9 @@ pub struct DaenerysApp {
 
     // Directory list.
     pub directories: Option<Vec<Directory>>,
-    // The same list as a map.
-    // pub directories_map: HashMap<String, Vec<AclEntry>>,
 
     // Group list.
     pub groups: Option<Vec<Group>>,
-    // The same list as a map.
-    // pub groups_map: HashMap<String, Group>,
 
     // User list.
     pub users: Option<Vec<User>>,
@@ -60,6 +54,9 @@ pub struct DaenerysApp {
 
     // Promise returned when calling the backend POST /acls endpoint.
     pub save_directory_acl_promise: Option<Promise<Result<(), String>>>,
+
+    // Promises returned when calling save_group.
+    pub save_group_promises: Option<Vec<Promise<Result<(), std::string::String>>>>,
 
     // Channels for communication beetween
     // application (GUI) and worker.
@@ -86,6 +83,8 @@ pub struct DaenerysApp {
     pub edit_directory_clicked: Option<Box<Directory>>,
     // Edit group clicked.
     pub edit_group_clicked: Option<Group>,
+    // Edit group clicked - backup before edition.
+    pub edit_group_clicked_backup: Option<Group>,
     // Add user clicked.
     pub edit_directory_add_user_clicked: bool,
     // Add group clicked.
@@ -188,17 +187,8 @@ impl eframe::App for DaenerysApp {
                     match try_directories {
                         Ok(directories) => {
                             self.directories = directories.clone();
-                            // self.directories_map = self
-                            //     .directories
-                            //     .as_ref()
-                            //     .unwrap()
-                            //     .iter()
-                            //     .map(|d| (d.name.to_owned(), d.acls.to_owned()))
-                            //     .collect();
+
                             self.display_directory_button_clicked = None;
-
-                            // tracing::debug!("directories_map: {:?}", self.directories_map);
-
                             self.get_directories_promise = None;
                         }
                         Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
@@ -238,15 +228,8 @@ impl eframe::App for DaenerysApp {
                     match try_groups {
                         Ok(groups) => {
                             self.groups = groups.clone();
-                            // self.groups_map = self
-                            //     .groups
-                            //     .as_ref()
-                            //     .unwrap()
-                            //     .iter()
-                            //     .map(|g| (g.cn.to_owned(), g.to_owned()))
-                            //     .collect();
-                            self.display_group_button_clicked = None;
 
+                            self.display_group_button_clicked = None;
                             self.get_groups_promise = None;
                         }
                         Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
@@ -473,6 +456,7 @@ fn setup_custom_fonts(ctx: &egui::Context) {
         "B612-Regular".to_owned(),
         egui::FontData::from_static(include_bytes!("fonts/B612-Regular.ttf")),
     );
+
     fonts.font_data.insert(
         "Font-Awesome-6-Brands-Regular-400".to_owned(),
         egui::FontData::from_static(include_bytes!(
@@ -488,6 +472,10 @@ fn setup_custom_fonts(ctx: &egui::Context) {
         egui::FontData::from_static(include_bytes!("fonts/Font-Awesome-6-Free-Solid-900.otf")),
     );
 
+    fonts.font_data.insert(
+        "LiberationSans-Bold".to_owned(),
+        egui::FontData::from_static(include_bytes!("fonts/LiberationSans-Bold.ttf")),
+    );
     // Put my font first (highest priority) for proportional text:
     fonts
         .families
@@ -514,17 +502,23 @@ fn setup_custom_fonts(ctx: &egui::Context) {
         .families
         .entry(egui::FontFamily::Proportional)
         .or_default()
-        .insert(3, "Font-Awesome-6-Brands-Regular-400".to_owned());
+        .insert(4, "Font-Awesome-6-Brands-Regular-400".to_owned());
     fonts
         .families
         .entry(egui::FontFamily::Proportional)
         .or_default()
-        .insert(3, "Font-Awesome-6-Free-Regular-400".to_owned());
+        .insert(5, "Font-Awesome-6-Free-Regular-400".to_owned());
     fonts
         .families
         .entry(egui::FontFamily::Proportional)
         .or_default()
-        .insert(3, "Font-Awesome-6-Free-Solid-900".to_owned());
+        .insert(6, "Font-Awesome-6-Free-Solid-900".to_owned());
+
+    fonts
+        .families
+        .entry(egui::FontFamily::Proportional)
+        .or_default()
+        .insert(7, "LiberationSans-Bold".to_owned());
 
     // Put my font as last fallback for monospace:
     fonts
@@ -542,9 +536,9 @@ fn setup_custom_styles(ctx: &egui::Context) {
 
     let mut style = (*ctx.style()).clone();
     style.text_styles = [
-        (TextStyle::Heading, FontId::new(25.0, Proportional)),
-        (TextStyle::Body, FontId::new(20.0, Proportional)),
-        (TextStyle::Button, FontId::new(22.0, Proportional)),
+        (TextStyle::Heading, FontId::new(16.0, Proportional)),
+        (TextStyle::Body, FontId::new(14.0, Proportional)),
+        (TextStyle::Button, FontId::new(14.0, Proportional)),
     ]
     .into();
     ctx.set_style(style);

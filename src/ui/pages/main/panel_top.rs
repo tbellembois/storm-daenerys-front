@@ -33,5 +33,7 @@ pub fn display_top_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &mu
             app.theme = Visuals::dark();
             ctx.set_visuals(Visuals::dark());
         }
+
+        app.storm_logo.as_ref().unwrap().show(ui);
     });
 }

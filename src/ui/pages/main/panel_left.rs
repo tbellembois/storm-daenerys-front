@@ -6,7 +6,7 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &m
     egui::SidePanel::left("group_and_directory_list")
         .resizable(false)
         .show(ctx, |ui| {
-            ui.set_width(200.0);
+            ui.set_width(300.0);
 
             //
             // Refresh directory list button.
@@ -18,6 +18,8 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &m
                 {
                     app.get_directories_promise = Some(api::directory::get_root_directories(ctx));
                 }
+
+                ui.label("my root directories".to_string());
             });
 
             ui.separator();
@@ -42,6 +44,8 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &m
                 }
             });
 
+            ui.separator();
+
             //
             // Refresh group list button.
             //
@@ -52,6 +56,8 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &m
                 {
                     app.get_groups_promise = Some(api::group::get_groups(ctx));
                 }
+
+                ui.label("my groups".to_string());
             });
 
             ui.separator();

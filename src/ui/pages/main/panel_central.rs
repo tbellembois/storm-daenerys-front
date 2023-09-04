@@ -5,7 +5,7 @@ use storm_daenerys_common::types::{
 };
 
 use crate::{
-    api::{self, acl::save_acl},
+    api::{self, acl::save_acl, group::save_group},
     defines::{AF_GROUP_CODE, AF_USER_CODE},
     ui::daenerys::DaenerysApp,
 };
@@ -260,11 +260,11 @@ pub fn display_central_panel(
         if let Some(display_group_button_clicked) = &app.display_group_button_clicked {
             ui.heading(display_group_button_clicked.cn.clone());
 
-            ui.separator();
-
             ui.label(
                 egui::RichText::new(display_group_button_clicked.description.clone()).italics(),
             );
+
+            ui.separator();
 
             match &display_group_button_clicked.member {
                 Some(members) => {
@@ -290,6 +290,9 @@ pub fn display_central_panel(
 
             if ui.button(button_label).clicked() {
                 app.edit_group_clicked = Some(Group {
+                    ..display_group_button_clicked.clone()
+                });
+                app.edit_group_clicked_backup = Some(Group {
                     ..display_group_button_clicked.clone()
                 });
                 app.edit_directory_clicked = None;
@@ -391,12 +394,11 @@ pub fn display_central_panel(
                 if ui.button(button_label).clicked() {
                     app.current_info = Some(format!("saving group {}", edit_group_clicked.cn));
 
-                    // let set_acl = SetAcl {
-                    //     name: edit_directory_clicked.name.clone(),
-                    //     acls: edit_directory_clicked.acls.clone(),
-                    // };
-
-                    // app.save_directory_acl_promise = Some(save_acl(ctx, set_acl));
+                    app.save_group_promises = Some(save_group(
+                        ctx,
+                        app.edit_group_clicked_backup.as_ref().unwrap().clone(),
+                        edit_group_clicked.clone(),
+                    ));
                 }
             }
         }
