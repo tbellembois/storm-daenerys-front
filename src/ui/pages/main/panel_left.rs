@@ -33,8 +33,8 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &m
 
                         // Save the clicked directory name.
                         if ui.button(button_label).clicked() {
-                            app.directory_button_clicked = Some(directory.clone());
-                            app.group_button_clicked = None;
+                            app.display_directory_button_clicked = Some(directory.clone());
+                            app.display_group_button_clicked = None;
                             app.edit_directory_clicked = None;
                             app.edit_group_clicked = None;
                         }
@@ -67,8 +67,8 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &m
 
                         // Save the clicked group name.
                         if ui.button(button_label).clicked() {
-                            app.group_button_clicked = Some(group.cn.clone());
-                            app.directory_button_clicked = None;
+                            app.display_group_button_clicked = Some(group.clone());
+                            app.display_directory_button_clicked = None;
                             app.edit_directory_clicked = None;
                             app.edit_group_clicked = None;
                         }

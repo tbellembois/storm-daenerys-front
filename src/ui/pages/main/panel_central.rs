@@ -1,6 +1,7 @@
 use storm_daenerys_common::types::{
     acl::{Qualifier, SetAcl},
     directory::Directory,
+    group::Group,
 };
 
 use crate::{
@@ -18,7 +19,7 @@ pub fn display_central_panel(
         //
         // Directory details
         //
-        if let Some(directory_button_clicked) = &app.directory_button_clicked {
+        if let Some(directory_button_clicked) = &app.display_directory_button_clicked {
             ui.heading(&directory_button_clicked.name);
             ui.separator();
 
@@ -67,7 +68,7 @@ pub fn display_central_panel(
                 app.edit_directory_clicked = Some(Box::new(Directory {
                     ..directory_button_clicked.clone()
                 }));
-                app.directory_button_clicked = None;
+                app.display_directory_button_clicked = None;
                 app.edit_group_clicked = None;
             }
         }
@@ -164,22 +165,22 @@ pub fn display_central_panel(
                 // Add user button.
                 let button_label = format!("{} {}", crate::defines::AF_ADD_CODE, "add user");
 
-                if !app.add_user_clicked && ui.button(button_label).clicked() {
-                    app.add_user_clicked = true;
+                if !app.edit_directory_add_user_clicked && ui.button(button_label).clicked() {
+                    app.edit_directory_add_user_clicked = true;
                 }
 
                 // Add group button.
                 let button_label = format!("{} {}", crate::defines::AF_ADD_CODE, "add group");
 
-                if !app.add_user_clicked && ui.button(button_label).clicked() {
-                    app.add_group_clicked = true;
+                if !app.edit_directory_add_user_clicked && ui.button(button_label).clicked() {
+                    app.edit_directory_add_group_clicked = true;
                 }
             });
 
             //
             // Add user.
             //
-            if app.add_user_clicked {
+            if app.edit_directory_add_user_clicked {
                 // Search user form.
                 ui.horizontal_top(|ui| {
                     ui.add(
@@ -208,14 +209,14 @@ pub fn display_central_panel(
                 let done_label = format!("{} {}", crate::defines::AF_CANCEL_CODE, "done");
 
                 if ui.button(done_label).clicked() {
-                    app.add_user_clicked = false;
+                    app.edit_directory_add_user_clicked = false;
                 }
             }
 
             //
             // Add group.
             //
-            if app.add_group_clicked {
+            if app.edit_directory_add_group_clicked {
                 // Group list.
                 if app.groups.is_some() {
                     for group in app.groups.as_ref().unwrap() {
@@ -229,14 +230,14 @@ pub fn display_central_panel(
                 let done_label = format!("{} {}", crate::defines::AF_CANCEL_CODE, "done");
 
                 if ui.button(done_label).clicked() {
-                    app.add_group_clicked = false;
+                    app.edit_directory_add_group_clicked = false;
                 }
             }
 
             //
             // Save button.
             //
-            if !app.add_group_clicked && !app.add_user_clicked {
+            if !app.edit_directory_add_group_clicked && !app.edit_directory_add_user_clicked {
                 let button_label = format!("{} {}", crate::defines::AF_SAVE_CODE, "save");
 
                 if ui.button(button_label).clicked() {
@@ -256,20 +257,26 @@ pub fn display_central_panel(
         //
         // Group details
         //
-        if let Some(g) = &app.group_button_clicked {
-            ui.heading(g);
+        if let Some(display_group_button_clicked) = &app.display_group_button_clicked {
+            ui.heading(display_group_button_clicked.cn.clone());
 
             ui.separator();
 
-            let group = app.groups_map.get(g).unwrap(); // this should never panic as the key always exists
+            ui.label(
+                egui::RichText::new(display_group_button_clicked.description.clone()).italics(),
+            );
 
-            ui.label(egui::RichText::new(group.description.clone()).italics());
-
-            match &group.member {
+            match &display_group_button_clicked.member {
                 Some(members) => {
-                    for member in members {
-                        ui.label(member);
-                    }
+                    egui::Grid::new("group_detail")
+                        .num_columns(1)
+                        .show(ui, |ui| {
+                            for member in members {
+                                ui.label(member);
+
+                                ui.end_row();
+                            }
+                        });
                 }
                 None => {
                     ui.label("no members".to_string());
@@ -282,14 +289,116 @@ pub fn display_central_panel(
             let button_label = format!("{} {}", crate::defines::AF_EDIT_CODE, "edit group");
 
             if ui.button(button_label).clicked() {
-                app.edit_group_clicked = Some(g.to_string());
+                app.edit_group_clicked = Some(Group {
+                    ..display_group_button_clicked.clone()
+                });
                 app.edit_directory_clicked = None;
+                app.display_group_button_clicked = None;
             }
         };
 
         //
         // Group edition.
         //
-        if let Some(group_clicked) = &app.edit_group_clicked {}
+        if let Some(edit_group_clicked) = &app.edit_group_clicked {
+            ui.heading(edit_group_clicked.cn.clone());
+
+            ui.separator();
+
+            ui.label(egui::RichText::new(edit_group_clicked.description.clone()).italics());
+
+            match &edit_group_clicked.member {
+                Some(members) => {
+                    egui::Grid::new("group_member_edit")
+                        .num_columns(2)
+                        .show(ui, |ui| {
+                            for member in members {
+                                ui.label(member);
+
+                                // Delete member button.
+                                let button_label = format!(
+                                    "{} {}",
+                                    crate::defines::AF_DELETE_CODE,
+                                    "delete member"
+                                );
+
+                                if ui.button(button_label).clicked() {
+                                    app.edited_group_remove_member = Some(member.to_string());
+                                }
+
+                                ui.end_row();
+                            }
+                        });
+                }
+                None => {
+                    ui.label("no members".to_string());
+                }
+            }
+
+            ui.separator();
+
+            ui.horizontal_top(|ui| {
+                // Add user button.
+                let button_label = format!("{} {}", crate::defines::AF_ADD_CODE, "add user");
+
+                if !app.edit_group_add_user_clicked && ui.button(button_label).clicked() {
+                    app.edit_group_add_user_clicked = true;
+                }
+            });
+
+            //
+            // Add user.
+            //
+            if app.edit_group_add_user_clicked {
+                // Search user form.
+                ui.horizontal_top(|ui| {
+                    ui.add(
+                        egui::TextEdit::singleline(&mut app.user_search)
+                            .hint_text("enter at least 2 characters and click search"),
+                    );
+                    // Search user button.
+                    let button_label = format!("{} {}", crate::defines::AF_SEARCH_CODE, "search");
+
+                    if ui.button(button_label).clicked() {
+                        app.get_users_promise =
+                            Some(api::user::get_users(ctx, app.user_search.clone()));
+                    }
+                });
+
+                // User list.
+                if app.users.is_some() {
+                    for user in app.users.as_ref().unwrap() {
+                        if ui.link(user.clone().display).clicked() {
+                            app.edited_group_add_user = Some(user.id.clone());
+                        }
+                    }
+                }
+
+                // Done button.
+                let done_label = format!("{} {}", crate::defines::AF_CANCEL_CODE, "done");
+
+                if ui.button(done_label).clicked() {
+                    app.edit_group_add_user_clicked = false;
+                }
+            }
+
+            //
+            // Save button.
+            //
+            if !app.edit_group_add_user_clicked {
+                let button_label = format!("{} {}", crate::defines::AF_SAVE_CODE, "save");
+
+                if ui.button(button_label).clicked() {
+                    app.current_info = Some(format!("saving group {}", edit_group_clicked.cn));
+
+                    // let set_acl = SetAcl {
+                    //     name: edit_directory_clicked.name.clone(),
+                    //     acls: edit_directory_clicked.acls.clone(),
+                    // };
+
+                    // app.save_directory_acl_promise = Some(save_acl(ctx, set_acl));
+                }
+            }
+        }
     });
 }

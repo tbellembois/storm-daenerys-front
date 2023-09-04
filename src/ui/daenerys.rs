@@ -11,6 +11,7 @@ use storm_daenerys_common::types::{acl::AclEntry, directory::Directory};
 use eframe::CreationContext;
 use egui::{FontFamily, FontId, TextStyle, Visuals};
 use poll_promise::Promise;
+use tracing::debug;
 
 use crate::api;
 use crate::error::apperror::AppError;
@@ -40,12 +41,12 @@ pub struct DaenerysApp {
     // Directory list.
     pub directories: Option<Vec<Directory>>,
     // The same list as a map.
-    pub directories_map: HashMap<String, Vec<AclEntry>>,
+    // pub directories_map: HashMap<String, Vec<AclEntry>>,
 
     // Group list.
     pub groups: Option<Vec<Group>>,
     // The same list as a map.
-    pub groups_map: HashMap<String, Group>,
+    // pub groups_map: HashMap<String, Group>,
 
     // User list.
     pub users: Option<Vec<User>>,
@@ -77,18 +78,20 @@ pub struct DaenerysApp {
     // UI widget states
     //
     // Directory button clicked.
-    pub directory_button_clicked: Option<Directory>,
+    pub display_directory_button_clicked: Option<Directory>,
     // Group button clicked.
-    pub group_button_clicked: Option<String>,
+    pub display_group_button_clicked: Option<Group>,
 
     // Edit directory clicked.
     pub edit_directory_clicked: Option<Box<Directory>>,
     // Edit group clicked.
-    pub edit_group_clicked: Option<String>,
+    pub edit_group_clicked: Option<Group>,
     // Add user clicked.
-    pub add_user_clicked: bool,
+    pub edit_directory_add_user_clicked: bool,
     // Add group clicked.
-    pub add_group_clicked: bool,
+    pub edit_directory_add_group_clicked: bool,
+    // Add user clicked.
+    pub edit_group_add_user_clicked: bool,
 
     // Clicking on the delete ACL button: ACL qualifier_cn to remove of the edited directory.
     pub edited_directory_remove_acl: Option<String>,
@@ -98,6 +101,11 @@ pub struct DaenerysApp {
     pub edited_directory_add_user: Option<String>,
     // Clicking on a group : group cn to add in the edited directory.
     pub edited_directory_add_group: Option<String>,
+    // Clicking on a user (after user search click): user id to add in the edited group.
+    pub edited_group_add_user: Option<String>,
+
+    // Clicking on the delete member button: user_cn to remove of the edited group.
+    pub edited_group_remove_member: Option<String>,
 
     // User search input of the add user form.
     pub user_search: String,
@@ -180,16 +188,16 @@ impl eframe::App for DaenerysApp {
                     match try_directories {
                         Ok(directories) => {
                             self.directories = directories.clone();
-                            self.directories_map = self
-                                .directories
-                                .as_ref()
-                                .unwrap()
-                                .iter()
-                                .map(|d| (d.name.to_owned(), d.acls.to_owned()))
-                                .collect();
-                            self.directory_button_clicked = None;
+                            // self.directories_map = self
+                            //     .directories
+                            //     .as_ref()
+                            //     .unwrap()
+                            //     .iter()
+                            //     .map(|d| (d.name.to_owned(), d.acls.to_owned()))
+                            //     .collect();
+                            self.display_directory_button_clicked = None;
 
-                            tracing::debug!("directories_map: {:?}", self.directories_map);
+                            // tracing::debug!("directories_map: {:?}", self.directories_map);
 
                             self.get_directories_promise = None;
                         }
@@ -230,14 +238,14 @@ impl eframe::App for DaenerysApp {
                     match try_groups {
                         Ok(groups) => {
                             self.groups = groups.clone();
-                            self.groups_map = self
-                                .groups
-                                .as_ref()
-                                .unwrap()
-                                .iter()
-                                .map(|g| (g.cn.to_owned(), g.to_owned()))
-                                .collect();
-                            self.group_button_clicked = None;
+                            // self.groups_map = self
+                            //     .groups
+                            //     .as_ref()
+                            //     .unwrap()
+                            //     .iter()
+                            //     .map(|g| (g.cn.to_owned(), g.to_owned()))
+                            //     .collect();
+                            self.display_group_button_clicked = None;
 
                             self.get_groups_promise = None;
                         }
@@ -265,7 +273,7 @@ impl eframe::App for DaenerysApp {
             }
         }
 
-        // Check directory acl removal.
+        // Check directory remove user or group (acl).
         if let Some(edited_directory_remove_acl) = &self.edited_directory_remove_acl {
             self.edit_directory_clicked
                 .as_mut()
@@ -375,6 +383,59 @@ impl eframe::App for DaenerysApp {
                     }
                 }
             };
+        }
+
+        // Check group add user.
+        if let Some(edited_group_add_user) = &self.edited_group_add_user {
+            // Find already exist.
+            let mut found: bool = false;
+
+            if self.edit_group_clicked.as_ref().unwrap().member.is_some() {
+                for m in self
+                    .edit_group_clicked
+                    .as_ref()
+                    .unwrap()
+                    .member
+                    .as_ref()
+                    .unwrap()
+                {
+                    if m.eq(edited_group_add_user) {
+                        found = true;
+                    }
+                }
+            } else {
+                self.edit_group_clicked.as_mut().unwrap().member = Some(Vec::new());
+            }
+
+            if !found {
+                self.edit_group_clicked
+                    .as_mut()
+                    .unwrap()
+                    .member
+                    .as_mut()
+                    .unwrap()
+                    .push(edited_group_add_user.to_string());
+
+                self.user_search = "".to_string();
+                self.users = None;
+            }
+
+            self.edited_group_add_user = None;
+        }
+
+        // Check group remove user.
+        if let Some(edited_group_remove_member) = &self.edited_group_remove_member {
+            if self.edit_group_clicked.as_ref().unwrap().member.is_some() {
+                self.edit_group_clicked
+                    .as_mut()
+                    .unwrap()
+                    .member
+                    .as_mut()
+                    .unwrap()
+                    .retain(|u| u.ne(edited_group_remove_member));
+            }
+
+            self.edited_group_remove_member = None;
         }
 
         // Render page.
