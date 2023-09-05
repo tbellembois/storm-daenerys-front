@@ -48,5 +48,7 @@ pub fn display_top_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &mu
         ui.vertical_centered(|ui| {
             app.storm_logo.as_ref().unwrap().show(ui);
         });
+
+        app.separator_image.as_ref().unwrap().show(ui);
     });
 }

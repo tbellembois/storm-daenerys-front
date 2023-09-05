@@ -1,7 +1,7 @@
 use storm_daenerys_common::types::{
     acl::{Qualifier, SetAcl},
     directory::Directory,
-    group::Group,
+    group::{CreateGroup, Group},
 };
 
 use crate::{
@@ -17,11 +17,44 @@ pub fn display_central_panel(
 ) {
     egui::CentralPanel::default().show(ctx, |ui| {
         //
-        // Directory details
+        // Create group.
+        //
+        if app.create_group_clicked {
+            // Group name form.
+            ui.horizontal_top(|ui| {
+                ui.add_sized(
+                    [400., 30.],
+                    egui::TextEdit::singleline(&mut app.create_group_name)
+                        .hint_text("group name (no space, no accent or special character)"),
+                );
+
+                // Create.
+                let button_label = format!("{} {}", crate::defines::AF_CREATE_CODE, "create");
+
+                let button = egui::Button::new(button_label);
+
+                if ui.add_sized([150., 30.], button).clicked() {
+                    app.current_info =
+                        Some(format!("creating group {}", app.create_group_name.clone()));
+
+                    let create_group = CreateGroup {
+                        cn: app.create_group_name.clone(),
+                        description: "".to_string(),
+                        owner: "storm".to_string(), // FIXME
+                    };
+
+                    app.create_group_promise = Some(api::group::create_group(ctx, create_group));
+                }
+            });
+        }
+
+        //
+        // Directory details.
         //
         if let Some(directory_button_clicked) = &app.display_directory_button_clicked {
             ui.heading(&directory_button_clicked.name);
             ui.separator();
+            app.separator_image.as_ref().unwrap().show(ui);
 
             let acls = &directory_button_clicked.acls;
 
@@ -59,6 +92,7 @@ pub fn display_central_panel(
                 }
             });
 
+            app.separator_image.as_ref().unwrap().show(ui);
             ui.separator();
 
             // Edit directory button.
@@ -82,6 +116,7 @@ pub fn display_central_panel(
             ui.heading(edit_directory_clicked.name.clone());
 
             ui.separator();
+            app.separator_image.as_ref().unwrap().show(ui);
 
             // Get acls.
             let acls = &edit_directory_clicked.acls;
@@ -161,6 +196,7 @@ pub fn display_central_panel(
                     }
                 });
 
+            app.separator_image.as_ref().unwrap().show(ui);
             ui.separator();
 
             ui.horizontal_top(|ui| {
@@ -289,6 +325,7 @@ pub fn display_central_panel(
             );
 
             ui.separator();
+            app.separator_image.as_ref().unwrap().show(ui);
 
             match &display_group_button_clicked.member {
                 Some(members) => {
@@ -307,6 +344,7 @@ pub fn display_central_panel(
                 }
             }
 
+            app.separator_image.as_ref().unwrap().show(ui);
             ui.separator();
 
             // Edit group button.
@@ -330,10 +368,10 @@ pub fn display_central_panel(
         //
         if let Some(edit_group_clicked) = &app.edit_group_clicked {
             ui.heading(edit_group_clicked.cn.clone());
+            ui.label(egui::RichText::new(edit_group_clicked.description.clone()).italics());
 
             ui.separator();
-
-            ui.label(egui::RichText::new(edit_group_clicked.description.clone()).italics());
+            app.separator_image.as_ref().unwrap().show(ui);
 
             match &edit_group_clicked.member {
                 Some(members) => {
@@ -364,6 +402,7 @@ pub fn display_central_panel(
                 }
             }
 
+            app.separator_image.as_ref().unwrap().show(ui);
             ui.separator();
 
             ui.horizontal_top(|ui| {

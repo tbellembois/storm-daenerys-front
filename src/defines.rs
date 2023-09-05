@@ -5,6 +5,7 @@ pub const AF_EDIT_CODE: char = '\u{f304}';
 pub const AF_ADD_CODE: char = '\u{2b}';
 pub const AF_SEARCH_CODE: char = '\u{f002}';
 pub const AF_CANCEL_CODE: char = '\u{f053}';
+pub const AF_CREATE_CODE: char = '\u{f0e7}';
 pub const AF_SAVE_CODE: char = '\u{f0c7}';
 pub const AF_DELETE_CODE: char = '\u{f2ed}';
 pub const AF_USER_CODE: char = '\u{f007}';

@@ -2,7 +2,7 @@ use poll_promise::Promise;
 
 use storm_daenerys_common::types::{
     error::CommonError,
-    group::{self, AddDelUserToGroup, Group},
+    group::{self, AddDelUserToGroup, CreateGroup, Group},
 };
 
 pub fn save_group(
@@ -126,6 +126,31 @@ pub fn add_user_to_group(
     let request = ehttp::Request {
         method: "PATCH".to_owned(),
         url: "http://localhost:3000/groups/user".to_string(),
+        body: request_payload.as_bytes().to_vec(),
+        headers: ehttp::headers(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
+    };
+
+    ehttp::fetch(request, move |response| {
+        let add_user_to_group_result = response.and_then(parse_add_del_user_to_group_response);
+        sender.send(add_user_to_group_result);
+        ctx.request_repaint(); // wake up UI thread
+    });
+
+    promise
+}
+
+pub fn create_group(ctx: &egui::Context, create_group: CreateGroup) -> Promise<Result<(), String>> {
+    dbg!("Create group: {:?}", &create_group);
+
+    // TODO: handle error here.
+    let request_payload = serde_json::to_string(&create_group).unwrap();
+
+    let ctx = ctx.clone();
+    let (sender, promise) = Promise::new();
+
+    let request = ehttp::Request {
+        method: "POST".to_owned(),
+        url: "http://localhost:3000/groups".to_string(),
         body: request_payload.as_bytes().to_vec(),
         headers: ehttp::headers(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
     };

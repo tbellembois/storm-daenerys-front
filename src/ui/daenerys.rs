@@ -57,6 +57,8 @@ pub struct DaenerysApp {
 
     // Promises returned when calling save_group.
     pub save_group_promises: Option<Vec<Promise<Result<(), std::string::String>>>>,
+    // Promises returned when calling the backend POST /group endpoint.
+    pub create_group_promise: Option<Promise<Result<(), String>>>,
 
     // Channels for communication beetween
     // application (GUI) and worker.
@@ -70,6 +72,7 @@ pub struct DaenerysApp {
 
     // Icons.
     pub storm_logo: Option<egui_extras::RetainedImage>,
+    pub separator_image: Option<egui_extras::RetainedImage>,
 
     //
     // UI widget states
@@ -78,6 +81,11 @@ pub struct DaenerysApp {
     pub display_directory_button_clicked: Option<Directory>,
     // Group button clicked.
     pub display_group_button_clicked: Option<Group>,
+
+    // Create group.
+    pub create_group_clicked: bool,
+    // Create directory.
+    pub create_directory_clicked: bool,
 
     // Edit directory clicked.
     pub edit_directory_clicked: Option<Box<Directory>>,
@@ -108,19 +116,21 @@ pub struct DaenerysApp {
 
     // User search input of the add user form.
     pub user_search: String,
+    // Groupe name input of the create group form.
+    pub create_group_name: String,
 }
 
 impl DaenerysApp {
     pub fn new(cc: &CreationContext) -> Self {
         // Create application.
         let mut app = DaenerysApp {
-            // storm_logo: Some(
-            //     egui_extras::RetainedImage::from_svg_bytes(
-            //         "storm.svg",
-            //         include_bytes!("media/storm.svg"),
-            //     )
-            //     .unwrap(),
-            // ),
+            separator_image: Some(
+                egui_extras::RetainedImage::from_svg_bytes(
+                    "separator.svg",
+                    include_bytes!("media/separator.svg"),
+                )
+                .unwrap(),
+            ),
             storm_logo: Some(
                 egui_extras::RetainedImage::from_image_bytes(
                     "storm.png",
@@ -216,6 +226,69 @@ impl eframe::App for DaenerysApp {
                         Ok(_) => {
                             self.current_info = Some("acl set successfully".to_string());
                             self.save_directory_acl_promise = None;
+
+                            self.get_directories_promise =
+                                Some(api::directory::get_root_directories(ctx));
+                        }
+                        Err(e) => {
+                            self.current_error = Some(AppError::InternalError(e.to_string()));
+                            self.current_info = None;
+                        }
+                    };
+                }
+            }
+        }
+
+        // Save group promise.
+        if let Some(p) = &self.save_group_promises {
+            let mut count = 0;
+            let total_promises = p.len();
+            let mut is_error: bool = false;
+
+            for promise in p.iter() {
+                match promise.ready() {
+                    None => (),
+                    Some(try_result) => {
+                        match try_result {
+                            Ok(_) => {
+                                count += 1;
+                            }
+                            Err(e) => {
+                                self.current_error = Some(AppError::InternalError(e.to_string()));
+                                self.current_info = None;
+
+                                is_error = true;
+                                break;
+                            }
+                        };
+                    }
+                }
+            }
+
+            if is_error || count == total_promises {
+                self.save_group_promises = None;
+            }
+
+            if count == total_promises {
+                self.current_info = Some("group updated successfully".to_string());
+
+                self.get_groups_promise = Some(api::group::get_groups(ctx));
+            }
+        }
+
+        // Create group promise.
+        if let Some(p) = &self.create_group_promise {
+            println!("create_group_promise");
+
+            match p.ready() {
+                None => (),
+                Some(try_result) => {
+                    match try_result {
+                        Ok(_) => {
+                            self.current_info = Some("group created successfully".to_string());
+                            self.create_group_promise = None;
+
+                            self.get_groups_promise = Some(api::group::get_groups(ctx));
                         }
                         Err(e) => {
                             self.current_error = Some(AppError::InternalError(e.to_string()));
@@ -246,6 +319,7 @@ impl eframe::App for DaenerysApp {
             }
         }
 
+        // Get users promise.
         if let Some(p) = &self.get_users_promise {
             println!("get_users_promise");
 
@@ -553,7 +627,7 @@ fn setup_custom_styles(ctx: &egui::Context) {
 
     let mut style = (*ctx.style()).clone();
     style.text_styles = [
-        (TextStyle::Heading, FontId::new(16.0, Proportional)),
+        (TextStyle::Heading, FontId::new(18.0, Proportional)),
         (TextStyle::Body, FontId::new(14.0, Proportional)),
         (TextStyle::Button, FontId::new(14.0, Proportional)),
     ]

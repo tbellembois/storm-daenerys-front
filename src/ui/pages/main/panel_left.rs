@@ -12,6 +12,8 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &m
         .show(ctx, |ui| {
             ui.set_width(300.0);
 
+            app.separator_image.as_ref().unwrap().show(ui);
+
             //
             // Refresh directory list button.
             //
@@ -22,10 +24,8 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &m
                     app.get_directories_promise = Some(api::directory::get_root_directories(ctx));
                 }
 
-                ui.label("my root directories".to_string());
+                ui.label(egui::RichText::new("my root directories").heading());
             });
-
-            ui.separator();
 
             //
             // Directories buttons.
@@ -50,11 +50,15 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &m
                                     if ui.add_sized([200., 30.], button).clicked() {
                                         app.display_directory_button_clicked =
                                             Some(directory.clone());
+
                                         app.display_group_button_clicked = None;
                                         app.edit_directory_clicked = None;
                                         app.edit_group_clicked = None;
                                         app.edit_directory_add_user_clicked = false;
                                         app.edit_directory_add_group_clicked = false;
+                                        app.create_group_clicked = false;
+                                        app.current_error = None;
+                                        app.current_info = None;
                                     };
                                 });
 
@@ -64,7 +68,8 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &m
                 }
             });
 
-            ui.separator();
+            app.separator_image.as_ref().unwrap().show(ui);
+            app.separator_image.as_ref().unwrap().show(ui);
 
             //
             // Refresh group list button.
@@ -76,10 +81,8 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &m
                     app.get_groups_promise = Some(api::group::get_groups(ctx));
                 }
 
-                ui.label("my storm groups".to_string());
+                ui.label(egui::RichText::new("my storm groups").heading());
             });
-
-            ui.separator();
 
             //
             // Groups buttons.
@@ -101,9 +104,15 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &m
                                 // Save the clicked group name.
                                 if ui.add_sized([200., 30.], button).clicked() {
                                     app.display_group_button_clicked = Some(group.clone());
+
                                     app.display_directory_button_clicked = None;
                                     app.edit_directory_clicked = None;
                                     app.edit_group_clicked = None;
+                                    app.edit_directory_add_user_clicked = false;
+                                    app.edit_directory_add_group_clicked = false;
+                                    app.create_group_clicked = false;
+                                    app.current_error = None;
+                                    app.current_info = None;
                                 }
                             });
 
@@ -112,5 +121,22 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &m
                     });
                 }
             });
+
+            app.separator_image.as_ref().unwrap().show(ui);
+
+            //
+            // Create group button.
+            //
+            let button_label = format!("{} {}", crate::defines::AF_ADD_CODE, "create group");
+
+            let button = egui::Button::new(button_label);
+
+            if ui.add_sized([150., 30.], button).clicked() {
+                app.create_group_clicked = true;
+                app.display_directory_button_clicked = None;
+                app.display_group_button_clicked = None;
+                app.edit_directory_clicked = None;
+                app.edit_group_clicked = None;
+            }
         });
 }
