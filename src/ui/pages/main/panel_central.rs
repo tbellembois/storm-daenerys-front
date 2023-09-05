@@ -63,8 +63,9 @@ pub fn display_central_panel(
 
             // Edit directory button.
             let button_label = format!("{} {}", crate::defines::AF_EDIT_CODE, "edit directory");
+            let button = egui::Button::new(button_label);
 
-            if ui.button(button_label).clicked() {
+            if ui.add_sized([150., 30.], button).clicked() {
                 app.edit_directory_clicked = Some(Box::new(Directory {
                     ..directory_button_clicked.clone()
                 }));
@@ -149,8 +150,9 @@ pub fn display_central_panel(
                         // Delete acl button.
                         let button_label =
                             format!("{} {}", crate::defines::AF_DELETE_CODE, "delete entry");
+                        let button = egui::Button::new(button_label);
 
-                        if ui.button(button_label).clicked() {
+                        if ui.add_sized([150., 25.], button).clicked() {
                             app.edited_directory_remove_acl =
                                 Some(acl.qualifier_cn.as_ref().unwrap().to_string());
                         }
@@ -165,15 +167,27 @@ pub fn display_central_panel(
                 // Add user button.
                 let button_label = format!("{} {}", crate::defines::AF_ADD_CODE, "add user");
 
-                if !app.edit_directory_add_user_clicked && ui.button(button_label).clicked() {
+                let button = egui::Button::new(button_label);
+
+                if !app.edit_directory_add_user_clicked
+                    && !app.edit_directory_add_group_clicked
+                    && ui.add_sized([150., 30.], button).clicked()
+                {
                     app.edit_directory_add_user_clicked = true;
+                    app.edit_directory_add_group_clicked = false;
                 }
 
                 // Add group button.
                 let button_label = format!("{} {}", crate::defines::AF_ADD_CODE, "add group");
 
-                if !app.edit_directory_add_user_clicked && ui.button(button_label).clicked() {
+                let button = egui::Button::new(button_label);
+
+                if !app.edit_directory_add_user_clicked
+                    && !app.edit_directory_add_group_clicked
+                    && ui.add_sized([150., 30.], button).clicked()
+                {
                     app.edit_directory_add_group_clicked = true;
+                    app.edit_directory_add_user_clicked = false;
                 }
             });
 
@@ -183,14 +197,18 @@ pub fn display_central_panel(
             if app.edit_directory_add_user_clicked {
                 // Search user form.
                 ui.horizontal_top(|ui| {
-                    ui.add(
+                    ui.add_sized(
+                        [400., 30.],
                         egui::TextEdit::singleline(&mut app.user_search)
                             .hint_text("enter at least 2 characters and click search"),
                     );
+
                     // Search user button.
                     let button_label = format!("{} {}", crate::defines::AF_SEARCH_CODE, "search");
 
-                    if ui.button(button_label).clicked() {
+                    let button = egui::Button::new(button_label);
+
+                    if ui.add_sized([150., 30.], button).clicked() {
                         app.get_users_promise =
                             Some(api::user::get_users(ctx, app.user_search.clone()));
                     }
@@ -206,9 +224,11 @@ pub fn display_central_panel(
                 }
 
                 // Done button.
-                let done_label = format!("{} {}", crate::defines::AF_CANCEL_CODE, "done");
+                let button_label = format!("{} {}", crate::defines::AF_CANCEL_CODE, "done");
 
-                if ui.button(done_label).clicked() {
+                let button = egui::Button::new(button_label);
+
+                if ui.add_sized([150., 30.], button).clicked() {
                     app.edit_directory_add_user_clicked = false;
                 }
             }
@@ -227,9 +247,11 @@ pub fn display_central_panel(
                 }
 
                 // Done button.
-                let done_label = format!("{} {}", crate::defines::AF_CANCEL_CODE, "done");
+                let button_label = format!("{} {}", crate::defines::AF_CANCEL_CODE, "done");
 
-                if ui.button(done_label).clicked() {
+                let button = egui::Button::new(button_label);
+
+                if ui.add_sized([150., 30.], button).clicked() {
                     app.edit_directory_add_group_clicked = false;
                 }
             }
@@ -240,7 +262,9 @@ pub fn display_central_panel(
             if !app.edit_directory_add_group_clicked && !app.edit_directory_add_user_clicked {
                 let button_label = format!("{} {}", crate::defines::AF_SAVE_CODE, "save");
 
-                if ui.button(button_label).clicked() {
+                let button = egui::Button::new(button_label);
+
+                if ui.add_sized([150., 30.], button).clicked() {
                     app.current_info =
                         Some(format!("saving acl for {}", edit_directory_clicked.name));
 
@@ -287,8 +311,9 @@ pub fn display_central_panel(
 
             // Edit group button.
             let button_label = format!("{} {}", crate::defines::AF_EDIT_CODE, "edit group");
+            let button = egui::Button::new(button_label);
 
-            if ui.button(button_label).clicked() {
+            if ui.add_sized([150., 30.], button).clicked() {
                 app.edit_group_clicked = Some(Group {
                     ..display_group_button_clicked.clone()
                 });
@@ -324,8 +349,9 @@ pub fn display_central_panel(
                                     crate::defines::AF_DELETE_CODE,
                                     "delete member"
                                 );
+                                let button = egui::Button::new(button_label);
 
-                                if ui.button(button_label).clicked() {
+                                if ui.add_sized([150., 25.], button).clicked() {
                                     app.edited_group_remove_member = Some(member.to_string());
                                 }
 
@@ -344,7 +370,9 @@ pub fn display_central_panel(
                 // Add user button.
                 let button_label = format!("{} {}", crate::defines::AF_ADD_CODE, "add user");
 
-                if !app.edit_group_add_user_clicked && ui.button(button_label).clicked() {
+                let button = egui::Button::new(button_label);
+
+                if !app.edit_group_add_user_clicked && ui.add_sized([150., 30.], button).clicked() {
                     app.edit_group_add_user_clicked = true;
                 }
             });
@@ -355,14 +383,17 @@ pub fn display_central_panel(
             if app.edit_group_add_user_clicked {
                 // Search user form.
                 ui.horizontal_top(|ui| {
-                    ui.add(
+                    ui.add_sized(
+                        [400., 30.],
                         egui::TextEdit::singleline(&mut app.user_search)
                             .hint_text("enter at least 2 characters and click search"),
                     );
                     // Search user button.
                     let button_label = format!("{} {}", crate::defines::AF_SEARCH_CODE, "search");
 
-                    if ui.button(button_label).clicked() {
+                    let button = egui::Button::new(button_label);
+
+                    if ui.add_sized([150., 30.], button).clicked() {
                         app.get_users_promise =
                             Some(api::user::get_users(ctx, app.user_search.clone()));
                     }
@@ -378,9 +409,11 @@ pub fn display_central_panel(
                 }
 
                 // Done button.
-                let done_label = format!("{} {}", crate::defines::AF_CANCEL_CODE, "done");
+                let button_label = format!("{} {}", crate::defines::AF_CANCEL_CODE, "done");
 
-                if ui.button(done_label).clicked() {
+                let button = egui::Button::new(button_label);
+
+                if ui.add_sized([150., 30.], button).clicked() {
                     app.edit_group_add_user_clicked = false;
                 }
             }
@@ -391,7 +424,9 @@ pub fn display_central_panel(
             if !app.edit_group_add_user_clicked {
                 let button_label = format!("{} {}", crate::defines::AF_SAVE_CODE, "save");
 
-                if ui.button(button_label).clicked() {
+                let button = egui::Button::new(button_label);
+
+                if ui.add_sized([150., 30.], button).clicked() {
                     app.current_info = Some(format!("saving group {}", edit_group_clicked.cn));
 
                     app.save_group_promises = Some(save_group(

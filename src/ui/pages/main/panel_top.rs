@@ -25,15 +25,28 @@ pub fn display_top_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &mu
 
         // Switch theme.
         if app.theme.dark_mode {
-            if ui.button(format!("{}", AF_SUN_CODE)).clicked() {
+            let button_label = format!("{}", AF_SUN_CODE);
+
+            let button = egui::Button::new(button_label);
+
+            if ui.add_sized([30., 30.], button).clicked() {
                 app.theme = Visuals::light();
                 ctx.set_visuals(Visuals::light());
             }
-        } else if ui.button(format!("{}", AF_MOON_CODE)).clicked() {
-            app.theme = Visuals::dark();
-            ctx.set_visuals(Visuals::dark());
+        } else {
+            let button_label = format!("{}", AF_MOON_CODE);
+
+            let button = egui::Button::new(button_label);
+
+            if ui.add_sized([30., 30.], button).clicked() {
+                app.theme = Visuals::dark();
+                ctx.set_visuals(Visuals::dark());
+            }
         }
 
-        app.storm_logo.as_ref().unwrap().show(ui);
+        // Logo.
+        ui.vertical_centered(|ui| {
+            app.storm_logo.as_ref().unwrap().show(ui);
+        });
     });
 }

@@ -154,7 +154,8 @@ impl DaenerysApp {
         setup_custom_styles(&cc.egui_ctx);
 
         // Set default theme.
-        app.theme = Visuals::dark();
+        app.theme = Visuals::light();
+        cc.egui_ctx.set_visuals(Visuals::light());
 
         app
     }
