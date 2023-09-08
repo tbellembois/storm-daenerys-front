@@ -5,7 +5,11 @@ use storm_daenerys_common::types::{
 };
 
 use crate::{
-    api::{self, acl::save_acl, group::save_group},
+    api::{
+        self,
+        acl::save_acl,
+        group::{delete_group, save_group},
+    },
     defines::{AF_GROUP_CODE, AF_USER_CODE},
     ui::daenerys::DaenerysApp,
 };
@@ -377,6 +381,32 @@ pub fn display_central_panel(
                 });
                 app.edit_directory_clicked = None;
                 app.display_group_button_clicked = None;
+            }
+
+            // Delete group button.
+            let button_label = format!("{} {}", crate::defines::AF_DELETE_CODE, "delete group");
+            let button = egui::Button::new(button_label);
+
+            if !app.edit_group_delete_confirm && ui.add_sized([150., 30.], button).clicked() {
+                app.edit_group_delete_confirm = true;
+            }
+
+            if app.edit_group_delete_confirm {
+                let button_label =
+                    format!("{} {}", crate::defines::AF_CONFIRM_CODE, "confirm deletion");
+                let button = egui::Button::new(button_label);
+                if ui.add_sized([150., 30.], button).clicked() {
+                    app.delete_group_promise = Some(delete_group(
+                        ctx,
+                        app.display_group_button_clicked
+                            .as_ref()
+                            .unwrap()
+                            .cn
+                            .clone(),
+                    ));
+
+                    app.edit_group_delete_confirm = false;
+                }
             }
         };
 

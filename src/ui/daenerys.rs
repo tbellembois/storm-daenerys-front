@@ -59,6 +59,8 @@ pub struct DaenerysApp {
     pub save_group_promises: Option<Vec<Promise<Result<(), std::string::String>>>>,
     // Promises returned when calling the backend POST /group endpoint.
     pub create_group_promise: Option<Promise<Result<(), String>>>,
+    // Promise return when calling the backend DELETE /groups/:cn endpoint.
+    pub delete_group_promise: Option<Promise<Result<(), String>>>,
 
     // Channels for communication beetween
     // application (GUI) and worker.
@@ -99,6 +101,8 @@ pub struct DaenerysApp {
     pub edit_directory_add_group_clicked: bool,
     // Add user clicked.
     pub edit_group_add_user_clicked: bool,
+    // Confirm delete.
+    pub edit_group_delete_confirm: bool,
 
     // Clicking on the delete ACL button: ACL qualifier_cn to remove of the edited directory.
     pub edited_directory_remove_acl: Option<String>,
@@ -288,6 +292,29 @@ impl eframe::App for DaenerysApp {
                         Ok(_) => {
                             self.current_info = Some("group created successfully".to_string());
                             self.create_group_promise = None;
+
+                            self.get_groups_promise = Some(api::group::get_groups(ctx));
+                        }
+                        Err(e) => {
+                            self.current_error = Some(AppError::InternalError(e.to_string()));
+                            self.current_info = None;
+                        }
+                    };
+                }
+            }
+        }
+
+        // Delete group promise.
+        if let Some(p) = &self.delete_group_promise {
+            println!("delete_group_promise");
+
+            match p.ready() {
+                None => (),
+                Some(try_result) => {
+                    match try_result {
+                        Ok(_) => {
+                            self.current_info = Some("group deleted successfully".to_string());
+                            self.delete_group_promise = None;
 
                             self.get_groups_promise = Some(api::group::get_groups(ctx));
                         }

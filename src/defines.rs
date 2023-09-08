@@ -8,6 +8,7 @@ pub const AF_CANCEL_CODE: char = '\u{f053}';
 pub const AF_CREATE_CODE: char = '\u{f0e7}';
 pub const AF_SAVE_CODE: char = '\u{f0c7}';
 pub const AF_DELETE_CODE: char = '\u{f2ed}';
+pub const AF_CONFIRM_CODE: char = '\u{f00c}';
 pub const AF_USER_CODE: char = '\u{f007}';
 pub const AF_GROUP_CODE: char = '\u{f0c0}';
 pub const AF_ERROR_CODE: char = '\u{f071}';

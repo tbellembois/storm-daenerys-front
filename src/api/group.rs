@@ -170,6 +170,30 @@ pub fn create_group(ctx: &egui::Context, create_group: Group) -> Promise<Result<
     promise
 }
 
+pub fn delete_group(ctx: &egui::Context, cn: String) -> Promise<Result<(), String>> {
+    dbg!("Delete group: {:?}", &cn);
+
+    let request_payload = "".to_string();
+
+    let ctx = ctx.clone();
+    let (sender, promise) = Promise::new();
+
+    let request = ehttp::Request {
+        method: "DELETE".to_owned(),
+        url: format!("http://localhost:3000/groups/{}", cn),
+        body: request_payload.as_bytes().to_vec(),
+        headers: ehttp::headers(&[("Accept", "*/*")]),
+    };
+
+    ehttp::fetch(request, move |response| {
+        let add_user_to_group_result = response.and_then(parse_add_del_user_to_group_response);
+        sender.send(add_user_to_group_result);
+        ctx.request_repaint(); // wake up UI thread
+    });
+
+    promise
+}
+
 pub fn get_groups(ctx: &egui::Context) -> Promise<Result<Option<Vec<Group>>, String>> {
     dbg!("Get group list.");
 
