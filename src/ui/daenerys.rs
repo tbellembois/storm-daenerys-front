@@ -116,8 +116,9 @@ pub struct DaenerysApp {
 
     // User search input of the add user form.
     pub user_search: String,
-    // Groupe name input of the create group form.
+    // Groupe name and description input of the create group form.
     pub create_group_name: String,
+    pub create_group_description: String,
 }
 
 impl DaenerysApp {

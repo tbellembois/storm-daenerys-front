@@ -1,8 +1,10 @@
+use std::default;
+
 use poll_promise::Promise;
 
 use storm_daenerys_common::types::{
     error::CommonError,
-    group::{self, AddDelUserToGroup, CreateGroup, Group},
+    group::{self, AddDelUserToGroup, Group},
 };
 
 pub fn save_group(
@@ -40,6 +42,7 @@ pub fn save_group(
                     AddDelUserToGroup {
                         group_cn: group.cn.clone(),
                         user_cn: member_backup.to_string(),
+                        ..AddDelUserToGroup::default()
                     },
                 ));
             }
@@ -74,6 +77,7 @@ pub fn save_group(
                     AddDelUserToGroup {
                         group_cn: group.cn.clone(),
                         user_cn: member.to_string(),
+                        ..AddDelUserToGroup::default()
                     },
                 ));
             }
@@ -120,6 +124,8 @@ pub fn add_user_to_group(
     // TODO: handle error here.
     let request_payload = serde_json::to_string(&add_user_to_group).unwrap();
 
+    dbg!("request_payload: {}", &request_payload);
+
     let ctx = ctx.clone();
     let (sender, promise) = Promise::new();
 
@@ -139,7 +145,7 @@ pub fn add_user_to_group(
     promise
 }
 
-pub fn create_group(ctx: &egui::Context, create_group: CreateGroup) -> Promise<Result<(), String>> {
+pub fn create_group(ctx: &egui::Context, create_group: Group) -> Promise<Result<(), String>> {
     dbg!("Create group: {:?}", &create_group);
 
     // TODO: handle error here.

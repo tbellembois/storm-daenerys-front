@@ -1,7 +1,7 @@
 use storm_daenerys_common::types::{
     acl::{Qualifier, SetAcl},
     directory::Directory,
-    group::{CreateGroup, Group},
+    group::Group,
 };
 
 use crate::{
@@ -21,30 +21,47 @@ pub fn display_central_panel(
         //
         if app.create_group_clicked {
             // Group name form.
-            ui.horizontal_top(|ui| {
+            ui.vertical(|ui| {
+                ui.horizontal(|ui| {
+                    ui.label("storm-".to_string());
+                    ui.add_sized(
+                        [400., 30.],
+                        egui::TextEdit::singleline(&mut app.create_group_name)
+                            .hint_text("group name (no space, no accent or special character)"),
+                    );
+                });
+
                 ui.add_sized(
                     [400., 30.],
-                    egui::TextEdit::singleline(&mut app.create_group_name)
-                        .hint_text("group name (no space, no accent or special character)"),
+                    egui::TextEdit::singleline(&mut app.create_group_description)
+                        .hint_text("description"),
                 );
 
-                // Create.
-                let button_label = format!("{} {}", crate::defines::AF_CREATE_CODE, "create");
-
-                let button = egui::Button::new(button_label);
-
-                if ui.add_sized([150., 30.], button).clicked() {
-                    app.current_info =
-                        Some(format!("creating group {}", app.create_group_name.clone()));
-
-                    let create_group = CreateGroup {
-                        cn: app.create_group_name.clone(),
-                        description: "".to_string(),
-                        owner: "storm".to_string(), // FIXME
-                    };
-
-                    app.create_group_promise = Some(api::group::create_group(ctx, create_group));
+                // Create button.
+                let mut enabled: bool = true;
+                if app.create_group_name.clone().len() < 2 {
+                    enabled = false;
                 }
+                ui.add_enabled_ui(enabled, |ui| {
+                    let button_label = format!("{} {}", crate::defines::AF_CREATE_CODE, "create");
+
+                    let button = egui::Button::new(button_label);
+
+                    if ui.add_sized([150., 30.], button).clicked() {
+                        app.current_info =
+                            Some(format!("creating group {}", app.create_group_name.clone()));
+
+                        let create_group = Group {
+                            cn: app.create_group_name.clone(),
+                            description: app.create_group_description.clone(),
+                            owner: None,
+                            member: None,
+                        };
+
+                        app.create_group_promise =
+                            Some(api::group::create_group(ctx, create_group));
+                    }
+                });
             });
         }
 
