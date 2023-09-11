@@ -88,15 +88,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "acl-sys"
-version = "1.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bbc079f9bdd3124fd18df23c67f7e0f79d24751ae151dcffd095fcade07a3eb2"
-dependencies = [
- "libc",
-]
-
-[[package]]
 name = "adler"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1778,10 +1769,11 @@ dependencies = [
 
 [[package]]
 name = "poll-promise"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fcf2a02372dfae23c9c01267fb296b8a3413bb4e45fbd589c3ac73c6dcfbb305"
+checksum = "5f6a58fecbf9da8965bcdb20ce4fd29788d1acee68ddbb64f0ba1b81bccdb7df"
 dependencies = [
+ "document-features",
  "static_assertions",
 ]
 
@@ -1799,16 +1791,6 @@ dependencies = [
  "log",
  "pin-project-lite",
  "windows-sys 0.48.0",
-]
-
-[[package]]
-name = "posix-acl"
-version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "00fa64c4974f6d78ef76bfa003f8d2457b01d24589a87dad854d28dc16598f51"
-dependencies = [
- "acl-sys",
- "libc",
 ]
 
 [[package]]
@@ -2274,17 +2256,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
-name = "storm-daenerys-common"
+name = "storm_daenerys_common"
 version = "0.1.0"
 dependencies = [
- "posix-acl",
  "serde",
  "serde_json",
- "users",
 ]
 
 [[package]]
-name = "storm-daenerys-front"
+name = "storm_daenerys_front"
 version = "0.1.0"
 dependencies = [
  "eframe",
@@ -2292,10 +2272,9 @@ dependencies = [
  "egui_extras",
  "ehttp",
  "poll-promise",
- "posix-acl",
  "serde",
  "serde_json",
- "storm-daenerys-common",
+ "storm_daenerys_common",
  "tracing",
  "tracing-subscriber",
 ]
@@ -2582,16 +2561,6 @@ dependencies = [
  "form_urlencoded",
  "idna",
  "percent-encoding",
-]
-
-[[package]]
-name = "users"
-version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "24cc0f6d6f267b73e5a2cadf007ba8f9bc39c6a6f9666f8cf25ea809a153b032"
-dependencies = [
- "libc",
- "log",
 ]
 
 [[package]]

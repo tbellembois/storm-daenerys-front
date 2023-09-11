@@ -64,8 +64,8 @@ pub struct DaenerysApp {
 
     // Channels for communication beetween
     // application (GUI) and worker.
-    pub sender: Option<Sender<ToWorker>>,
-    receiver: Option<Receiver<ToApp>>,
+    // pub sender: Option<Sender<ToWorker>>,
+    // receiver: Option<Receiver<ToApp>>,
 
     // Current error if one.
     pub current_error: Option<AppError>,
@@ -137,32 +137,39 @@ impl DaenerysApp {
                 .unwrap(),
             ),
             storm_logo: Some(
-                egui_extras::RetainedImage::from_image_bytes(
-                    "storm.png",
-                    include_bytes!("media/storm.png"),
+                egui_extras::RetainedImage::from_svg_bytes(
+                    "storm.svg",
+                    include_bytes!("media/storm.svg"),
                 )
                 .unwrap(),
             ),
+            // storm_logo: Some(
+            //     egui_extras::RetainedImage::from_image_bytes(
+            //         "storm.png",
+            //         include_bytes!("media/storm.png"),
+            //     )
+            //     .unwrap(),
+            // ),
             ..Default::default()
         };
 
         // Create channels.
-        let (app_tx, app_rx) = mpsc::channel();
-        let (worker_tx, worker_rx) = mpsc::channel();
+        // let (app_tx, app_rx) = mpsc::channel();
+        // let (worker_tx, worker_rx) = mpsc::channel();
 
         let context = cc.egui_ctx.clone();
 
-        tracing::info!("Spawning new worker.");
+        //tracing::info!("Spawning new worker.");
 
         // Spawn a thread with a new worker.
-        thread::spawn(move || {
-            Worker::new(worker_tx, app_rx, context).init();
-        });
+        // thread::spawn(move || {
+        //     Worker::new(worker_tx, app_rx, context).init();
+        // });
 
-        tracing::info!("New worker spawned.");
+        // tracing::info!("New worker spawned.");
 
-        app.sender = Some(app_tx);
-        app.receiver = Some(worker_rx);
+        // app.sender = Some(app_tx);
+        // app.receiver = Some(worker_rx);
 
         // Set custom fonts and styles.
         setup_custom_fonts(&cc.egui_ctx);
@@ -179,26 +186,26 @@ impl DaenerysApp {
 impl eframe::App for DaenerysApp {
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
         // Check for ToApp messages.
-        if let Some(receiver) = &self.receiver {
-            let maybe_message = match receiver.try_recv() {
-                Ok(message) => Some(message),
-                Err(e) => match e {
-                    mpsc::TryRecvError::Empty => None,
-                    mpsc::TryRecvError::Disconnected => {
-                        self.current_error = Some(AppError::ChannelClosed);
-                        None
-                    }
-                },
-            };
+        // if let Some(receiver) = &self.receiver {
+        //     let maybe_message = match receiver.try_recv() {
+        //         Ok(message) => Some(message),
+        //         Err(e) => match e {
+        //             mpsc::TryRecvError::Empty => None,
+        //             mpsc::TryRecvError::Disconnected => {
+        //                 self.current_error = Some(AppError::ChannelClosed);
+        //                 None
+        //             }
+        //         },
+        //     };
 
-            if let Some(message) = maybe_message {
-                println!("received = {:?}", message);
-                match message.message {
-                    ToAppMessage::Pong => self.current_info = Some("pong".to_string()),
-                    ToAppMessage::Error(e) => self.current_error = Some(e), //FIXME: handle fatal errors
-                }
-            }
-        }
+        //     if let Some(message) = maybe_message {
+        //         println!("received = {:?}", message);
+        //         match message.message {
+        //             ToAppMessage::Pong => self.current_info = Some("pong".to_string()),
+        //             ToAppMessage::Error(e) => self.current_error = Some(e), //FIXME: handle fatal errors
+        //         }
+        //     }
+        // }
 
         // Get directories promises.
         if let Some(p) = &self.get_directories_promise {

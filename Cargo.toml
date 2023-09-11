@@ -1,20 +1,29 @@
 [package]
-name = "storm-daenerys-front"
+name = "storm_daenerys_front"
 version = "0.1.0"
+authors = ["Thomas Bellembois <thomas.bellembois@uca.fr>"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[[bin]]
+name = "storm_daenerys_front"
+path = "src/main.rs"
+
+[lib]
+name = "storm_daenerys_front"
+path = "src/lib.rs"
 
 [dependencies]
 eframe = "0.22.0"
 egui = "0.22.0"
 egui_extras = { version = "0.22.0", features = ["svg", "image"] }
 ehttp = "0.3.0"
-poll-promise = "0.2.0"
-posix-acl = "1.1"
+poll-promise = "0.3.0"
+#posix-acl = "1.1"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
-storm-daenerys-common = { path = "../storm-daenerys-common" }
+storm_daenerys_common = { path = "../storm-daenerys-common" }
