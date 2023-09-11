@@ -2,6 +2,7 @@ use std::sync::mpsc::{self, Receiver, Sender};
 use std::sync::Once;
 use std::thread;
 
+use storm_daenerys_common::defines::GROUP_CN_RE_STRING;
 use storm_daenerys_common::types::acl::Qualifier;
 use storm_daenerys_common::types::group::Group;
 use storm_daenerys_common::types::user::User;
@@ -19,6 +20,8 @@ use crate::worker::{
     worker::Worker,
 };
 
+use regex::Regex;
+
 static START: Once = Once::new();
 
 // Applications pages.
@@ -28,8 +31,10 @@ enum Page {
     Main,
 }
 
-#[derive(Default)]
 pub struct DaenerysApp {
+    // Group name regex.
+    pub group_cn_re: Regex,
+
     // Current active page.
     page: Page,
 
@@ -74,6 +79,7 @@ pub struct DaenerysApp {
 
     // Icons.
     pub storm_logo: Option<egui_extras::RetainedImage>,
+    pub storm_logo_dark: Option<egui_extras::RetainedImage>,
     pub separator_image: Option<egui_extras::RetainedImage>,
 
     //
@@ -125,6 +131,51 @@ pub struct DaenerysApp {
     pub create_group_description: String,
 }
 
+impl Default for DaenerysApp {
+    fn default() -> Self {
+        Self {
+            group_cn_re: Regex::new(GROUP_CN_RE_STRING).unwrap(),
+            page: Default::default(),
+            theme: Default::default(),
+            directories: Default::default(),
+            groups: Default::default(),
+            users: Default::default(),
+            get_directories_promise: Default::default(),
+            get_groups_promise: Default::default(),
+            get_users_promise: Default::default(),
+            save_directory_acl_promise: Default::default(),
+            save_group_promises: Default::default(),
+            create_group_promise: Default::default(),
+            delete_group_promise: Default::default(),
+            current_error: Default::default(),
+            current_info: Default::default(),
+            storm_logo: Default::default(),
+            storm_logo_dark: Default::default(),
+            separator_image: Default::default(),
+            display_directory_button_clicked: Default::default(),
+            display_group_button_clicked: Default::default(),
+            create_group_clicked: Default::default(),
+            create_directory_clicked: Default::default(),
+            edit_directory_clicked: Default::default(),
+            edit_group_clicked: Default::default(),
+            edit_group_clicked_backup: Default::default(),
+            edit_directory_add_user_clicked: Default::default(),
+            edit_directory_add_group_clicked: Default::default(),
+            edit_group_add_user_clicked: Default::default(),
+            edit_group_delete_confirm: Default::default(),
+            edited_directory_remove_acl: Default::default(),
+            edited_directory_toogle_read_only: Default::default(),
+            edited_directory_add_user: Default::default(),
+            edited_directory_add_group: Default::default(),
+            edited_group_add_user: Default::default(),
+            edited_group_remove_member: Default::default(),
+            user_search: Default::default(),
+            create_group_name: Default::default(),
+            create_group_description: Default::default(),
+        }
+    }
+}
+
 impl DaenerysApp {
     pub fn new(cc: &CreationContext) -> Self {
         // Create application.
@@ -143,13 +194,14 @@ impl DaenerysApp {
                 )
                 .unwrap(),
             ),
-            // storm_logo: Some(
-            //     egui_extras::RetainedImage::from_image_bytes(
-            //         "storm.png",
-            //         include_bytes!("media/storm.png"),
-            //     )
-            //     .unwrap(),
-            // ),
+            storm_logo_dark: Some(
+                egui_extras::RetainedImage::from_svg_bytes(
+                    "storm-dark.svg",
+                    include_bytes!("media/storm-dark.svg"),
+                )
+                .unwrap(),
+            ),
+            group_cn_re: Regex::new(GROUP_CN_RE_STRING).unwrap(),
             ..Default::default()
         };
 

@@ -1,10 +1,3 @@
-use egui::Key;
-use storm_daenerys_common::types::{
-    acl::{Qualifier, SetAcl},
-    directory::Directory,
-    group::Group,
-};
-
 use crate::{
     api::{
         self,
@@ -13,6 +6,13 @@ use crate::{
     },
     defines::{AF_GROUP_CODE, AF_USER_CODE},
     ui::daenerys::DaenerysApp,
+};
+use egui::Key;
+
+use storm_daenerys_common::types::{
+    acl::{Qualifier, SetAcl},
+    directory::Directory,
+    group::Group,
 };
 
 pub fn display_central_panel(
@@ -44,7 +44,11 @@ pub fn display_central_panel(
 
                 // Create button.
                 let mut enabled: bool = true;
-                if app.create_group_name.clone().len() < 2 {
+                if app.create_group_name.clone().len() < 2
+                    || !app
+                        .group_cn_re
+                        .is_match(app.create_group_name.clone().as_str())
+                {
                     enabled = false;
                 }
                 ui.add_enabled_ui(enabled, |ui| {
@@ -65,6 +69,9 @@ pub fn display_central_panel(
 
                         app.create_group_promise =
                             Some(api::group::create_group(ctx, create_group));
+
+                        app.create_group_name.clear();
+                        app.create_group_description.clear();
                     }
                 });
             });

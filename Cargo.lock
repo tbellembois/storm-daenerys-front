@@ -2272,6 +2272,7 @@ dependencies = [
  "egui_extras",
  "ehttp",
  "poll-promise",
+ "regex",
  "serde",
  "serde_json",
  "storm_daenerys_common",

@@ -143,6 +143,9 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &m
                 app.display_group_button_clicked = None;
                 app.edit_directory_clicked = None;
                 app.edit_group_clicked = None;
+
+                app.create_group_name.clear();
+                app.create_group_description.clear();
             }
         });
 }

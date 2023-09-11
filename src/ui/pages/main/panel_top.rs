@@ -12,14 +12,16 @@ pub fn display_top_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &mu
         // Current error label.
         if let Some(current_error) = &app.current_error {
             ui.label(
-                RichText::new(format!("{} {}", AF_ERROR_CODE, current_error)).color(Color32::RED),
+                RichText::new(format!("{} {}", AF_ERROR_CODE, current_error))
+                    .color(Color32::DARK_RED),
             );
         }
 
         // Current info label.
         if let Some(current_info) = &app.current_info {
             ui.label(
-                RichText::new(format!("{} {}", AF_INFO_CODE, current_info)).color(Color32::GREEN),
+                RichText::new(format!("{} {}", AF_INFO_CODE, current_info))
+                    .color(Color32::DARK_GREEN),
             );
         }
 
@@ -45,9 +47,15 @@ pub fn display_top_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &mu
         }
 
         // Logo.
-        ui.vertical_centered(|ui| {
-            app.storm_logo.as_ref().unwrap().show(ui);
-        });
+        if app.theme.dark_mode {
+            ui.vertical_centered(|ui| {
+                app.storm_logo_dark.as_ref().unwrap().show(ui);
+            });
+        } else {
+            ui.vertical_centered(|ui| {
+                app.storm_logo.as_ref().unwrap().show(ui);
+            });
+        }
 
         app.separator_image.as_ref().unwrap().show(ui);
     });
