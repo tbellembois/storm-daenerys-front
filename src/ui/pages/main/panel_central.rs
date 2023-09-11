@@ -1,3 +1,4 @@
+use egui::Key;
 use storm_daenerys_common::types::{
     acl::{Qualifier, SetAcl},
     directory::Directory,
@@ -269,12 +270,20 @@ pub fn display_central_panel(
                         app.get_users_promise =
                             Some(api::user::get_users(ctx, app.user_search.clone()));
                     }
+
+                    if ctx.input(|i| i.key_pressed(Key::Enter)) {
+                        app.get_users_promise =
+                            Some(api::user::get_users(ctx, app.user_search.clone()));
+                    }
                 });
 
                 // User list.
                 if app.users.is_some() {
                     for user in app.users.as_ref().unwrap() {
-                        if ui.link(user.clone().display).clicked() {
+                        if ui
+                            .link(format!("{} [{}]", user.clone().display, user.clone().id))
+                            .clicked()
+                        {
                             app.edited_directory_add_user = Some(user.id.clone());
                         }
                     }
@@ -381,6 +390,7 @@ pub fn display_central_panel(
                 });
                 app.edit_directory_clicked = None;
                 app.display_group_button_clicked = None;
+                app.edit_group_delete_confirm = false;
             }
 
             // Delete group button.
@@ -483,12 +493,20 @@ pub fn display_central_panel(
                         app.get_users_promise =
                             Some(api::user::get_users(ctx, app.user_search.clone()));
                     }
+
+                    if ctx.input(|i| i.key_pressed(Key::Enter)) {
+                        app.get_users_promise =
+                            Some(api::user::get_users(ctx, app.user_search.clone()));
+                    }
                 });
 
                 // User list.
                 if app.users.is_some() {
                     for user in app.users.as_ref().unwrap() {
-                        if ui.link(user.clone().display).clicked() {
+                        if ui
+                            .link(format!("{} [{}]", user.clone().display, user.clone().id))
+                            .clicked()
+                        {
                             app.edited_group_add_user = Some(user.id.clone());
                         }
                     }

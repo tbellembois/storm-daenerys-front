@@ -24,7 +24,11 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &m
                     app.get_directories_promise = Some(api::directory::get_root_directories(ctx));
                 }
 
-                ui.label(egui::RichText::new("my root directories").heading());
+                ui.label(
+                    egui::RichText::new("my root directories")
+                        .heading()
+                        .italics(),
+                );
             });
 
             //
@@ -59,6 +63,7 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &m
                                         app.create_group_clicked = false;
                                         app.current_error = None;
                                         app.current_info = None;
+                                        app.edit_group_delete_confirm = false;
                                     };
                                 });
 
@@ -81,7 +86,7 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &m
                     app.get_groups_promise = Some(api::group::get_groups(ctx));
                 }
 
-                ui.label(egui::RichText::new("my storm groups").heading());
+                ui.label(egui::RichText::new("my storm groups").heading().italics());
             });
 
             //
@@ -113,6 +118,7 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &m
                                     app.create_group_clicked = false;
                                     app.current_error = None;
                                     app.current_info = None;
+                                    app.edit_group_delete_confirm = false;
                                 }
                             });
 
