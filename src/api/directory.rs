@@ -1,3 +1,4 @@
+use log::debug;
 use poll_promise::Promise;
 
 use storm_daenerys_common::types::{directory::Directory, error::CommonError};
@@ -30,9 +31,9 @@ fn parse_get_directories_response(
     let status_text = &response.status_text;
     let maybe_text_response = response.text();
 
-    tracing::debug!("{:?}", status);
-    tracing::debug!("{:?}", status_text);
-    tracing::debug!("{:?}", maybe_text_response);
+    debug!("{:?}", status);
+    debug!("{:?}", status_text);
+    debug!("{:?}", maybe_text_response);
 
     match status {
         200 => match maybe_text_response {
@@ -43,15 +44,15 @@ fn parse_get_directories_response(
             None => Ok(None),
         },
         _ => match maybe_text_response {
-            Some(text_response) => { 
-                let common_error: CommonError = match serde_json::from_str::<CommonError>(text_response) {
-                    Ok(common_error) => common_error,
-                    Err(e) => CommonError::InternalServerError(e.to_string()),
-                };
+            Some(text_response) => {
+                let common_error: CommonError =
+                    match serde_json::from_str::<CommonError>(text_response) {
+                        Ok(common_error) => common_error,
+                        Err(e) => CommonError::InternalServerError(e.to_string()),
+                    };
                 Err(common_error.to_string())
-            },
+            }
             None => Ok(None),
         },
-
     }
 }

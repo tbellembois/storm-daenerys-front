@@ -1,10 +1,9 @@
-use std::default;
-
+use log::debug;
 use poll_promise::Promise;
 
 use storm_daenerys_common::types::{
     error::CommonError,
-    group::{self, AddDelUserToGroup, Group},
+    group::{AddDelUserToGroup, Group},
 };
 
 pub fn save_group(
@@ -35,7 +34,7 @@ pub fn save_group(
             }
 
             if member_to_del {
-                tracing::debug!("deleting member {:?}", member_backup.to_string());
+                debug!("deleting member {:?}", member_backup.to_string());
 
                 result.push(del_user_from_group(
                     ctx,
@@ -70,7 +69,7 @@ pub fn save_group(
             }
 
             if member_to_add {
-                tracing::debug!("adding member {:?}", member.to_string());
+                debug!("adding member {:?}", member.to_string());
 
                 result.push(add_user_to_group(
                     ctx,
@@ -218,9 +217,9 @@ fn parse_get_groups_response(response: ehttp::Response) -> Result<Option<Vec<Gro
     let status_text = &response.status_text;
     let maybe_text_response = response.text();
 
-    tracing::debug!("{:?}", status);
-    tracing::debug!("{:?}", status_text);
-    tracing::debug!("{:?}", maybe_text_response);
+    debug!("{:?}", status);
+    debug!("{:?}", status_text);
+    debug!("{:?}", maybe_text_response);
 
     match status {
         200 => match maybe_text_response {
@@ -249,9 +248,9 @@ fn parse_add_del_user_to_group_response(response: ehttp::Response) -> Result<(),
     let status_text = &response.status_text;
     let maybe_text_response = response.text();
 
-    tracing::debug!("{:?}", status);
-    tracing::debug!("{:?}", status_text);
-    tracing::debug!("{:?}", maybe_text_response);
+    debug!("{:?}", status);
+    debug!("{:?}", status_text);
+    debug!("{:?}", maybe_text_response);
 
     match status {
         200 => Ok(()),

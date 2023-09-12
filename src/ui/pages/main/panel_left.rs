@@ -1,4 +1,4 @@
-use egui::{Color32, RichText, Vec2};
+use egui::{Color32, Frame, Margin, RichText, Vec2};
 
 use crate::{
     api,
@@ -7,7 +7,25 @@ use crate::{
 };
 
 pub fn display_left_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+    // FIXME
+    let background: Color32;
+    if app.theme.dark_mode {
+        background = Color32::from_rgb(27, 27, 27);
+    } else {
+        background = Color32::from_rgb(248, 248, 248);
+    }
+
     egui::SidePanel::left("group_and_directory_list")
+        .frame(Frame {
+            inner_margin: Margin {
+                left: 20.0,
+                right: 10.0,
+                top: 10.0,
+                bottom: 10.0,
+            },
+            fill: background,
+            ..Default::default()
+        })
         .resizable(false)
         .show(ctx, |ui| {
             ui.set_width(300.0);

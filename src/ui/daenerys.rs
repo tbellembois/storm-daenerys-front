@@ -211,14 +211,14 @@ impl DaenerysApp {
 
         let context = cc.egui_ctx.clone();
 
-        //tracing::info!("Spawning new worker.");
+        //info!("Spawning new worker.");
 
         // Spawn a thread with a new worker.
         // thread::spawn(move || {
         //     Worker::new(worker_tx, app_rx, context).init();
         // });
 
-        // tracing::info!("New worker spawned.");
+        // info!("New worker spawned.");
 
         // app.sender = Some(app_tx);
         // app.receiver = Some(worker_rx);

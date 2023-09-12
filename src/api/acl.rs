@@ -1,3 +1,4 @@
+use log::debug;
 use poll_promise::Promise;
 
 use storm_daenerys_common::types::{acl::SetAcl, error::CommonError};
@@ -32,9 +33,9 @@ fn parse_save_acl_response(response: ehttp::Response) -> Result<(), String> {
     let status_text = &response.status_text;
     let maybe_text_response = response.text();
 
-    tracing::debug!("{:?}", status);
-    tracing::debug!("{:?}", status_text);
-    tracing::debug!("{:?}", maybe_text_response);
+    debug!("{:?}", status);
+    debug!("{:?}", status_text);
+    debug!("{:?}", maybe_text_response);
 
     match status {
         200 => Ok(()),
