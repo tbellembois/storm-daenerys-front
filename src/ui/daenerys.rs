@@ -1,6 +1,4 @@
-use std::sync::mpsc::{self, Receiver, Sender};
 use std::sync::Once;
-use std::thread;
 
 use storm_daenerys_common::defines::GROUP_CN_RE_STRING;
 use storm_daenerys_common::types::acl::Qualifier;
@@ -15,10 +13,6 @@ use poll_promise::Promise;
 use crate::api;
 use crate::error::apperror::AppError;
 use crate::ui::pages::main;
-use crate::worker::{
-    message::{ToApp, ToAppMessage, ToWorker},
-    worker::Worker,
-};
 
 use regex::Regex;
 

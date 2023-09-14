@@ -6,6 +6,8 @@ use storm_daenerys_common::types::{
     group::{AddDelUserToGroup, Group},
 };
 
+use crate::defines::API_URL;
+
 pub fn save_group(
     ctx: &egui::Context,
     group_backup: Group,
@@ -100,7 +102,7 @@ pub fn del_user_from_group(
 
     let request = ehttp::Request {
         method: "DELETE".to_owned(),
-        url: "http://localhost:3000/groups/user".to_string(),
+        url: format!("{}/groups/user", API_URL),
         body: request_payload.as_bytes().to_vec(),
         headers: ehttp::headers(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
     };
@@ -130,7 +132,7 @@ pub fn add_user_to_group(
 
     let request = ehttp::Request {
         method: "PATCH".to_owned(),
-        url: "http://localhost:3000/groups/user".to_string(),
+        url: format!("{}/groups/user", API_URL),
         body: request_payload.as_bytes().to_vec(),
         headers: ehttp::headers(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
     };
@@ -155,7 +157,7 @@ pub fn create_group(ctx: &egui::Context, create_group: Group) -> Promise<Result<
 
     let request = ehttp::Request {
         method: "POST".to_owned(),
-        url: "http://localhost:3000/groups".to_string(),
+        url: format!("{}/groups", API_URL),
         body: request_payload.as_bytes().to_vec(),
         headers: ehttp::headers(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
     };
@@ -179,7 +181,7 @@ pub fn delete_group(ctx: &egui::Context, cn: String) -> Promise<Result<(), Strin
 
     let request = ehttp::Request {
         method: "DELETE".to_owned(),
-        url: format!("http://localhost:3000/groups/{}", cn),
+        url: format!("{}/groups/{}", API_URL, cn),
         body: request_payload.as_bytes().to_vec(),
         headers: ehttp::headers(&[("Accept", "*/*")]),
     };
@@ -201,7 +203,7 @@ pub fn get_groups(ctx: &egui::Context) -> Promise<Result<Option<Vec<Group>>, Str
     // We use the `poll-promise` library to communicate with the UI thread.
     let ctx = ctx.clone();
     let (sender, promise) = Promise::new();
-    let request = ehttp::Request::get("http://localhost:3000/groups");
+    let request = ehttp::Request::get(format!("{}/groups", API_URL));
 
     ehttp::fetch(request, move |response| {
         let groups = response.and_then(parse_get_groups_response);

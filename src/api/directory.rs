@@ -3,6 +3,8 @@ use poll_promise::Promise;
 
 use storm_daenerys_common::types::{directory::Directory, error::CommonError};
 
+use crate::defines::API_URL;
+
 pub fn get_root_directories(
     ctx: &egui::Context,
 ) -> Promise<Result<Option<Vec<Directory>>, String>> {
@@ -13,7 +15,7 @@ pub fn get_root_directories(
     // We use the `poll-promise` library to communicate with the UI thread.
     let ctx = ctx.clone();
     let (sender, promise) = Promise::new();
-    let request = ehttp::Request::get("http://localhost:3000/directories");
+    let request = ehttp::Request::get(format!("{}/directories", API_URL));
 
     ehttp::fetch(request, move |response| {
         let folders = response.and_then(parse_get_directories_response);

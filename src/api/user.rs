@@ -3,6 +3,8 @@ use poll_promise::Promise;
 
 use storm_daenerys_common::types::{error::CommonError, user::User};
 
+use crate::defines::API_URL;
+
 pub fn get_users(ctx: &egui::Context, q: String) -> Promise<Result<Option<Vec<User>>, String>> {
     dbg!("Get user list.");
 
@@ -11,7 +13,7 @@ pub fn get_users(ctx: &egui::Context, q: String) -> Promise<Result<Option<Vec<Us
     // We use the `poll-promise` library to communicate with the UI thread.
     let ctx = ctx.clone();
     let (sender, promise) = Promise::new();
-    let request = ehttp::Request::get(format!("http://localhost:3000/users?q={}", q));
+    let request = ehttp::Request::get(format!("{}/users?q={}", API_URL, q));
 
     ehttp::fetch(request, move |response| {
         let users = response.and_then(parse_get_users_response);

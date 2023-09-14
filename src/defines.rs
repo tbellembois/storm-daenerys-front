@@ -15,3 +15,5 @@ pub const AF_ERROR_CODE: char = '\u{f071}';
 pub const AF_INFO_CODE: char = '\u{f05a}';
 pub const AF_SUN_CODE: char = '\u{f185}';
 pub const AF_MOON_CODE: char = '\u{f186}';
+
+pub const API_URL: &str = "http://localhost:3000";
