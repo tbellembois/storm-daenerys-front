@@ -17,3 +17,4 @@ pub const AF_SUN_CODE: char = '\u{f185}';
 pub const AF_MOON_CODE: char = '\u{f186}';
 
 pub const API_URL: &str = "http://localhost:3000";
+// pub const API_URL: &str = "http://193.49.167.57/back";

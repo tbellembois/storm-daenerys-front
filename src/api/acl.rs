@@ -16,7 +16,7 @@ pub fn save_acl(ctx: &egui::Context, set_acl: SetAcl) -> Promise<Result<(), std:
 
     let request = ehttp::Request {
         method: "POST".to_owned(),
-        url: API_URL.to_string(),
+        url: format!("{}/acls", API_URL),
         body: request_payload.as_bytes().to_vec(),
         headers: ehttp::headers(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
     };
