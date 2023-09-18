@@ -203,7 +203,7 @@ impl DaenerysApp {
         // let (app_tx, app_rx) = mpsc::channel();
         // let (worker_tx, worker_rx) = mpsc::channel();
 
-        let context = cc.egui_ctx.clone();
+        // let context = cc.egui_ctx.clone();
 
         //info!("Spawning new worker.");
 

@@ -1,10 +1,6 @@
 use std::sync::mpsc::{Receiver, Sender};
-use std::{
-    thread,
-    time::{self, Duration},
-};
 
-use egui::{Context, Widget};
+use egui::Context;
 use log::{error, info};
 
 use crate::{
