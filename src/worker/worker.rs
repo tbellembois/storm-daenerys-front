@@ -10,6 +10,7 @@ use crate::{
 
 use super::message::{ToApp, ToWorker};
 
+#[allow(dead_code)]
 pub struct Worker {
     sender: Sender<ToApp>,
     receiver: Receiver<ToWorker>,
@@ -17,6 +18,7 @@ pub struct Worker {
 }
 
 impl Worker {
+    #[allow(dead_code)]
     pub fn new(
         sender: Sender<ToApp>,
         receiver: Receiver<ToWorker>,
@@ -29,6 +31,7 @@ impl Worker {
         }
     }
 
+    #[allow(dead_code)]
     pub fn init(&mut self) {
         info!("Worker starting up.");
 
