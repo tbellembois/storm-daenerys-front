@@ -30,13 +30,22 @@ pub fn display_central_panel(
             inner_margin: Margin {
                 left: 50.0,
                 right: 10.0,
-                top: 50.0,
+                top: 20.0,
                 bottom: 10.0,
             },
             fill: background,
             ..Default::default()
         })
         .show(ctx, |ui| {
+            //
+            // Spinner.
+            //
+            if app.is_working {
+                ui.add_sized([0., 40.], egui::widgets::Spinner::new());
+            } else {
+                ui.add_sized([0., 40.], egui::Label::new(""));
+            }
+
             //
             // Create group form.
             //
@@ -86,6 +95,7 @@ pub fn display_central_panel(
                                 member: None,
                             };
 
+                            app.is_working = true;
                             app.create_group_promise =
                                 Some(api::group::create_group(ctx, create_group));
 
@@ -214,6 +224,7 @@ pub fn display_central_panel(
                         {
                             app.edit_directory_add_user_clicked = true;
                             app.edit_directory_add_group_clicked = false;
+                            app.users = None;
                         }
 
                         // Add group button.
@@ -264,11 +275,13 @@ pub fn display_central_panel(
                         let button = egui::Button::new(button_label);
 
                         if ui.add_sized([150., 30.], button).clicked() {
+                            app.is_working = true;
                             app.get_users_promise =
                                 Some(api::user::get_users(ctx, app.user_search.clone()));
                         }
 
                         if ctx.input(|i| i.key_pressed(Key::Enter)) {
+                            app.is_working = true;
                             app.get_users_promise =
                                 Some(api::user::get_users(ctx, app.user_search.clone()));
                         }
@@ -349,6 +362,7 @@ pub fn display_central_panel(
                             acls: directory_button_clicked.acls.clone(),
                         };
 
+                        app.is_working = true;
                         app.save_directory_acl_promise = Some(save_acl(ctx, set_acl));
                     }
                 }
@@ -449,6 +463,7 @@ pub fn display_central_panel(
                             format!("{} {}", crate::defines::AF_CONFIRM_CODE, "confirm deletion");
                         let button = egui::Button::new(button_label);
                         if ui.add_sized([150., 30.], button).clicked() {
+                            app.is_working = true;
                             app.delete_group_promise = Some(delete_group(
                                 ctx,
                                 app.group_button_clicked.as_ref().unwrap().cn.clone(),
@@ -477,11 +492,13 @@ pub fn display_central_panel(
                         let button = egui::Button::new(button_label);
 
                         if ui.add_sized([150., 30.], button).clicked() {
+                            app.is_working = true;
                             app.get_users_promise =
                                 Some(api::user::get_users(ctx, app.user_search.clone()));
                         }
 
                         if ctx.input(|i| i.key_pressed(Key::Enter)) {
+                            app.is_working = true;
                             app.get_users_promise =
                                 Some(api::user::get_users(ctx, app.user_search.clone()));
                         }
@@ -527,6 +544,7 @@ pub fn display_central_panel(
                         app.current_info =
                             Some(format!("saving group {}", group_button_clicked.cn));
 
+                        app.is_working = true;
                         app.save_group_promises = Some(save_group(
                             ctx,
                             *app.edit_group_clicked_backup.as_ref().unwrap().clone(),
@@ -535,131 +553,5 @@ pub fn display_central_panel(
                     }
                 }
             };
-
-            //
-            // Group edition.
-            //
-            // if let Some(edit_group_clicked) = &app.edit_group_clicked {
-            //     ui.heading(format!(
-            //         "{} {}",
-            //         crate::defines::AF_FOLDER_CODE,
-            //         edit_group_clicked.cn.clone()
-            //     ));
-
-            //     app.separator_image.as_ref().unwrap().show(ui);
-
-            //     match &edit_group_clicked.member {
-            //         Some(members) => {
-            //             egui::Grid::new("group_member_edit")
-            //                 .num_columns(2)
-            //                 .show(ui, |ui| {
-            //                     for member in members {
-            //                         ui.label(member);
-
-            //                         // Delete member button.
-            //                         let button_label = format!(
-            //                             "{} {}",
-            //                             crate::defines::AF_DELETE_CODE,
-            //                             "delete member"
-            //                         );
-            //                         let button = egui::Button::new(button_label);
-
-            //                         if ui.add_sized([150., 25.], button).clicked() {
-            //                             app.edited_group_remove_member = Some(member.to_string());
-            //                         }
-
-            //                         ui.end_row();
-            //                     }
-            //                 });
-            //         }
-            //         None => {
-            //             ui.label("no members".to_string());
-            //         }
-            //     }
-
-            //     app.separator_image.as_ref().unwrap().show(ui);
-
-            //     ui.horizontal_top(|ui| {
-            //         // Add user button.
-            //         let button_label = format!("{} {}", crate::defines::AF_ADD_CODE, "add user");
-
-            //         let button = egui::Button::new(button_label);
-
-            //         if !app.edit_group_add_user_clicked
-            //             && ui.add_sized([150., 30.], button).clicked()
-            //         {
-            //             app.edit_group_add_user_clicked = true;
-            //         }
-            //     });
-
-            //     //
-            //     // Add user.
-            //     //
-            //     if app.edit_group_add_user_clicked {
-            //         // Search user form.
-            //         ui.horizontal_top(|ui| {
-            //             ui.add_sized(
-            //                 [400., 30.],
-            //                 egui::TextEdit::singleline(&mut app.user_search)
-            //                     .hint_text("enter at least 2 characters and click search"),
-            //             );
-            //             // Search user button.
-            //             let button_label =
-            //                 format!("{} {}", crate::defines::AF_SEARCH_CODE, "search");
-
-            //             let button = egui::Button::new(button_label);
-
-            //             if ui.add_sized([150., 30.], button).clicked() {
-            //                 app.get_users_promise =
-            //                     Some(api::user::get_users(ctx, app.user_search.clone()));
-            //             }
-
-            //             if ctx.input(|i| i.key_pressed(Key::Enter)) {
-            //                 app.get_users_promise =
-            //                     Some(api::user::get_users(ctx, app.user_search.clone()));
-            //             }
-            //         });
-
-            //         // User list.
-            //         if app.users.is_some() {
-            //             for user in app.users.as_ref().unwrap() {
-            //                 if ui
-            //                     .link(format!("{} [{}]", user.clone().display, user.clone().id))
-            //                     .clicked()
-            //                 {
-            //                     app.edited_group_add_user = Some(user.id.clone());
-            //                 }
-            //             }
-            //         }
-
-            //         // Done button.
-            //         let button_label = format!("{} {}", crate::defines::AF_CANCEL_CODE, "done");
-
-            //         let button = egui::Button::new(button_label);
-
-            //         if ui.add_sized([150., 30.], button).clicked() {
-            //             app.edit_group_add_user_clicked = false;
-            //         }
-            //     }
-
-            //     //
-            //     // Save button.
-            //     //
-            //     if !app.edit_group_add_user_clicked {
-            //         let button_label = format!("{} {}", crate::defines::AF_SAVE_CODE, "save");
-
-            //         let button = egui::Button::new(button_label);
-
-            //         if ui.add_sized([150., 30.], button).clicked() {
-            //             app.current_info = Some(format!("saving group {}", edit_group_clicked.cn));
-
-            //             app.save_group_promises = Some(save_group(
-            //                 ctx,
-            //                 app.edit_group_clicked_backup.as_ref().unwrap().clone(),
-            //                 edit_group_clicked.clone(),
-            //             ));
-            //         }
-            //     }
-            // }
         });
 }

@@ -133,11 +133,15 @@ pub struct DaenerysApp {
     // Groupe name and description input of the create group form.
     pub create_group_name: String,
     pub create_group_description: String,
+
+    // Spinner?
+    pub is_working: bool,
 }
 
 impl Default for DaenerysApp {
     fn default() -> Self {
         Self {
+            is_working: Default::default(),
             group_cn_re: Regex::new(GROUP_CN_RE_STRING).unwrap(),
             page: Default::default(),
             theme: Default::default(),
@@ -270,6 +274,8 @@ impl eframe::App for DaenerysApp {
             match p.ready() {
                 None => (),
                 Some(try_directories) => {
+                    self.is_working = false;
+
                     match try_directories {
                         Ok(directories) => {
                             self.directories = directories.clone();
@@ -290,6 +296,8 @@ impl eframe::App for DaenerysApp {
             match p.ready() {
                 None => (),
                 Some(try_result) => {
+                    self.is_working = false;
+
                     match try_result {
                         Ok(_) => {
                             self.current_info = Some("acl set successfully".to_string());
@@ -338,6 +346,8 @@ impl eframe::App for DaenerysApp {
             }
 
             if count == total_promises {
+                self.is_working = false;
+
                 self.current_info = Some("group updated successfully".to_string());
 
                 self.get_groups_promise = Some(api::group::get_groups(ctx));
@@ -351,6 +361,8 @@ impl eframe::App for DaenerysApp {
             match p.ready() {
                 None => (),
                 Some(try_result) => {
+                    self.is_working = false;
+
                     match try_result {
                         Ok(_) => {
                             self.current_info = Some("group created successfully".to_string());
@@ -374,6 +386,8 @@ impl eframe::App for DaenerysApp {
             match p.ready() {
                 None => (),
                 Some(try_result) => {
+                    self.is_working = false;
+
                     match try_result {
                         Ok(_) => {
                             self.current_info = Some("group deleted successfully".to_string());
@@ -397,6 +411,8 @@ impl eframe::App for DaenerysApp {
             match p.ready() {
                 None => (),
                 Some(try_groups) => {
+                    self.is_working = false;
+
                     match try_groups {
                         Ok(groups) => {
                             self.groups = groups.clone();
@@ -417,6 +433,8 @@ impl eframe::App for DaenerysApp {
             match p.ready() {
                 None => (),
                 Some(try_users) => {
+                    self.is_working = false;
+
                     match try_users {
                         Ok(users) => {
                             self.users = users.clone();
@@ -603,6 +621,7 @@ impl eframe::App for DaenerysApp {
 
         // Get initial directory and group list.
         START.call_once(|| {
+            self.is_working = true;
             self.get_directories_promise = Some(api::directory::get_root_directories(ctx));
             self.get_groups_promise = Some(api::group::get_groups(ctx));
         });

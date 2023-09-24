@@ -94,11 +94,16 @@ pub fn del_user_from_group(
 ) -> Promise<Result<(), std::string::String>> {
     dbg!("Del user from group: {:?}", &del_user_from_group);
 
-    // TODO: handle error here.
-    let request_payload = serde_json::to_string(&del_user_from_group).unwrap();
-
     let ctx = ctx.clone();
     let (sender, promise) = Promise::new();
+
+    let request_payload = match serde_json::to_string(&del_user_from_group) {
+        Ok(request_payload) => request_payload,
+        Err(e) => {
+            sender.send(Err(e.to_string()));
+            return promise;
+        }
+    };
 
     let request = ehttp::Request {
         method: "DELETE".to_owned(),
@@ -122,13 +127,18 @@ pub fn add_user_to_group(
 ) -> Promise<Result<(), std::string::String>> {
     dbg!("Add user to group: {:?}", &add_user_to_group);
 
-    // TODO: handle error here.
-    let request_payload = serde_json::to_string(&add_user_to_group).unwrap();
-
-    dbg!("request_payload: {}", &request_payload);
-
     let ctx = ctx.clone();
     let (sender, promise) = Promise::new();
+
+    let request_payload = match serde_json::to_string(&add_user_to_group) {
+        Ok(request_payload) => request_payload,
+        Err(e) => {
+            sender.send(Err(e.to_string()));
+            return promise;
+        }
+    };
+
+    dbg!("request_payload: {}", &request_payload);
 
     let request = ehttp::Request {
         method: "PATCH".to_owned(),
@@ -149,11 +159,16 @@ pub fn add_user_to_group(
 pub fn create_group(ctx: &egui::Context, create_group: Group) -> Promise<Result<(), String>> {
     dbg!("Create group: {:?}", &create_group);
 
-    // TODO: handle error here.
-    let request_payload = serde_json::to_string(&create_group).unwrap();
-
     let ctx = ctx.clone();
     let (sender, promise) = Promise::new();
+
+    let request_payload = match serde_json::to_string(&create_group) {
+        Ok(request_payload) => request_payload,
+        Err(e) => {
+            sender.send(Err(e.to_string()));
+            return promise;
+        }
+    };
 
     let request = ehttp::Request {
         method: "POST".to_owned(),

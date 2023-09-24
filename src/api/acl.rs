@@ -8,11 +8,16 @@ use crate::defines::API_URL;
 pub fn save_acl(ctx: &egui::Context, set_acl: SetAcl) -> Promise<Result<(), std::string::String>> {
     dbg!("Save ACL.");
 
-    // TODO: handle error here.
-    let request_payload = serde_json::to_string(&set_acl).unwrap();
-
     let ctx = ctx.clone();
     let (sender, promise) = Promise::new();
+
+    let request_payload = match serde_json::to_string(&set_acl) {
+        Ok(request_payload) => request_payload,
+        Err(e) => {
+            sender.send(Err(e.to_string()));
+            return promise;
+        }
+    };
 
     let request = ehttp::Request {
         method: "POST".to_owned(),
