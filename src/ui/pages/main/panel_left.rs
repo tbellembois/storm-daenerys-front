@@ -1,19 +1,20 @@
-use egui::{Color32, Frame, Margin, RichText, Vec2};
+use egui::{Color32, Frame, Margin};
 
 use crate::{
     api,
-    defines::{AF_FOLDER_CODE, AF_GROUP_CODE, AF_REFRESH_CODE},
+    defines::{
+        AF_FOLDER_CODE, AF_GROUP_CODE, AF_REFRESH_CODE, DARK_BACKGROUND_COLOR,
+        LIGHT_BACKGROUND_COLOR,
+    },
     ui::daenerys::DaenerysApp,
 };
 
 pub fn display_left_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-    // FIXME
-    let background: Color32;
-    if app.theme.dark_mode {
-        background = Color32::from_rgb(27, 27, 27);
+    let background: Color32 = if app.theme.dark_mode {
+        DARK_BACKGROUND_COLOR
     } else {
-        background = Color32::from_rgb(248, 248, 248);
-    }
+        LIGHT_BACKGROUND_COLOR
+    };
 
     egui::SidePanel::left("group_and_directory_list")
         .frame(Frame {
@@ -70,12 +71,12 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &m
 
                                     // Save the clicked directory name.
                                     if ui.add_sized([200., 30.], button).clicked() {
-                                        app.display_directory_button_clicked =
-                                            Some(directory.clone());
+                                        app.directory_button_clicked =
+                                            Some(Box::new(directory.clone()));
 
-                                        app.display_group_button_clicked = None;
-                                        app.edit_directory_clicked = None;
-                                        app.edit_group_clicked = None;
+                                        app.group_button_clicked = None;
+                                        app.is_directory_editing = false;
+                                        app.is_group_editing = false;
                                         app.edit_directory_add_user_clicked = false;
                                         app.edit_directory_add_group_clicked = false;
                                         app.create_group_clicked = false;
@@ -126,11 +127,11 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &m
 
                                 // Save the clicked group name.
                                 if ui.add_sized([200., 30.], button).clicked() {
-                                    app.display_group_button_clicked = Some(group.clone());
+                                    app.group_button_clicked = Some(Box::new(group.clone()));
 
-                                    app.display_directory_button_clicked = None;
-                                    app.edit_directory_clicked = None;
-                                    app.edit_group_clicked = None;
+                                    app.directory_button_clicked = None;
+                                    app.is_directory_editing = false;
+                                    app.is_group_editing = false;
                                     app.edit_directory_add_user_clicked = false;
                                     app.edit_directory_add_group_clicked = false;
                                     app.create_group_clicked = false;
@@ -157,10 +158,10 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &m
 
             if ui.add_sized([150., 30.], button).clicked() {
                 app.create_group_clicked = true;
-                app.display_directory_button_clicked = None;
-                app.display_group_button_clicked = None;
-                app.edit_directory_clicked = None;
-                app.edit_group_clicked = None;
+                app.directory_button_clicked = None;
+                app.group_button_clicked = None;
+                app.is_directory_editing = false;
+                app.is_group_editing = false;
 
                 app.create_group_name.clear();
                 app.create_group_description.clear();

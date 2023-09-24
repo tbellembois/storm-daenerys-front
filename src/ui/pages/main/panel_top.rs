@@ -1,5 +1,3 @@
-use std::thread::current;
-
 use egui::{Color32, RichText, Visuals};
 
 use crate::{

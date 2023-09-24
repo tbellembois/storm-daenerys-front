@@ -1,3 +1,5 @@
+use egui::Color32;
+
 // Awesome fonts unicode codes.
 pub const AF_FOLDER_CODE: char = '\u{f07b}';
 pub const AF_REFRESH_CODE: char = '\u{f021}';
@@ -15,6 +17,9 @@ pub const AF_ERROR_CODE: char = '\u{f071}';
 pub const AF_INFO_CODE: char = '\u{f05a}';
 pub const AF_SUN_CODE: char = '\u{f185}';
 pub const AF_MOON_CODE: char = '\u{f186}';
+
+pub const DARK_BACKGROUND_COLOR: Color32 = Color32::from_rgb(27, 27, 27);
+pub const LIGHT_BACKGROUND_COLOR: Color32 = Color32::from_rgb(248, 248, 248);
 
 pub const API_URL: &str = "http://localhost:3000";
 // pub const API_URL: &str = "http://193.49.167.57/back";

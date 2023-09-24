@@ -80,9 +80,19 @@ pub struct DaenerysApp {
     // UI widget states
     //
     // Directory button clicked.
-    pub display_directory_button_clicked: Option<Directory>,
+    // pub display_directory_button_clicked: Option<Directory>,
     // Group button clicked.
-    pub display_group_button_clicked: Option<Group>,
+    // pub display_group_button_clicked: Option<Group>,
+
+    // Directory button clicked.
+    pub directory_button_clicked: Option<Box<Directory>>,
+    // Group button clicked.
+    pub group_button_clicked: Option<Box<Group>>,
+
+    // Directory edition.
+    pub is_directory_editing: bool,
+    // Group edition.
+    pub is_group_editing: bool,
 
     // Create group.
     pub create_group_clicked: bool,
@@ -90,11 +100,11 @@ pub struct DaenerysApp {
     pub create_directory_clicked: bool,
 
     // Edit directory clicked.
-    pub edit_directory_clicked: Option<Box<Directory>>,
+    // pub edit_directory_clicked: Option<Box<Directory>>,
     // Edit group clicked.
-    pub edit_group_clicked: Option<Group>,
+    // pub edit_group_clicked: Option<Group>,
     // Edit group clicked - backup before edition.
-    pub edit_group_clicked_backup: Option<Group>,
+    pub edit_group_clicked_backup: Option<Box<Group>>,
     // Add user clicked.
     pub edit_directory_add_user_clicked: bool,
     // Add group clicked.
@@ -146,12 +156,8 @@ impl Default for DaenerysApp {
             storm_logo: Default::default(),
             storm_logo_dark: Default::default(),
             separator_image: Default::default(),
-            display_directory_button_clicked: Default::default(),
-            display_group_button_clicked: Default::default(),
             create_group_clicked: Default::default(),
             create_directory_clicked: Default::default(),
-            edit_directory_clicked: Default::default(),
-            edit_group_clicked: Default::default(),
             edit_group_clicked_backup: Default::default(),
             edit_directory_add_user_clicked: Default::default(),
             edit_directory_add_group_clicked: Default::default(),
@@ -166,6 +172,10 @@ impl Default for DaenerysApp {
             user_search: Default::default(),
             create_group_name: Default::default(),
             create_group_description: Default::default(),
+            directory_button_clicked: Default::default(),
+            is_directory_editing: Default::default(),
+            group_button_clicked: Default::default(),
+            is_group_editing: Default::default(),
         }
     }
 }
@@ -264,7 +274,7 @@ impl eframe::App for DaenerysApp {
                         Ok(directories) => {
                             self.directories = directories.clone();
 
-                            self.display_directory_button_clicked = None;
+                            self.directory_button_clicked = None;
                             self.get_directories_promise = None;
                         }
                         Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
@@ -391,7 +401,7 @@ impl eframe::App for DaenerysApp {
                         Ok(groups) => {
                             self.groups = groups.clone();
 
-                            self.display_group_button_clicked = None;
+                            self.group_button_clicked = None;
                             self.get_groups_promise = None;
                         }
                         Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
@@ -421,13 +431,15 @@ impl eframe::App for DaenerysApp {
 
         // Check directory remove user or group (acl).
         if let Some(edited_directory_remove_acl) = &self.edited_directory_remove_acl {
-            self.edit_directory_clicked
+            self.directory_button_clicked
                 .as_mut()
                 .unwrap()
                 .acls
-                .retain(|a| match a.qualifier_cn.clone() {
-                    Some(qualidier_cn) => qualidier_cn.ne(edited_directory_remove_acl),
-                    None => true, // non User(u) or Group(g) acl
+                .retain(|a| {
+                    match a.qualifier_cn.clone() {
+                        Some(qualidier_cn) => qualidier_cn.ne(edited_directory_remove_acl),
+                        None => true, // non User(u) or Group(g) acl
+                    }
                 });
 
             self.edited_directory_remove_acl = None;
@@ -437,7 +449,7 @@ impl eframe::App for DaenerysApp {
         if let Some(edited_directory_add_user) = &self.edited_directory_add_user {
             // Find already exist.
             let mut found: bool = false;
-            for acl in &self.edit_directory_clicked.as_ref().unwrap().acls {
+            for acl in &self.directory_button_clicked.as_ref().unwrap().acls {
                 if let Qualifier::User(_) = acl.qualifier {
                     if acl
                         .qualifier_cn
@@ -451,7 +463,7 @@ impl eframe::App for DaenerysApp {
             }
 
             if !found {
-                self.edit_directory_clicked
+                self.directory_button_clicked
                     .as_mut()
                     .unwrap()
                     .acls
@@ -472,7 +484,7 @@ impl eframe::App for DaenerysApp {
         if let Some(edited_directory_add_group) = &self.edited_directory_add_group {
             // Find already exist.
             let mut found: bool = false;
-            for acl in &self.edit_directory_clicked.as_ref().unwrap().acls {
+            for acl in &self.directory_button_clicked.as_ref().unwrap().acls {
                 if let Qualifier::Group(_) = acl.qualifier {
                     if acl
                         .qualifier_cn
@@ -486,7 +498,7 @@ impl eframe::App for DaenerysApp {
             }
 
             if !found {
-                self.edit_directory_clicked
+                self.directory_button_clicked
                     .as_mut()
                     .unwrap()
                     .acls
@@ -502,11 +514,11 @@ impl eframe::App for DaenerysApp {
 
         // Check directory acl read_only change.
         if let Some(edited_directory_toogle_read_only) = &self.edited_directory_toogle_read_only {
-            if self.edit_directory_clicked.is_some() {
+            if self.directory_button_clicked.is_some() {
                 let (qualifier_cn, read_only) = edited_directory_toogle_read_only;
 
                 for acl in self
-                    .edit_directory_clicked
+                    .directory_button_clicked
                     .as_mut()
                     .unwrap()
                     .acls
@@ -536,9 +548,9 @@ impl eframe::App for DaenerysApp {
             // Find already exist.
             let mut found: bool = false;
 
-            if self.edit_group_clicked.as_ref().unwrap().member.is_some() {
+            if self.group_button_clicked.as_ref().unwrap().member.is_some() {
                 for m in self
-                    .edit_group_clicked
+                    .group_button_clicked
                     .as_ref()
                     .unwrap()
                     .member
@@ -550,11 +562,11 @@ impl eframe::App for DaenerysApp {
                     }
                 }
             } else {
-                self.edit_group_clicked.as_mut().unwrap().member = Some(Vec::new());
+                self.group_button_clicked.as_mut().unwrap().member = Some(Vec::new());
             }
 
             if !found {
-                self.edit_group_clicked
+                self.group_button_clicked
                     .as_mut()
                     .unwrap()
                     .member
@@ -571,8 +583,8 @@ impl eframe::App for DaenerysApp {
 
         // Check group remove user.
         if let Some(edited_group_remove_member) = &self.edited_group_remove_member {
-            if self.edit_group_clicked.as_ref().unwrap().member.is_some() {
-                self.edit_group_clicked
+            if self.group_button_clicked.as_ref().unwrap().member.is_some() {
+                self.group_button_clicked
                     .as_mut()
                     .unwrap()
                     .member
