@@ -21,6 +21,6 @@ fn main() -> Result<(), eframe::Error> {
     eframe::run_native(
         "STORM Daenerys (Mésocentre UCA)",
         options,
-        Box::new(|cc| Box::new(DaenerysApp::new(cc))),
+        Box::new(|cc| Box::new(DaenerysApp::new(cc, "http://localhost:3000".to_string()))),
     )
 }

@@ -26,6 +26,9 @@ enum Page {
 }
 
 pub struct DaenerysApp {
+    // API URL
+    pub api_url: String,
+
     // Group name regex.
     pub group_cn_re: Regex,
 
@@ -180,12 +183,13 @@ impl Default for DaenerysApp {
             is_directory_editing: Default::default(),
             group_button_clicked: Default::default(),
             is_group_editing: Default::default(),
+            api_url: "http://localhost:3000".to_string(),
         }
     }
 }
 
 impl DaenerysApp {
-    pub fn new(cc: &CreationContext) -> Self {
+    pub fn new(cc: &CreationContext, api_url: String) -> Self {
         // Create application.
         let mut app = DaenerysApp {
             separator_image: Some(
@@ -238,6 +242,9 @@ impl DaenerysApp {
         // Set default theme.
         app.theme = Visuals::light();
         cc.egui_ctx.set_visuals(Visuals::light());
+
+        // Set API URL.
+        app.api_url = api_url;
 
         app
     }
@@ -303,8 +310,9 @@ impl eframe::App for DaenerysApp {
                             self.current_info = Some("acl set successfully".to_string());
                             self.save_directory_acl_promise = None;
 
-                            self.get_directories_promise =
-                                Some(api::directory::get_root_directories(ctx));
+                            self.get_directories_promise = Some(
+                                api::directory::get_root_directories(ctx, self.api_url.clone()),
+                            );
                         }
                         Err(e) => {
                             self.current_error = Some(AppError::InternalError(e.to_string()));
@@ -350,7 +358,7 @@ impl eframe::App for DaenerysApp {
 
                 self.current_info = Some("group updated successfully".to_string());
 
-                self.get_groups_promise = Some(api::group::get_groups(ctx));
+                self.get_groups_promise = Some(api::group::get_groups(ctx, self.api_url.clone()));
             }
         }
 
@@ -368,7 +376,8 @@ impl eframe::App for DaenerysApp {
                             self.current_info = Some("group created successfully".to_string());
                             self.create_group_promise = None;
 
-                            self.get_groups_promise = Some(api::group::get_groups(ctx));
+                            self.get_groups_promise =
+                                Some(api::group::get_groups(ctx, self.api_url.clone()));
                         }
                         Err(e) => {
                             self.current_error = Some(AppError::InternalError(e.to_string()));
@@ -393,7 +402,8 @@ impl eframe::App for DaenerysApp {
                             self.current_info = Some("group deleted successfully".to_string());
                             self.delete_group_promise = None;
 
-                            self.get_groups_promise = Some(api::group::get_groups(ctx));
+                            self.get_groups_promise =
+                                Some(api::group::get_groups(ctx, self.api_url.clone()));
                         }
                         Err(e) => {
                             self.current_error = Some(AppError::InternalError(e.to_string()));
@@ -622,8 +632,11 @@ impl eframe::App for DaenerysApp {
         // Get initial directory and group list.
         START.call_once(|| {
             self.is_working = true;
-            self.get_directories_promise = Some(api::directory::get_root_directories(ctx));
-            self.get_groups_promise = Some(api::group::get_groups(ctx));
+            self.get_directories_promise = Some(api::directory::get_root_directories(
+                ctx,
+                self.api_url.clone(),
+            ));
+            self.get_groups_promise = Some(api::group::get_groups(ctx, self.api_url.clone()));
         });
     }
 }

@@ -6,12 +6,11 @@ use storm_daenerys_common::types::{
     group::{AddDelUserToGroup, Group},
 };
 
-use crate::defines::API_URL;
-
 pub fn save_group(
     ctx: &egui::Context,
     group_backup: Group,
     group: Group,
+    api_url: String,
 ) -> Vec<Promise<Result<(), std::string::String>>> {
     let mut result: Vec<Promise<Result<(), std::string::String>>> = Vec::new();
 
@@ -45,6 +44,7 @@ pub fn save_group(
                         user_cn: member_backup.to_string(),
                         ..AddDelUserToGroup::default()
                     },
+                    api_url.clone(),
                 ));
             }
         }
@@ -80,6 +80,7 @@ pub fn save_group(
                         user_cn: member.to_string(),
                         ..AddDelUserToGroup::default()
                     },
+                    api_url.clone(),
                 ));
             }
         }
@@ -91,6 +92,7 @@ pub fn save_group(
 pub fn del_user_from_group(
     ctx: &egui::Context,
     del_user_from_group: AddDelUserToGroup,
+    api_url: String,
 ) -> Promise<Result<(), std::string::String>> {
     dbg!("Del user from group: {:?}", &del_user_from_group);
 
@@ -107,7 +109,7 @@ pub fn del_user_from_group(
 
     let request = ehttp::Request {
         method: "DELETE".to_owned(),
-        url: format!("{}/groups/user", API_URL),
+        url: format!("{}/groups/user", api_url),
         body: request_payload.as_bytes().to_vec(),
         headers: ehttp::headers(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
     };
@@ -124,6 +126,7 @@ pub fn del_user_from_group(
 pub fn add_user_to_group(
     ctx: &egui::Context,
     add_user_to_group: AddDelUserToGroup,
+    api_url: String,
 ) -> Promise<Result<(), std::string::String>> {
     dbg!("Add user to group: {:?}", &add_user_to_group);
 
@@ -142,7 +145,7 @@ pub fn add_user_to_group(
 
     let request = ehttp::Request {
         method: "PATCH".to_owned(),
-        url: format!("{}/groups/user", API_URL),
+        url: format!("{}/groups/user", api_url),
         body: request_payload.as_bytes().to_vec(),
         headers: ehttp::headers(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
     };
@@ -156,7 +159,11 @@ pub fn add_user_to_group(
     promise
 }
 
-pub fn create_group(ctx: &egui::Context, create_group: Group) -> Promise<Result<(), String>> {
+pub fn create_group(
+    ctx: &egui::Context,
+    create_group: Group,
+    api_url: String,
+) -> Promise<Result<(), String>> {
     dbg!("Create group: {:?}", &create_group);
 
     let ctx = ctx.clone();
@@ -172,7 +179,7 @@ pub fn create_group(ctx: &egui::Context, create_group: Group) -> Promise<Result<
 
     let request = ehttp::Request {
         method: "POST".to_owned(),
-        url: format!("{}/groups", API_URL),
+        url: format!("{}/groups", api_url),
         body: request_payload.as_bytes().to_vec(),
         headers: ehttp::headers(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
     };
@@ -186,7 +193,11 @@ pub fn create_group(ctx: &egui::Context, create_group: Group) -> Promise<Result<
     promise
 }
 
-pub fn delete_group(ctx: &egui::Context, cn: String) -> Promise<Result<(), String>> {
+pub fn delete_group(
+    ctx: &egui::Context,
+    cn: String,
+    api_url: String,
+) -> Promise<Result<(), String>> {
     dbg!("Delete group: {:?}", &cn);
 
     let request_payload = "".to_string();
@@ -196,7 +207,7 @@ pub fn delete_group(ctx: &egui::Context, cn: String) -> Promise<Result<(), Strin
 
     let request = ehttp::Request {
         method: "DELETE".to_owned(),
-        url: format!("{}/groups/{}", API_URL, cn),
+        url: format!("{}/groups/{}", api_url, cn),
         body: request_payload.as_bytes().to_vec(),
         headers: ehttp::headers(&[("Accept", "*/*")]),
     };
@@ -210,7 +221,10 @@ pub fn delete_group(ctx: &egui::Context, cn: String) -> Promise<Result<(), Strin
     promise
 }
 
-pub fn get_groups(ctx: &egui::Context) -> Promise<Result<Option<Vec<Group>>, String>> {
+pub fn get_groups(
+    ctx: &egui::Context,
+    api_url: String,
+) -> Promise<Result<Option<Vec<Group>>, String>> {
     dbg!("Get group list.");
 
     // Begin download.
@@ -218,7 +232,7 @@ pub fn get_groups(ctx: &egui::Context) -> Promise<Result<Option<Vec<Group>>, Str
     // We use the `poll-promise` library to communicate with the UI thread.
     let ctx = ctx.clone();
     let (sender, promise) = Promise::new();
-    let request = ehttp::Request::get(format!("{}/groups", API_URL));
+    let request = ehttp::Request::get(format!("{}/groups", api_url));
 
     ehttp::fetch(request, move |response| {
         let groups = response.and_then(parse_get_groups_response);

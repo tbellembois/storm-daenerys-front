@@ -40,7 +40,10 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &m
                 let button = egui::Button::new(AF_REFRESH_CODE.to_string());
 
                 if ui.add_sized([30., 30.], button).clicked() {
-                    app.get_directories_promise = Some(api::directory::get_root_directories(ctx));
+                    app.get_directories_promise = Some(api::directory::get_root_directories(
+                        ctx,
+                        app.api_url.clone(),
+                    ));
                 }
 
                 ui.label(
@@ -102,7 +105,7 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &m
                 let button = egui::Button::new(AF_REFRESH_CODE.to_string());
 
                 if ui.add_sized([30., 30.], button).clicked() {
-                    app.get_groups_promise = Some(api::group::get_groups(ctx));
+                    app.get_groups_promise = Some(api::group::get_groups(ctx, app.api_url.clone()));
                 }
 
                 ui.label(egui::RichText::new("my storm groups").heading().italics());

@@ -3,9 +3,11 @@ use poll_promise::Promise;
 
 use storm_daenerys_common::types::{acl::SetAcl, error::CommonError};
 
-use crate::defines::API_URL;
-
-pub fn save_acl(ctx: &egui::Context, set_acl: SetAcl) -> Promise<Result<(), std::string::String>> {
+pub fn save_acl(
+    ctx: &egui::Context,
+    set_acl: SetAcl,
+    api_url: String,
+) -> Promise<Result<(), std::string::String>> {
     dbg!("Save ACL.");
 
     let ctx = ctx.clone();
@@ -21,7 +23,7 @@ pub fn save_acl(ctx: &egui::Context, set_acl: SetAcl) -> Promise<Result<(), std:
 
     let request = ehttp::Request {
         method: "POST".to_owned(),
-        url: format!("{}/acls", API_URL),
+        url: format!("{}/acls", api_url),
         body: request_payload.as_bytes().to_vec(),
         headers: ehttp::headers(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
     };

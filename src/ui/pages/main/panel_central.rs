@@ -96,8 +96,11 @@ pub fn display_central_panel(
                             };
 
                             app.is_working = true;
-                            app.create_group_promise =
-                                Some(api::group::create_group(ctx, create_group));
+                            app.create_group_promise = Some(api::group::create_group(
+                                ctx,
+                                create_group,
+                                app.api_url.clone(),
+                            ));
 
                             app.create_group_name.clear();
                             app.create_group_description.clear();
@@ -276,14 +279,20 @@ pub fn display_central_panel(
 
                         if ui.add_sized([150., 30.], button).clicked() {
                             app.is_working = true;
-                            app.get_users_promise =
-                                Some(api::user::get_users(ctx, app.user_search.clone()));
+                            app.get_users_promise = Some(api::user::get_users(
+                                ctx,
+                                app.user_search.clone(),
+                                app.api_url.clone(),
+                            ));
                         }
 
                         if ctx.input(|i| i.key_pressed(Key::Enter)) {
                             app.is_working = true;
-                            app.get_users_promise =
-                                Some(api::user::get_users(ctx, app.user_search.clone()));
+                            app.get_users_promise = Some(api::user::get_users(
+                                ctx,
+                                app.user_search.clone(),
+                                app.api_url.clone(),
+                            ));
                         }
                     });
 
@@ -363,7 +372,8 @@ pub fn display_central_panel(
                         };
 
                         app.is_working = true;
-                        app.save_directory_acl_promise = Some(save_acl(ctx, set_acl));
+                        app.save_directory_acl_promise =
+                            Some(save_acl(ctx, set_acl, app.api_url.clone()));
                     }
                 }
             }
@@ -467,6 +477,7 @@ pub fn display_central_panel(
                             app.delete_group_promise = Some(delete_group(
                                 ctx,
                                 app.group_button_clicked.as_ref().unwrap().cn.clone(),
+                                app.api_url.clone(),
                             ));
 
                             app.edit_group_delete_confirm = false;
@@ -493,14 +504,20 @@ pub fn display_central_panel(
 
                         if ui.add_sized([150., 30.], button).clicked() {
                             app.is_working = true;
-                            app.get_users_promise =
-                                Some(api::user::get_users(ctx, app.user_search.clone()));
+                            app.get_users_promise = Some(api::user::get_users(
+                                ctx,
+                                app.user_search.clone(),
+                                app.api_url.clone(),
+                            ));
                         }
 
                         if ctx.input(|i| i.key_pressed(Key::Enter)) {
                             app.is_working = true;
-                            app.get_users_promise =
-                                Some(api::user::get_users(ctx, app.user_search.clone()));
+                            app.get_users_promise = Some(api::user::get_users(
+                                ctx,
+                                app.user_search.clone(),
+                                app.api_url.clone(),
+                            ));
                         }
                     });
 
@@ -549,6 +566,7 @@ pub fn display_central_panel(
                             ctx,
                             *app.edit_group_clicked_backup.as_ref().unwrap().clone(),
                             *group_button_clicked.clone(),
+                            app.api_url.clone(),
                         ));
                     }
                 }

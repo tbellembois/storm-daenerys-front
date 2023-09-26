@@ -20,6 +20,3 @@ pub const AF_MOON_CODE: char = '\u{f186}';
 
 pub const DARK_BACKGROUND_COLOR: Color32 = Color32::from_rgb(27, 27, 27);
 pub const LIGHT_BACKGROUND_COLOR: Color32 = Color32::from_rgb(248, 248, 248);
-
-pub const API_URL: &str = "http://localhost:3000";
-// pub const API_URL: &str = "http://193.49.167.57/back";
