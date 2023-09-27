@@ -269,7 +269,7 @@ fn parse_get_groups_response(response: ehttp::Response) -> Result<Option<Vec<Gro
                     };
                 Err(common_error.to_string())
             }
-            None => Ok(None),
+            None => Err(status.to_string()),
         },
     }
 }
@@ -294,7 +294,7 @@ fn parse_add_del_user_to_group_response(response: ehttp::Response) -> Result<(),
                     };
                 Err(common_error.to_string())
             }
-            None => Ok(()),
+            None => Err(status.to_string()),
         },
     }
 }

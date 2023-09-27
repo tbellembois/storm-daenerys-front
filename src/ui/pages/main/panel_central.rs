@@ -4,7 +4,9 @@ use crate::{
         acl::save_acl,
         group::{delete_group, save_group},
     },
-    defines::{AF_GROUP_CODE, AF_USER_CODE, DARK_BACKGROUND_COLOR, LIGHT_BACKGROUND_COLOR},
+    defines::{
+        AF_ADMIN_CODE, AF_GROUP_CODE, AF_USER_CODE, DARK_BACKGROUND_COLOR, LIGHT_BACKGROUND_COLOR,
+    },
     ui::daenerys::DaenerysApp,
 };
 use egui::{Color32, Frame, Key, Margin};
@@ -139,6 +141,12 @@ pub fn display_central_panel(
                                         _ => continue,
                                     }
 
+                                    let is_admin: bool = acl
+                                        .qualifier_cn
+                                        .as_ref()
+                                        .unwrap()
+                                        .eq(&app.admin.clone().unwrap());
+
                                     let mut read_only: bool;
 
                                     match acl.perm {
@@ -153,18 +161,26 @@ pub fn display_central_panel(
                                             // User cn.
                                             ui.label(acl.qualifier_cn.as_ref().unwrap());
 
-                                            if ui
-                                                .checkbox(
-                                                    &mut read_only,
-                                                    egui::RichText::new("read only").italics(),
-                                                )
-                                                .changed()
-                                            {
-                                                app.edited_directory_toogle_read_only = Some((
-                                                    acl.qualifier_cn.as_ref().unwrap().to_string(),
-                                                    read_only,
-                                                ));
-                                            };
+                                            if !is_admin {
+                                                if ui
+                                                    .checkbox(
+                                                        &mut read_only,
+                                                        egui::RichText::new("read only").italics(),
+                                                    )
+                                                    .changed()
+                                                {
+                                                    app.edited_directory_toogle_read_only = Some((
+                                                        acl.qualifier_cn
+                                                            .as_ref()
+                                                            .unwrap()
+                                                            .to_string(),
+                                                        read_only,
+                                                    ));
+                                                };
+                                            } else {
+                                                // Admin icon.
+                                                ui.label(AF_ADMIN_CODE.to_string());
+                                            }
                                         }
                                         storm_daenerys_common::types::acl::Qualifier::Group(_) => {
                                             // Group icon.
@@ -189,7 +205,7 @@ pub fn display_central_panel(
                                     }
 
                                     // Delete acl button.
-                                    if app.is_directory_editing {
+                                    if app.is_directory_editing && !is_admin {
                                         let button_label = format!(
                                             "{} {}",
                                             crate::defines::AF_DELETE_CODE,

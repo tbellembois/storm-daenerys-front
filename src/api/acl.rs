@@ -57,7 +57,7 @@ fn parse_save_acl_response(response: ehttp::Response) -> Result<(), String> {
                     };
                 Err(common_error.to_string())
             }
-            None => Ok(()),
+            None => Err(status.to_string()),
         },
     }
 }

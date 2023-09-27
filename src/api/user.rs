@@ -52,7 +52,7 @@ fn parse_get_users_response(response: ehttp::Response) -> Result<Option<Vec<User
                     };
                 Err(common_error.to_string())
             }
-            None => Ok(None),
+            None => Err(status.to_string()),
         },
     }
 }

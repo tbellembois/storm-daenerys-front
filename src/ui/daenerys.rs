@@ -38,6 +38,9 @@ pub struct DaenerysApp {
     // Current theme:
     pub theme: Visuals,
 
+    // Admin of the STORM space.
+    pub admin: Option<String>,
+
     // Directory list.
     pub directories: Option<Vec<Directory>>,
 
@@ -46,6 +49,9 @@ pub struct DaenerysApp {
 
     // User list.
     pub users: Option<Vec<User>>,
+
+    // Promise returned when calling the backend GET /admin endpoint.
+    pub get_admin_promise: Option<Promise<Result<Option<String>, String>>>,
 
     // Promise returned when calling the backend GET /folders endpoint.
     pub get_directories_promise: Option<Promise<Result<Option<Vec<Directory>>, String>>>,
@@ -183,7 +189,9 @@ impl Default for DaenerysApp {
             is_directory_editing: Default::default(),
             group_button_clicked: Default::default(),
             is_group_editing: Default::default(),
+            admin: Default::default(),
             api_url: "http://localhost:3000".to_string(),
+            get_admin_promise: Default::default(),
         }
     }
 }
@@ -273,6 +281,25 @@ impl eframe::App for DaenerysApp {
         //         }
         //     }
         // }
+
+        // Get admin promises.
+        if let Some(p) = &self.get_admin_promise {
+            println!("get_admin_promise");
+
+            match p.ready() {
+                None => (),
+                Some(try_admin) => {
+                    self.is_working = false;
+
+                    match try_admin {
+                        Ok(admin) => {
+                            self.admin = admin.clone();
+                        }
+                        Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
+                    };
+                }
+            }
+        }
 
         // Get directories promises.
         if let Some(p) = &self.get_directories_promise {
@@ -624,12 +651,14 @@ impl eframe::App for DaenerysApp {
             self.edited_group_remove_member = None;
         }
 
-        // Render page.
-        match self.page {
-            Page::Main => main::ui::update(self, ctx, frame),
+        // Render page only when admin is retrieved.
+        if self.admin.is_some() {
+            match self.page {
+                Page::Main => main::ui::update(self, ctx, frame),
+            }
         }
 
-        // Get initial directory and group list.
+        // Get initial directory and group list and admin.
         START.call_once(|| {
             self.is_working = true;
             self.get_directories_promise = Some(api::directory::get_root_directories(
@@ -637,6 +666,7 @@ impl eframe::App for DaenerysApp {
                 self.api_url.clone(),
             ));
             self.get_groups_promise = Some(api::group::get_groups(ctx, self.api_url.clone()));
+            self.get_admin_promise = Some(api::root::get_admin(ctx, self.api_url.clone()));
         });
     }
 }
