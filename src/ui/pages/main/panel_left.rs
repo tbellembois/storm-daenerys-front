@@ -21,7 +21,7 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
         .frame(Frame {
             inner_margin: Margin {
                 left: 20.0,
-                right: 10.0,
+                right: 20.0,
                 top: 10.0,
                 bottom: 10.0,
             },
@@ -29,10 +29,12 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
             ..Default::default()
         })
         .resizable(false)
+        .show_separator_line(false)
         .show(ctx, |ui| {
             ui.set_width(300.0);
 
-            ui.image(egui::include_image!("../../media/separator.svg"));
+            //ui.image(egui::include_image!("../../media/separator.svg"));
+            ui.label("");
 
             //
             // Refresh directory list button.
@@ -47,11 +49,7 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
                     ));
                 }
 
-                ui.label(
-                    egui::RichText::new("my root directories")
-                        .heading()
-                        .italics(),
-                );
+                ui.label(egui::RichText::new("my root directories").heading());
             });
 
             //
@@ -96,8 +94,10 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
                 }
             });
 
-            ui.image(egui::include_image!("../../media/separator.svg"));
-            ui.image(egui::include_image!("../../media/separator.svg"));
+            //ui.image(egui::include_image!("../../media/separator.svg"));
+            ui.label("");
+            //ui.image(egui::include_image!("../../media/separator.svg"));
+            ui.label("");
 
             //
             // Refresh group list button.
@@ -109,7 +109,7 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
                     app.get_groups_promise = Some(api::group::get_groups(ctx, app.api_url.clone()));
                 }
 
-                ui.label(egui::RichText::new("my storm groups").heading().italics());
+                ui.label(egui::RichText::new("my storm groups").heading());
             });
 
             //
@@ -151,7 +151,8 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
                 }
             });
 
-            ui.image(egui::include_image!("../../media/separator.svg"));
+            //ui.image(egui::include_image!("../../media/separator.svg"));
+            ui.label("");
 
             //
             // Create group button.

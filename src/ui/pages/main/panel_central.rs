@@ -27,9 +27,9 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
     egui::CentralPanel::default()
         .frame(Frame {
             inner_margin: Margin {
-                left: 50.0,
-                right: 10.0,
-                top: 20.0,
+                left: 20.0,
+                right: 20.0,
+                top: 10.0,
                 bottom: 10.0,
             },
             fill: background,
@@ -119,7 +119,8 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                     directory_button_clicked.name
                 ));
 
-                ui.image(egui::include_image!("../../media/separator.svg"));
+                //ui.image(egui::include_image!("../../media/separator.svg"));
+                ui.label("");
 
                 let acls = &directory_button_clicked.acls;
 
@@ -225,7 +226,8 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
 
                 // Display add user and add group buttons.
                 if app.is_directory_editing {
-                    ui.image(egui::include_image!("../../media/separator.svg"));
+                    //ui.image(egui::include_image!("../../media/separator.svg"));
+                    ui.label("");
 
                     ui.horizontal_top(|ui| {
                         // Add user button.
@@ -261,7 +263,8 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
 
                 // Display edit button.
                 if !app.is_directory_editing {
-                    ui.image(egui::include_image!("../../media/separator.svg"));
+                    //ui.image(egui::include_image!("../../media/separator.svg"));
+                    ui.label("");
 
                     let button_label = format!("{} {}", crate::defines::AF_EDIT_CODE, "edit ACLs");
                     let button = egui::Button::new(button_label);
@@ -311,7 +314,8 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
 
                     // User list.
                     if app.users.is_some() {
-                        ui.image(egui::include_image!("../../media/separator.svg"));
+                        //ui.image(egui::include_image!("../../media/separator.svg"));
+                        ui.label("");
 
                         for user in app.users.as_ref().unwrap() {
                             if ui
@@ -322,7 +326,8 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                             }
                         }
 
-                        ui.image(egui::include_image!("../../media/separator.svg"));
+                        //ui.image(egui::include_image!("../../media/separator.svg"));
+                        ui.label("");
                     }
 
                     // Done button.
@@ -341,7 +346,8 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                 if app.edit_directory_add_group_clicked {
                     // Group list.
                     if app.groups.is_some() {
-                        ui.image(egui::include_image!("../../media/separator.svg"));
+                        //ui.image(egui::include_image!("../../media/separator.svg"));
+                        ui.label("");
 
                         for group in app.groups.as_ref().unwrap() {
                             if ui.link(group.clone().cn).clicked() {
@@ -349,7 +355,8 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                             }
                         }
 
-                        ui.image(egui::include_image!("../../media/separator.svg"));
+                        //ui.image(egui::include_image!("../../media/separator.svg"));
+                        ui.label("");
                     }
 
                     // Done button.
@@ -369,7 +376,8 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                     && !app.edit_directory_add_group_clicked
                     && !app.edit_directory_add_user_clicked
                 {
-                    ui.image(egui::include_image!("../../media/separator.svg"));
+                    //ui.image(egui::include_image!("../../media/separator.svg"));
+                    ui.label("");
 
                     let button_label = format!("{} {}", crate::defines::AF_SAVE_CODE, "save");
 
@@ -403,7 +411,8 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                 ));
                 ui.label(egui::RichText::new(group_button_clicked.description.clone()).italics());
 
-                ui.image(egui::include_image!("../../media/separator.svg"));
+                //ui.image(egui::include_image!("../../media/separator.svg"));
+                ui.label("");
 
                 match &group_button_clicked.member {
                     Some(members) => {
@@ -437,7 +446,8 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                     }
                 }
 
-                ui.image(egui::include_image!("../../media/separator.svg"));
+                //ui.image(egui::include_image!("../../media/separator.svg"));
+                ui.label("");
 
                 // Edit group button.
                 let button_label = format!("{} {}", crate::defines::AF_EDIT_CODE, "edit group");
@@ -536,7 +546,8 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
 
                     // User list.
                     if app.users.is_some() {
-                        ui.image(egui::include_image!("../../media/separator.svg"));
+                        //ui.image(egui::include_image!("../../media/separator.svg"));
+                        ui.label("");
 
                         for user in app.users.as_ref().unwrap() {
                             if ui
@@ -547,7 +558,8 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                             }
                         }
 
-                        ui.image(egui::include_image!("../../media/separator.svg"));
+                        //ui.image(egui::include_image!("../../media/separator.svg"));
+                        ui.label("");
                     }
 
                     // Done button.
@@ -564,7 +576,8 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                 // Save button.
                 //
                 if app.is_group_editing && !app.edit_group_add_user_clicked {
-                    ui.image(egui::include_image!("../../media/separator.svg"));
+                    //ui.image(egui::include_image!("../../media/separator.svg"));
+                    ui.label("");
 
                     let button_label = format!("{} {}", crate::defines::AF_SAVE_CODE, "save");
 

@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="6.614583mm"
-   height="6.6145835mm"
-   viewBox="0 0 6.614583 6.6145835"
+   width="2.6458333mm"
+   height="2.6458333mm"
+   viewBox="0 0 2.6458333 2.6458333"
    version="1.1"
    id="svg1"
    inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
@@ -23,12 +23,12 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
-     inkscape:zoom="0.96746633"
-     inkscape:cx="337.99626"
-     inkscape:cy="396.39622"
+     inkscape:zoom="10.945632"
+     inkscape:cx="13.292974"
+     inkscape:cy="3.2433029"
      inkscape:window-width="1904"
      inkscape:window-height="995"
-     inkscape:window-x="1928"
+     inkscape:window-x="8"
      inkscape:window-y="40"
      inkscape:window-maximized="0"
      inkscape:current-layer="layer1" />
@@ -38,12 +38,12 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-60.541433,-90.477956)">
+     transform="translate(-60.541431,-90.477959)">
     <rect
-       style="fill:none;stroke:none;stroke-width:0.128889"
+       style="fill:none;stroke:none;stroke-width:0.0515556"
        id="rect2"
-       width="6.6145835"
-       height="6.614583"
+       width="2.6458333"
+       height="2.6458333"
        x="60.541431"
        y="90.477959"
        inkscape:export-filename="separator.svg"

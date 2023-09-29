@@ -17,7 +17,7 @@ path = "src/lib.rs"
 [dependencies]
 eframe = "0.23.0"
 egui = "0.23.0"
-egui_extras = { version = "0.23.0", features = ["all_loaders"]}
+egui_extras = { version = "0.23.0", features = ["svg", "all_loaders"]}
 ehttp = "0.3.0"
 image = { version = "0.24", default-features = false, features = ["png"] }
 log = "0.4"
