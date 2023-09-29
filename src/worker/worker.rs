@@ -1,6 +1,6 @@
 use std::sync::mpsc::{Receiver, Sender};
 
-use egui::Context;
+use eframe::egui::Context;
 use log::{error, info};
 
 use crate::{
@@ -19,11 +19,7 @@ pub struct Worker {
 
 impl Worker {
     #[allow(dead_code)]
-    pub fn new(
-        sender: Sender<ToApp>,
-        receiver: Receiver<ToWorker>,
-        egui_ctx: eframe::egui::Context,
-    ) -> Self {
+    pub fn new(sender: Sender<ToApp>, receiver: Receiver<ToWorker>, egui_ctx: Context) -> Self {
         Self {
             sender,
             receiver,

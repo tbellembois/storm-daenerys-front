@@ -21,6 +21,9 @@ fn main() -> Result<(), eframe::Error> {
     eframe::run_native(
         "STORM Daenerys (Mésocentre UCA)",
         options,
-        Box::new(|cc| Box::new(DaenerysApp::new(cc, "http://localhost:3000".to_string()))),
+        Box::new(|cc| {
+            egui_extras::install_image_loaders(&cc.egui_ctx);
+            Box::new(DaenerysApp::new(cc, "http://localhost:3000".to_string()))
+        }),
     )
 }

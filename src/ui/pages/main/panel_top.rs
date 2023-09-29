@@ -1,11 +1,14 @@
-use egui::{Color32, RichText, Visuals};
+use eframe::{
+    egui::{self, Context, RichText, Visuals},
+    epaint::Color32,
+};
 
 use crate::{
     defines::{AF_ERROR_CODE, AF_INFO_CODE, AF_MOON_CODE, AF_SUN_CODE},
     ui::daenerys::DaenerysApp,
 };
 
-pub fn display_top_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+pub fn display_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut eframe::Frame) {
     egui::TopBottomPanel::top("error_info_panel").show(ctx, |ui| {
         // Current error label.
         if let Some(current_error) = &app.current_error {
@@ -47,14 +50,14 @@ pub fn display_top_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &mu
         // Logo.
         if app.theme.dark_mode {
             ui.vertical_centered(|ui| {
-                app.storm_logo_dark.as_ref().unwrap().show(ui);
+                ui.image(egui::include_image!("../../media/storm-dark.svg"));
             });
         } else {
             ui.vertical_centered(|ui| {
-                app.storm_logo.as_ref().unwrap().show(ui);
+                ui.image(egui::include_image!("../../media/storm-light.svg"));
             });
         }
 
-        app.separator_image.as_ref().unwrap().show(ui);
+        ui.image(egui::include_image!("../../media/separator.svg"));
     });
 }

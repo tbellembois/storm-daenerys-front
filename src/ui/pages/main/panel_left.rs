@@ -1,3 +1,4 @@
+use eframe::egui::{self, Context};
 use egui::{Color32, Frame, Margin};
 
 use crate::{
@@ -9,7 +10,7 @@ use crate::{
     ui::daenerys::DaenerysApp,
 };
 
-pub fn display_left_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut eframe::Frame) {
     let background: Color32 = if app.theme.dark_mode {
         DARK_BACKGROUND_COLOR
     } else {
@@ -31,7 +32,7 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &m
         .show(ctx, |ui| {
             ui.set_width(300.0);
 
-            app.separator_image.as_ref().unwrap().show(ui);
+            ui.image(egui::include_image!("../../media/separator.svg"));
 
             //
             // Refresh directory list button.
@@ -95,8 +96,8 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &m
                 }
             });
 
-            app.separator_image.as_ref().unwrap().show(ui);
-            app.separator_image.as_ref().unwrap().show(ui);
+            ui.image(egui::include_image!("../../media/separator.svg"));
+            ui.image(egui::include_image!("../../media/separator.svg"));
 
             //
             // Refresh group list button.
@@ -150,7 +151,7 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &egui::Context, _frame: &m
                 }
             });
 
-            app.separator_image.as_ref().unwrap().show(ui);
+            ui.image(egui::include_image!("../../media/separator.svg"));
 
             //
             // Create group button.

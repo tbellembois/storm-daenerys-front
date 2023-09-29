@@ -6,7 +6,8 @@ use storm_daenerys_common::types::group::Group;
 use storm_daenerys_common::types::user::User;
 use storm_daenerys_common::types::{acl::AclEntry, directory::Directory};
 
-use eframe::CreationContext;
+use eframe::{egui, CreationContext};
+
 use egui::{FontFamily, FontId, TextStyle, Visuals};
 use poll_promise::Promise;
 
@@ -79,11 +80,6 @@ pub struct DaenerysApp {
     pub current_error: Option<AppError>,
     // Current info if one.
     pub current_info: Option<String>,
-
-    // Icons.
-    pub storm_logo: Option<egui_extras::RetainedImage>,
-    pub storm_logo_dark: Option<egui_extras::RetainedImage>,
-    pub separator_image: Option<egui_extras::RetainedImage>,
 
     //
     // UI widget states
@@ -166,9 +162,6 @@ impl Default for DaenerysApp {
             delete_group_promise: Default::default(),
             current_error: Default::default(),
             current_info: Default::default(),
-            storm_logo: Default::default(),
-            storm_logo_dark: Default::default(),
-            separator_image: Default::default(),
             create_group_clicked: Default::default(),
             create_directory_clicked: Default::default(),
             edit_group_clicked_backup: Default::default(),
@@ -200,27 +193,6 @@ impl DaenerysApp {
     pub fn new(cc: &CreationContext, api_url: String) -> Self {
         // Create application.
         let mut app = DaenerysApp {
-            separator_image: Some(
-                egui_extras::RetainedImage::from_svg_bytes(
-                    "separator.svg",
-                    include_bytes!("media/separator.svg"),
-                )
-                .unwrap(),
-            ),
-            storm_logo: Some(
-                egui_extras::RetainedImage::from_svg_bytes(
-                    "storm.svg",
-                    include_bytes!("media/storm.svg"),
-                )
-                .unwrap(),
-            ),
-            storm_logo_dark: Some(
-                egui_extras::RetainedImage::from_svg_bytes(
-                    "storm-dark.svg",
-                    include_bytes!("media/storm-dark.svg"),
-                )
-                .unwrap(),
-            ),
             group_cn_re: Regex::new(GROUP_CN_RE_STRING).unwrap(),
             ..Default::default()
         };
