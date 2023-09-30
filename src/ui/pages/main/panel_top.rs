@@ -2,7 +2,7 @@ use eframe::{
     egui::{self, Context, RichText, Visuals},
     epaint::Color32,
 };
-use egui::{Frame, Margin};
+use egui::{Frame, Margin, Vec2};
 
 use crate::{
     defines::{
@@ -20,8 +20,8 @@ pub fn display_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efra
     };
 
     egui::TopBottomPanel::top("error_info_panel")
-        .min_height(120.)
-        .max_height(120.)
+        .min_height(40.)
+        .max_height(40.)
         .show_separator_line(false)
         .frame(Frame {
             inner_margin: Margin {
@@ -80,28 +80,36 @@ pub fn display_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efra
                 if ui.add_sized([30., 30.], button).clicked() {
                     app.rust = true;
                 }
+
+                // Logo STORM.
+                // ui.vertical_centered_justified(|ui| {
+                if app.theme.dark_mode {
+                    ui.image(egui::include_image!("../../media/storm-light.svg"));
+                } else {
+                    ui.image(egui::include_image!("../../media/storm-dark.svg"));
+                }
+                // });
             });
 
             if app.rust {
-                egui::Window::new("Rust credits")
+                egui::Window::new("Powered by Rust.")
+                    .fixed_size(egui::vec2(300., 150.))
                     .collapsible(false)
                     .movable(true)
+                    .resizable(false)
                     .show(ctx, |ui| {
-                        ui.label("Developped with Rust.");
                         ui.image(egui::include_image!("../../media/ferris.svg"));
+
                         ui.hyperlink("https://www.rust-lang.org/");
                         ui.hyperlink("https://github.com/emilk/egui");
                         ui.hyperlink("https://github.com/tokio-rs/axum");
+
+                        ui.label("");
+
+                        if ui.button("close").clicked() {
+                            app.rust = false;
+                        }
                     });
             }
-
-            // Logo STORM.
-            // ui.vertical_centered_justified(|ui| {
-            if app.theme.dark_mode {
-                ui.image(egui::include_image!("../../media/storm-dark.svg"));
-            } else {
-                ui.image(egui::include_image!("../../media/storm-light.svg"));
-            }
-            // });
         });
 }

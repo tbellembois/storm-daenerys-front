@@ -15,15 +15,15 @@ pub fn display_bottom_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut e
     };
 
     egui::TopBottomPanel::bottom("footer")
-        .min_height(50.)
-        .max_height(50.)
+        .min_height(60.)
+        .max_height(60.)
         .show_separator_line(false)
         .frame(Frame {
             inner_margin: Margin {
                 left: 10.0,
                 right: 10.0,
                 top: 5.0,
-                bottom: 20.0,
+                bottom: 5.0,
             },
             fill: background,
             ..Default::default()
