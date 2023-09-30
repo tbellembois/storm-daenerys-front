@@ -139,13 +139,17 @@ pub struct DaenerysApp {
     pub create_group_name: String,
     pub create_group_description: String,
 
-    // Spinner?
+    // Spinner? shown on API calls.
     pub is_working: bool,
+
+    // Rust credits.
+    pub rust: bool,
 }
 
 impl Default for DaenerysApp {
     fn default() -> Self {
         Self {
+            rust: Default::default(),
             is_working: Default::default(),
             group_cn_re: Regex::new(GROUP_CN_RE_STRING).unwrap(),
             page: Default::default(),

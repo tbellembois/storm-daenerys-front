@@ -18,6 +18,7 @@ pub const AF_INFO_CODE: char = '\u{f05a}';
 pub const AF_SUN_CODE: char = '\u{f185}';
 pub const AF_MOON_CODE: char = '\u{f186}';
 pub const AF_ADMIN_CODE: char = '\u{f669}';
+pub const AF_RUST_CODE: char = '\u{e07a}';
 
 pub const DARK_BACKGROUND_COLOR: Color32 = Color32::from_rgb(27, 27, 27);
 pub const LIGHT_BACKGROUND_COLOR: Color32 = Color32::from_rgb(248, 248, 248);
