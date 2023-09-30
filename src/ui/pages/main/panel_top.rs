@@ -28,7 +28,7 @@ pub fn display_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efra
                 left: 10.0,
                 right: 10.0,
                 top: 10.0,
-                bottom: 50.0,
+                bottom: 10.0,
             },
             fill: background,
             ..Default::default()

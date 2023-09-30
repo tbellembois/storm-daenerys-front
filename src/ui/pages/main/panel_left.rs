@@ -33,6 +33,9 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
         .show(ctx, |ui| {
             ui.set_width(300.0);
 
+            let available_height: f32 = ui.available_size().y;
+            let scroll_height: f32 = (available_height - 300.) / 2.;
+
             //ui.image(egui::include_image!("../../media/separator.svg"));
             ui.label("");
 
@@ -55,44 +58,48 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
             //
             // Directories buttons.
             //
-            ui.vertical_centered_justified(|ui| {
-                if app.directories.is_some() {
-                    egui::Grid::new("directory_list")
-                        .num_columns(2)
-                        .show(ui, |ui| {
-                            for directory in app.directories.as_ref().unwrap().iter() {
-                                ui.add_sized(
-                                    [30., 30.],
-                                    egui::Label::new(format!("{}", AF_FOLDER_CODE)),
-                                );
+            // ui.vertical_centered_justified(|ui| {
+            egui::ScrollArea::vertical()
+                .id_source("directory_scroll")
+                .max_height(scroll_height)
+                .show(ui, |ui| {
+                    if app.directories.is_some() {
+                        egui::Grid::new("directory_list")
+                            .num_columns(2)
+                            .show(ui, |ui| {
+                                for directory in app.directories.as_ref().unwrap().iter() {
+                                    ui.add_sized(
+                                        [30., 30.],
+                                        egui::Label::new(format!("{}", AF_FOLDER_CODE)),
+                                    );
 
-                                ui.horizontal(|ui| {
-                                    let button_label = directory.name.to_string();
+                                    ui.horizontal(|ui| {
+                                        let button_label = directory.name.to_string();
 
-                                    let button = egui::Button::new(button_label);
+                                        let button = egui::Button::new(button_label);
 
-                                    // Save the clicked directory name.
-                                    if ui.add_sized([200., 30.], button).clicked() {
-                                        app.directory_button_clicked =
-                                            Some(Box::new(directory.clone()));
+                                        // Save the clicked directory name.
+                                        if ui.add_sized([200., 30.], button).clicked() {
+                                            app.directory_button_clicked =
+                                                Some(Box::new(directory.clone()));
 
-                                        app.group_button_clicked = None;
-                                        app.is_directory_editing = false;
-                                        app.is_group_editing = false;
-                                        app.edit_directory_add_user_clicked = false;
-                                        app.edit_directory_add_group_clicked = false;
-                                        app.create_group_clicked = false;
-                                        app.current_error = None;
-                                        app.current_info = None;
-                                        app.edit_group_delete_confirm = false;
-                                    };
-                                });
+                                            app.group_button_clicked = None;
+                                            app.is_directory_editing = false;
+                                            app.is_group_editing = false;
+                                            app.edit_directory_add_user_clicked = false;
+                                            app.edit_directory_add_group_clicked = false;
+                                            app.create_group_clicked = false;
+                                            app.current_error = None;
+                                            app.current_info = None;
+                                            app.edit_group_delete_confirm = false;
+                                        };
+                                    });
 
-                                ui.end_row()
-                            }
-                        });
-                }
-            });
+                                    ui.end_row()
+                                }
+                            });
+                    }
+                });
 
             //ui.image(egui::include_image!("../../media/separator.svg"));
             ui.label("");
@@ -115,41 +122,45 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
             //
             // Groups buttons.
             //
-            ui.vertical_centered_justified(|ui| {
-                if app.groups.is_some() {
-                    egui::Grid::new("group_list").num_columns(2).show(ui, |ui| {
-                        for group in app.groups.as_ref().unwrap().iter() {
-                            ui.add_sized(
-                                [30., 30.],
-                                egui::Label::new(format!("{}", AF_GROUP_CODE)),
-                            );
+            // ui.vertical_centered_justified(|ui| {
+            egui::ScrollArea::vertical()
+                .id_source("group_scroll")
+                .max_height(scroll_height)
+                .show(ui, |ui| {
+                    if app.groups.is_some() {
+                        egui::Grid::new("group_list").num_columns(2).show(ui, |ui| {
+                            for group in app.groups.as_ref().unwrap().iter() {
+                                ui.add_sized(
+                                    [30., 30.],
+                                    egui::Label::new(format!("{}", AF_GROUP_CODE)),
+                                );
 
-                            ui.horizontal(|ui| {
-                                let button_label = group.cn.to_string();
+                                ui.horizontal(|ui| {
+                                    let button_label = group.cn.to_string();
 
-                                let button = egui::Button::new(button_label);
+                                    let button = egui::Button::new(button_label);
 
-                                // Save the clicked group name.
-                                if ui.add_sized([200., 30.], button).clicked() {
-                                    app.group_button_clicked = Some(Box::new(group.clone()));
+                                    // Save the clicked group name.
+                                    if ui.add_sized([200., 30.], button).clicked() {
+                                        app.group_button_clicked = Some(Box::new(group.clone()));
 
-                                    app.directory_button_clicked = None;
-                                    app.is_directory_editing = false;
-                                    app.is_group_editing = false;
-                                    app.edit_directory_add_user_clicked = false;
-                                    app.edit_directory_add_group_clicked = false;
-                                    app.create_group_clicked = false;
-                                    app.current_error = None;
-                                    app.current_info = None;
-                                    app.edit_group_delete_confirm = false;
-                                }
-                            });
+                                        app.directory_button_clicked = None;
+                                        app.is_directory_editing = false;
+                                        app.is_group_editing = false;
+                                        app.edit_directory_add_user_clicked = false;
+                                        app.edit_directory_add_group_clicked = false;
+                                        app.create_group_clicked = false;
+                                        app.current_error = None;
+                                        app.current_info = None;
+                                        app.edit_group_delete_confirm = false;
+                                    }
+                                });
 
-                            ui.end_row()
-                        }
-                    });
-                }
-            });
+                                ui.end_row()
+                            }
+                        });
+                    }
+                });
 
             //ui.image(egui::include_image!("../../media/separator.svg"));
             ui.label("");
