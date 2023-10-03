@@ -2,7 +2,7 @@ use eframe::{
     egui::{self, Context, RichText, Visuals},
     epaint::Color32,
 };
-use egui::{Frame, Margin, Vec2};
+use egui::{Frame, Margin};
 
 use crate::{
     defines::{
