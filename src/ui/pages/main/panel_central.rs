@@ -411,7 +411,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                 // Group name.
                 ui.heading(format!(
                     "{} {}",
-                    crate::defines::AF_FOLDER_CODE,
+                    crate::defines::AF_GROUP_CODE,
                     group_button_clicked.cn.clone()
                 ));
                 ui.label(egui::RichText::new(group_button_clicked.description.clone()).italics());
@@ -468,7 +468,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
 
                 ui.horizontal_top(|ui| {
                     // Add user button.
-                    if app.is_group_editing {
+                    if !app.is_working && app.is_group_editing {
                         ui.horizontal_top(|ui| {
                             let button_label =
                                 format!("{} {}", crate::defines::AF_ADD_CODE, "add user");
@@ -488,7 +488,8 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                         format!("{} {}", crate::defines::AF_DELETE_CODE, "delete group");
                     let button = egui::Button::new(button_label);
 
-                    if app.is_group_editing
+                    if !app.is_working
+                        && app.is_group_editing
                         && !app.edit_group_delete_confirm
                         && !app.edit_group_add_user_clicked
                         && ui.add_sized([150., 30.], button).clicked()
@@ -496,7 +497,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                         app.edit_group_delete_confirm = true;
                     }
 
-                    if app.edit_group_delete_confirm {
+                    if !app.is_working && app.edit_group_delete_confirm {
                         let button_label =
                             format!("{} {}", crate::defines::AF_CONFIRM_CODE, "confirm deletion");
                         let button = egui::Button::new(button_label);
