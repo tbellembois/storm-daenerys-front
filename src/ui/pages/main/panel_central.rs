@@ -139,6 +139,11 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                                         _ => continue,
                                     }
 
+                                    // Skip zero value acls.
+                                    if acl.perm == 0 {
+                                        continue;
+                                    }
+
                                     let is_admin: bool = acl
                                         .qualifier_cn
                                         .as_ref()
