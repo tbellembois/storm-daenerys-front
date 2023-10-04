@@ -106,6 +106,8 @@ pub fn display_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efra
 
                         ui.label("");
 
+                        ui.label("Copyright: Université Clermont Auvergne");
+
                         if ui.button("close").clicked() {
                             app.rust = false;
                         }

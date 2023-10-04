@@ -191,18 +191,26 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                                             // Group cn.
                                             ui.label(acl.qualifier_cn.as_ref().unwrap());
 
-                                            if ui
-                                                .checkbox(
-                                                    &mut read_only,
-                                                    egui::RichText::new("read only").italics(),
-                                                )
-                                                .changed()
-                                            {
-                                                app.edited_directory_toogle_read_only = Some((
-                                                    acl.qualifier_cn.as_ref().unwrap().to_string(),
-                                                    read_only,
-                                                ));
-                                            };
+                                            if !is_admin {
+                                                if ui
+                                                    .checkbox(
+                                                        &mut read_only,
+                                                        egui::RichText::new("read only").italics(),
+                                                    )
+                                                    .changed()
+                                                {
+                                                    app.edited_directory_toogle_read_only = Some((
+                                                        acl.qualifier_cn
+                                                            .as_ref()
+                                                            .unwrap()
+                                                            .to_string(),
+                                                        read_only,
+                                                    ));
+                                                };
+                                            } else {
+                                                // Admin icon.
+                                                ui.label(AF_ADMIN_CODE.to_string());
+                                            }
                                         }
                                         _ => (),
                                     }
