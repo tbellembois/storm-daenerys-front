@@ -8,7 +8,7 @@ use storm_daenerys_common::types::{acl::AclEntry, directory::Directory};
 
 use eframe::{egui, CreationContext};
 
-use egui::{FontFamily, FontId, TextStyle, Visuals};
+use egui::{FontFamily, FontId, TextStyle, Vec2, Visuals};
 use poll_promise::Promise;
 
 use crate::api;
@@ -36,8 +36,14 @@ pub struct DaenerysApp {
     // Current active page.
     page: Page,
 
+    // Central panel available size.
+    pub central_panel_available_size: Vec2,
+
     // Current theme:
     pub theme: Visuals,
+
+    // Disk usage.
+    pub du: Option<String>,
 
     // Admin of the STORM space.
     pub admin: Option<String>,
@@ -53,6 +59,8 @@ pub struct DaenerysApp {
 
     // Promise returned when calling the backend GET /admin endpoint.
     pub get_admin_promise: Option<Promise<Result<Option<String>, String>>>,
+    // Promise returned when calling the backend GET /du endpoint.
+    pub get_du_promise: Option<Promise<Result<Option<String>, String>>>,
 
     // Promise returned when calling the backend GET /folders endpoint.
     pub get_directories_promise: Option<Promise<Result<Option<Vec<Directory>>, String>>>,
@@ -189,6 +197,9 @@ impl Default for DaenerysApp {
             admin: Default::default(),
             api_url: "http://localhost:3000".to_string(),
             get_admin_promise: Default::default(),
+            get_du_promise: Default::default(),
+            du: Default::default(),
+            central_panel_available_size: Default::default(),
         }
     }
 }
@@ -258,6 +269,26 @@ impl eframe::App for DaenerysApp {
         //     }
         // }
 
+        // Get du promises.
+        if let Some(p) = &self.get_du_promise {
+            println!("get_du_promise");
+
+            match p.ready() {
+                None => (),
+                Some(try_admin) => {
+                    self.is_working = false;
+
+                    match try_admin {
+                        Ok(du) => {
+                            self.du = du.clone();
+                            self.get_du_promise = None;
+                        }
+                        Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
+                    };
+                }
+            }
+        }
+
         // Get admin promises.
         if let Some(p) = &self.get_admin_promise {
             println!("get_admin_promise");
@@ -270,6 +301,7 @@ impl eframe::App for DaenerysApp {
                     match try_admin {
                         Ok(admin) => {
                             self.admin = admin.clone();
+                            self.get_admin_promise = None;
                         }
                         Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
                     };
@@ -754,13 +786,14 @@ fn setup_custom_fonts(ctx: &egui::Context) {
 }
 
 fn setup_custom_styles(ctx: &egui::Context) {
-    use FontFamily::Proportional;
+    use FontFamily::{Monospace, Proportional};
 
     let mut style = (*ctx.style()).clone();
     style.text_styles = [
         (TextStyle::Heading, FontId::new(18.0, Proportional)),
         (TextStyle::Body, FontId::new(14.0, Proportional)),
         (TextStyle::Button, FontId::new(14.0, Proportional)),
+        (TextStyle::Monospace, FontId::new(14.0, Monospace)),
     ]
     .into();
     ctx.set_style(style);

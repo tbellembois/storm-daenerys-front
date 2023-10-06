@@ -36,6 +36,8 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
             ..Default::default()
         })
         .show(ctx, |ui| {
+            app.central_panel_available_size = ui.available_size();
+
             //
             // Spinner.
             //
@@ -43,6 +45,24 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                 ui.add_sized([0., 40.], egui::widgets::Spinner::new());
             } else {
                 ui.add_sized([0., 40.], egui::Label::new(""));
+            }
+
+            //
+            // Disk usage.
+            //
+            if app.du.is_some() {
+                let available_height: f32 = ui.available_size().y;
+                let scroll_height: f32 = available_height - 50.;
+
+                egui::ScrollArea::vertical()
+                    .id_source("du_scroll")
+                    .max_height(scroll_height)
+                    .show(ui, |ui| {
+                        ui.label(
+                            egui::RichText::new(app.du.as_ref().unwrap())
+                                .text_style(egui::TextStyle::Monospace),
+                        );
+                    });
             }
 
             //

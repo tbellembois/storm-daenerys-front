@@ -1,10 +1,11 @@
 use eframe::egui::{self, Context};
 use egui::{Color32, Frame, Margin};
+use log::debug;
 
 use crate::{
     api,
     defines::{
-        AF_FOLDER_CODE, AF_GROUP_CODE, AF_REFRESH_CODE, DARK_BACKGROUND_COLOR,
+        AF_FOLDER_CODE, AF_GAUGE_CODE, AF_GROUP_CODE, AF_REFRESH_CODE, DARK_BACKGROUND_COLOR,
         LIGHT_BACKGROUND_COLOR,
     },
     ui::daenerys::DaenerysApp,
@@ -34,7 +35,23 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
             ui.set_width(300.0);
 
             let available_height: f32 = ui.available_size().y;
+            let available_width: f32 = ui.available_size().x;
             let scroll_height: f32 = (available_height - 300.) / 2.;
+
+            //
+            // Disk usage button.
+            //
+            ui.horizontal_top(|ui| {
+                let button = egui::Button::new(format!("{} show disk usage", AF_GAUGE_CODE));
+
+                if ui.add_sized([150., 30.], button).clicked() {
+                    app.is_working = true;
+
+                    let du_width = available_width as u32 / 2;
+                    app.get_du_promise =
+                        Some(api::root::get_du(ctx, app.api_url.clone(), du_width));
+                }
+            });
 
             //ui.image(egui::include_image!("../../media/separator.svg"));
             ui.label("");
