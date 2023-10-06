@@ -109,6 +109,7 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
                                             app.current_error = None;
                                             app.current_info = None;
                                             app.edit_group_delete_confirm = false;
+                                            app.du = None;
                                         };
                                     });
 
@@ -170,6 +171,7 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
                                         app.current_error = None;
                                         app.current_info = None;
                                         app.edit_group_delete_confirm = false;
+                                        app.du = None;
                                     }
                                 });
 
@@ -195,6 +197,7 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
                 app.group_button_clicked = None;
                 app.is_directory_editing = false;
                 app.is_group_editing = false;
+                app.du = None;
 
                 app.create_group_name.clear();
                 app.create_group_description.clear();
