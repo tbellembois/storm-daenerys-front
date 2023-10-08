@@ -21,6 +21,7 @@ egui_extras = { version = "0.23.0", features = ["svg", "all_loaders"]}
 ehttp = "0.3.0"
 image = { version = "0.24", default-features = false, features = ["png"] }
 log = "0.4"
+number_prefix = "0.4.0"
 poll-promise = "0.3.0"
 regex = "1.9"
 serde = { version = "1.0", features = ["derive"] }

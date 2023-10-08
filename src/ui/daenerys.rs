@@ -2,6 +2,7 @@ use std::sync::Once;
 
 use storm_daenerys_common::defines::GROUP_CN_RE_STRING;
 use storm_daenerys_common::types::acl::Qualifier;
+use storm_daenerys_common::types::directory::Quota;
 use storm_daenerys_common::types::group::Group;
 use storm_daenerys_common::types::user::User;
 use storm_daenerys_common::types::{acl::AclEntry, directory::Directory};
@@ -44,6 +45,8 @@ pub struct DaenerysApp {
 
     // Disk usage.
     pub du: Option<String>,
+    // Quota.
+    pub quota: Option<Quota>,
 
     // Admin of the STORM space.
     pub admin: Option<String>,
@@ -61,6 +64,8 @@ pub struct DaenerysApp {
     pub get_admin_promise: Option<Promise<Result<Option<String>, String>>>,
     // Promise returned when calling the backend GET /du endpoint.
     pub get_du_promise: Option<Promise<Result<Option<String>, String>>>,
+    // Promise returned when calling the backend GET /quota endpoint.
+    pub get_quota_promise: Option<Promise<Result<Option<Quota>, String>>>,
 
     // Promise returned when calling the backend GET /folders endpoint.
     pub get_directories_promise: Option<Promise<Result<Option<Vec<Directory>>, String>>>,
@@ -198,7 +203,9 @@ impl Default for DaenerysApp {
             api_url: "http://localhost:3000".to_string(),
             get_admin_promise: Default::default(),
             get_du_promise: Default::default(),
+            get_quota_promise: Default::default(),
             du: Default::default(),
+            quota: Default::default(),
             central_panel_available_size: Default::default(),
         }
     }
@@ -269,19 +276,42 @@ impl eframe::App for DaenerysApp {
         //     }
         // }
 
-        // Get du promises.
+        // Get du promise.
         if let Some(p) = &self.get_du_promise {
             println!("get_du_promise");
 
             match p.ready() {
                 None => (),
-                Some(try_admin) => {
+                Some(try_du) => {
                     self.is_working = false;
 
-                    match try_admin {
+                    match try_du {
                         Ok(du) => {
                             self.du = du.clone();
                             self.get_du_promise = None;
+                        }
+                        Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
+                    };
+                }
+            }
+        }
+
+        // Get quota promise.
+        if let Some(p) = &self.get_quota_promise {
+            println!("get_quota_promise");
+
+            match p.ready() {
+                None => (),
+                Some(try_quota) => {
+                    self.is_working = false;
+
+                    match try_quota {
+                        Ok(quota) => {
+                            self.quota = Some(Quota {
+                                available_space: quota.as_ref().unwrap().available_space,
+                                total_space: quota.as_ref().unwrap().total_space,
+                            });
+                            self.get_quota_promise = None;
                         }
                         Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
                     };
@@ -675,6 +705,7 @@ impl eframe::App for DaenerysApp {
             ));
             self.get_groups_promise = Some(api::group::get_groups(ctx, self.api_url.clone()));
             self.get_admin_promise = Some(api::root::get_admin(ctx, self.api_url.clone()));
+            self.get_quota_promise = Some(api::root::get_quota(ctx, self.api_url.clone()));
         });
     }
 }

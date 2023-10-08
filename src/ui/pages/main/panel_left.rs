@@ -1,6 +1,8 @@
+use std::fmt::format;
+
 use eframe::egui::{self, Context};
-use egui::{Color32, Frame, Margin};
-use log::debug;
+use egui::{Color32, Frame, Label, Margin};
+use number_prefix::NumberPrefix;
 
 use crate::{
     api,
@@ -46,12 +48,54 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
 
                 if ui.add_sized([150., 30.], button).clicked() {
                     app.is_working = true;
+                    app.create_group_clicked = false;
+                    app.directory_button_clicked = None;
+                    app.group_button_clicked = None;
+                    app.is_directory_editing = false;
+                    app.is_group_editing = false;
 
                     let du_width = available_width as u32 / 2;
                     app.get_du_promise =
                         Some(api::root::get_du(ctx, app.api_url.clone(), du_width));
                 }
             });
+
+            //ui.image(egui::include_image!("../../media/separator.svg"));
+            ui.label("");
+
+            //
+            // Quota.
+            //
+            if let Some(quota) = &app.quota {
+                //ui.label(format!("{:?}", quota));
+
+                let used_space = quota.total_space - quota.available_space;
+                let percent_used: f32 = (used_space * 100 / quota.total_space) as f32;
+                let float_used: f32 = percent_used / 100.;
+
+                let formated_total = match NumberPrefix::binary(quota.total_space as f32) {
+                    NumberPrefix::Standalone(bytes) => {
+                        format!("{} bytes", bytes)
+                    }
+                    NumberPrefix::Prefixed(prefix, n) => {
+                        format!("{:.1} {}B", n, prefix)
+                    }
+                };
+                let formated_used = match NumberPrefix::binary(used_space as f32) {
+                    NumberPrefix::Standalone(bytes) => {
+                        format!("{} bytes", bytes)
+                    }
+                    NumberPrefix::Prefixed(prefix, n) => {
+                        format!("{:.1} {}B", n, prefix)
+                    }
+                };
+
+                ui.horizontal_top(|ui| {
+                    ui.label(formated_used);
+                    ui.add(egui::ProgressBar::new(float_used).show_percentage());
+                    ui.label(formated_total);
+                });
+            }
 
             //ui.image(egui::include_image!("../../media/separator.svg"));
             ui.label("");
