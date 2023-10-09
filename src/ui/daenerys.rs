@@ -51,6 +51,9 @@ pub struct DaenerysApp {
     // Admin of the STORM space.
     pub admin: Option<String>,
 
+    // Group prefix.
+    pub group_prefix: Option<String>,
+
     // Directory list.
     pub directories: Option<Vec<Directory>>,
 
@@ -66,6 +69,8 @@ pub struct DaenerysApp {
     pub get_du_promise: Option<Promise<Result<Option<String>, String>>>,
     // Promise returned when calling the backend GET /quota endpoint.
     pub get_quota_promise: Option<Promise<Result<Option<Quota>, String>>>,
+    // Promise returned when calling the backend GET /groupprefix endpoint.
+    pub get_group_prefix_promise: Option<Promise<Result<Option<String>, String>>>,
 
     // Promise returned when calling the backend GET /folders endpoint.
     pub get_directories_promise: Option<Promise<Result<Option<Vec<Directory>>, String>>>,
@@ -204,9 +209,11 @@ impl Default for DaenerysApp {
             get_admin_promise: Default::default(),
             get_du_promise: Default::default(),
             get_quota_promise: Default::default(),
+            get_group_prefix_promise: Default::default(),
             du: Default::default(),
             quota: Default::default(),
             central_panel_available_size: Default::default(),
+            group_prefix: Default::default(),
         }
     }
 }
@@ -319,7 +326,7 @@ impl eframe::App for DaenerysApp {
             }
         }
 
-        // Get admin promises.
+        // Get admin promise.
         if let Some(p) = &self.get_admin_promise {
             println!("get_admin_promise");
 
@@ -332,6 +339,26 @@ impl eframe::App for DaenerysApp {
                         Ok(admin) => {
                             self.admin = admin.clone();
                             self.get_admin_promise = None;
+                        }
+                        Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
+                    };
+                }
+            }
+        }
+
+        // Get group prefix promise.
+        if let Some(p) = &self.get_group_prefix_promise {
+            println!("get_group_prefix_promise");
+
+            match p.ready() {
+                None => (),
+                Some(try_group_prefix) => {
+                    self.is_working = false;
+
+                    match try_group_prefix {
+                        Ok(group_prefix) => {
+                            self.group_prefix = group_prefix.clone();
+                            self.get_group_prefix_promise = None;
                         }
                         Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
                     };
@@ -689,8 +716,8 @@ impl eframe::App for DaenerysApp {
             self.edited_group_remove_member = None;
         }
 
-        // Render page only when admin is retrieved.
-        if self.admin.is_some() {
+        // Render page only when admin and group prefix are retrieved.
+        if self.admin.is_some() && self.group_prefix.is_some() {
             match self.page {
                 Page::Main => main::ui::update(self, ctx, frame),
             }
@@ -706,6 +733,8 @@ impl eframe::App for DaenerysApp {
             self.get_groups_promise = Some(api::group::get_groups(ctx, self.api_url.clone()));
             self.get_admin_promise = Some(api::root::get_admin(ctx, self.api_url.clone()));
             self.get_quota_promise = Some(api::root::get_quota(ctx, self.api_url.clone()));
+            self.get_group_prefix_promise =
+                Some(api::root::get_group_prefix(ctx, self.api_url.clone()));
         });
     }
 }

@@ -72,7 +72,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                 // Group name.
                 ui.vertical(|ui| {
                     ui.horizontal(|ui| {
-                        ui.label("storm-".to_string());
+                        ui.label(format!("{}-", app.group_prefix.as_ref().unwrap()));
                         ui.add_sized(
                             [400., 30.],
                             egui::TextEdit::singleline(&mut app.create_group_name)
