@@ -98,7 +98,9 @@ pub fn display_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efra
                     .movable(true)
                     .resizable(false)
                     .show(ctx, |ui| {
-                        ui.image(egui::include_image!("../../media/ferris.svg"));
+                        ui.image(egui::include_image!("../../media/rust.svg"));
+
+                        ui.label("");
 
                         ui.hyperlink("https://www.rust-lang.org/");
                         ui.hyperlink("https://github.com/emilk/egui");
@@ -108,7 +110,12 @@ pub fn display_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efra
 
                         ui.label("Copyright: Université Clermont Auvergne");
 
-                        if ui.button("close").clicked() {
+                        ui.label("");
+
+                        if ui
+                            .add_sized([200., 30.], egui::Button::new("close"))
+                            .clicked()
+                        {
                             app.rust = false;
                         }
                     });
