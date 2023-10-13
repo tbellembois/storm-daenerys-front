@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::sync::Once;
 
 use storm_daenerys_common::defines::GROUP_CN_RE_STRING;
@@ -378,6 +379,9 @@ impl eframe::App for DaenerysApp {
                     match try_directories {
                         Ok(directories) => {
                             self.directories = directories.clone();
+                            if self.directories.is_some() {
+                                self.directories.as_mut().unwrap().sort();
+                            }
 
                             self.directory_button_clicked = None;
                             self.get_directories_promise = None;
@@ -518,6 +522,31 @@ impl eframe::App for DaenerysApp {
                     match try_groups {
                         Ok(groups) => {
                             self.groups = groups.clone();
+                            if self.groups.is_some() {
+                                self.groups.as_mut().unwrap().sort_by(|groupa, groupb| {
+                                    let auto_group = self.group_prefix.as_ref().unwrap();
+                                    let invite_group =
+                                        format!("{}-invite", self.group_prefix.as_ref().unwrap());
+
+                                    if groupa.cn.eq(auto_group) && groupb.cn.eq(&invite_group) {
+                                        Ordering::Less
+                                    } else if groupb.cn.eq(auto_group)
+                                        && groupa.cn.eq(&invite_group)
+                                    {
+                                        Ordering::Greater
+                                    } else if groupa.cn.eq(auto_group) {
+                                        Ordering::Less
+                                    } else if groupb.cn.eq(auto_group) {
+                                        Ordering::Greater
+                                    } else if groupa.cn.eq(&invite_group) {
+                                        Ordering::Less
+                                    } else if groupb.cn.eq(&invite_group) {
+                                        Ordering::Greater
+                                    } else {
+                                        groupa.cmp(groupb)
+                                    }
+                                })
+                            }
 
                             self.group_button_clicked = None;
                             self.get_groups_promise = None;

@@ -1,14 +1,12 @@
-use std::fmt::format;
-
 use eframe::egui::{self, Context};
-use egui::{Color32, Frame, Label, Margin};
+use egui::{Color32, Frame, Margin};
 use number_prefix::NumberPrefix;
 
 use crate::{
     api,
     defines::{
-        AF_FOLDER_CODE, AF_GAUGE_CODE, AF_GROUP_CODE, AF_REFRESH_CODE, DARK_BACKGROUND_COLOR,
-        LIGHT_BACKGROUND_COLOR,
+        AF_FOLDER_CODE, AF_GAUGE_CODE, AF_GROUP_CODE, AF_HALF_LOCK_CODE, AF_LOCK_CODE,
+        AF_REFRESH_CODE, DARK_BACKGROUND_COLOR, LIGHT_BACKGROUND_COLOR,
     },
     ui::daenerys::DaenerysApp,
 };
@@ -192,13 +190,25 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
                     if app.groups.is_some() {
                         egui::Grid::new("group_list").num_columns(2).show(ui, |ui| {
                             for group in app.groups.as_ref().unwrap().iter() {
+                                let is_group_auto = group.cn.eq(app.group_prefix.as_ref().unwrap());
+                                let is_group_invite = group
+                                    .cn
+                                    .eq(&format!("{}-invite", app.group_prefix.as_ref().unwrap()));
+
                                 ui.add_sized(
                                     [30., 30.],
                                     egui::Label::new(format!("{}", AF_GROUP_CODE)),
                                 );
 
                                 ui.horizontal(|ui| {
-                                    let button_label = group.cn.to_string();
+                                    let mut button_label = group.cn.to_string();
+
+                                    if is_group_auto {
+                                        button_label = format!("{} {}", AF_LOCK_CODE, group.cn)
+                                    }
+                                    if is_group_invite {
+                                        button_label = format!("{} {}", AF_HALF_LOCK_CODE, group.cn)
+                                    }
 
                                     let button = egui::Button::new(button_label);
 

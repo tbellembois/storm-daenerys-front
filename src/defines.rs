@@ -20,6 +20,8 @@ pub const AF_MOON_CODE: char = '\u{f186}';
 pub const AF_ADMIN_CODE: char = '\u{f669}';
 pub const AF_RUST_CODE: char = '\u{e07a}';
 pub const AF_GAUGE_CODE: char = '\u{f0a0}';
+pub const AF_LOCK_CODE: char = '\u{f023}';
+pub const AF_HALF_LOCK_CODE: char = '\u{f09c}';
 
 pub const DARK_BACKGROUND_COLOR: Color32 = Color32::from_rgb(27, 27, 27);
 pub const LIGHT_BACKGROUND_COLOR: Color32 = Color32::from_rgb(248, 248, 248);

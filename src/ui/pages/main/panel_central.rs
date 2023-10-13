@@ -346,21 +346,28 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                     });
 
                     // User list.
+                    let scroll_height = ui.available_height() - 50.;
+
                     if app.users.is_some() {
-                        //ui.image(egui::include_image!("../../media/separator.svg"));
-                        ui.label("");
+                        egui::ScrollArea::vertical()
+                            .id_source("directory_search_user_scroll")
+                            .max_height(scroll_height)
+                            .show(ui, |ui| {
+                                ui.label("");
 
-                        for user in app.users.as_ref().unwrap() {
-                            if ui
-                                .link(format!("{} [{}]", user.clone().display, user.clone().id))
-                                .clicked()
-                            {
-                                app.edited_directory_add_user = Some(user.id.clone());
-                            }
-                        }
-
-                        //ui.image(egui::include_image!("../../media/separator.svg"));
-                        ui.label("");
+                                for user in app.users.as_ref().unwrap() {
+                                    if ui
+                                        .link(format!(
+                                            "{} [{}]",
+                                            user.clone().display,
+                                            user.clone().id
+                                        ))
+                                        .clicked()
+                                    {
+                                        app.edited_directory_add_user = Some(user.id.clone());
+                                    }
+                                }
+                            });
                     }
 
                     // Done button.
@@ -436,6 +443,13 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
             // Group details and edition.
             //
             if let Some(group_button_clicked) = &app.group_button_clicked {
+                let is_group_auto = group_button_clicked
+                    .cn
+                    .eq(app.group_prefix.as_ref().unwrap());
+                let is_group_invite = group_button_clicked
+                    .cn
+                    .eq(&format!("{}-invite", app.group_prefix.as_ref().unwrap()));
+
                 // Group name.
                 ui.heading(format!(
                     "{} {}",
@@ -449,29 +463,36 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
 
                 match &group_button_clicked.member {
                     Some(members) => {
-                        egui::Grid::new("group_detail")
-                            .num_columns(2)
+                        let scroll_height = ui.available_height() - 150.;
+
+                        egui::ScrollArea::vertical()
+                            .id_source("group_detail_scroll")
+                            .max_height(scroll_height)
                             .show(ui, |ui| {
-                                for member in members {
-                                    ui.label(member);
+                                egui::Grid::new("group_detail")
+                                    .num_columns(2)
+                                    .show(ui, |ui| {
+                                        for member in members {
+                                            ui.label(member);
 
-                                    if app.is_group_editing {
-                                        // Delete member button.
-                                        let button_label = format!(
-                                            "{} {}",
-                                            crate::defines::AF_DELETE_CODE,
-                                            "delete member"
-                                        );
-                                        let button = egui::Button::new(button_label);
+                                            if app.is_group_editing {
+                                                // Delete member button.
+                                                let button_label = format!(
+                                                    "{} {}",
+                                                    crate::defines::AF_DELETE_CODE,
+                                                    "delete member"
+                                                );
+                                                let button = egui::Button::new(button_label);
 
-                                        if ui.add_sized([150., 25.], button).clicked() {
-                                            app.edited_group_remove_member =
-                                                Some(member.to_string());
+                                                if ui.add_sized([150., 25.], button).clicked() {
+                                                    app.edited_group_remove_member =
+                                                        Some(member.to_string());
+                                                }
+                                            }
+
+                                            ui.end_row();
                                         }
-                                    }
-
-                                    ui.end_row();
-                                }
+                                    });
                             });
                     }
                     None => {
@@ -486,7 +507,10 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                 let button_label = format!("{} {}", crate::defines::AF_EDIT_CODE, "edit group");
                 let button = egui::Button::new(button_label);
 
-                if !app.is_group_editing && ui.add_sized([150., 30.], button).clicked() {
+                if !is_group_auto
+                    && !app.is_group_editing
+                    && ui.add_sized([150., 30.], button).clicked()
+                {
                     app.edit_group_clicked_backup = Some(Box::new(Group {
                         ..*group_button_clicked.clone()
                     }));
@@ -516,7 +540,8 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                         format!("{} {}", crate::defines::AF_DELETE_CODE, "delete group");
                     let button = egui::Button::new(button_label);
 
-                    if !app.is_working
+                    if !is_group_invite
+                        && !app.is_working
                         && app.is_group_editing
                         && !app.edit_group_delete_confirm
                         && !app.edit_group_add_user_clicked
@@ -579,21 +604,28 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                     });
 
                     // User list.
+                    let scroll_height = ui.available_height() - 50.;
+
                     if app.users.is_some() {
-                        //ui.image(egui::include_image!("../../media/separator.svg"));
-                        ui.label("");
+                        egui::ScrollArea::vertical()
+                            .id_source("group_search_user_scroll")
+                            .max_height(scroll_height)
+                            .show(ui, |ui| {
+                                ui.label("");
 
-                        for user in app.users.as_ref().unwrap() {
-                            if ui
-                                .link(format!("{} [{}]", user.clone().display, user.clone().id))
-                                .clicked()
-                            {
-                                app.edited_group_add_user = Some(user.id.clone());
-                            }
-                        }
-
-                        //ui.image(egui::include_image!("../../media/separator.svg"));
-                        ui.label("");
+                                for user in app.users.as_ref().unwrap() {
+                                    if ui
+                                        .link(format!(
+                                            "{} [{}]",
+                                            user.clone().display,
+                                            user.clone().id
+                                        ))
+                                        .clicked()
+                                    {
+                                        app.edited_group_add_user = Some(user.id.clone());
+                                    }
+                                }
+                            });
                     }
 
                     // Done button.
