@@ -1,10 +1,15 @@
 use std::process::Command;
 
 fn main() {
-    let output = Command::new("git")
+    let mut mayerr_output = Command::new("git")
         .args(["log", "-1", "--pretty=%ct"])
-        .output()
-        .unwrap();
+        .output();
+
+    if mayerr_output.is_err() {
+        mayerr_output = Command::new("date").args(["+%s"]).output();
+    }
+
+    let output = mayerr_output.unwrap();
     let source_date_epoch = String::from_utf8(output.stdout).unwrap();
 
     // println!("cargo:warning={}", source_date_epoch);
