@@ -384,6 +384,7 @@ impl eframe::App for DaenerysApp {
                             }
 
                             self.directory_button_clicked = None;
+                            self.edited_directory_toogle_read_only = None;
                             self.get_directories_promise = None;
                         }
                         Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
