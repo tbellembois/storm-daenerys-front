@@ -1,4 +1,5 @@
 [package]
+build = "build.rs"
 name = "storm_daenerys_front"
 version = "0.1.0"
 authors = ["Thomas Bellembois <thomas.bellembois@uca.fr>"]
@@ -15,6 +16,7 @@ name = "storm_daenerys_front"
 path = "src/lib.rs"
 
 [dependencies]
+chrono = "0.4.31"
 eframe = "0.23.0"
 egui = "0.23.0"
 egui_extras = { version = "0.23.0", features = ["svg", "all_loaders"]}

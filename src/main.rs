@@ -4,11 +4,21 @@ mod error;
 mod ui;
 mod worker;
 
+use std::env;
+
+use chrono::{TimeZone, Utc};
 use eframe::egui;
 use log::info;
 use ui::daenerys::DaenerysApp;
 
 fn main() -> Result<(), eframe::Error> {
+    // Get compilation time information.
+    let source_date_epoch = match env::var("SOURCE_DATE_EPOCH") {
+        Ok(val) => Utc.timestamp_opt(val.parse::<i64>().unwrap(), 0).unwrap(),
+        Err(_) => Utc::now(),
+    };
+    let compilation_time = format!("{}", source_date_epoch.format("%d/%m/%Y %H:%M"));
+
     // Set window options.
     let options = eframe::NativeOptions {
         initial_window_size: Some(egui::vec2(400.0, 400.0)),
@@ -23,7 +33,11 @@ fn main() -> Result<(), eframe::Error> {
         options,
         Box::new(|cc| {
             egui_extras::install_image_loaders(&cc.egui_ctx);
-            Box::new(DaenerysApp::new(cc, "http://localhost:3000".to_string()))
+            Box::new(DaenerysApp::new(
+                cc,
+                "http://localhost:3000".to_string(),
+                compilation_time,
+            ))
         }),
     )
 }

@@ -29,7 +29,11 @@ pub fn display_bottom_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut e
             ..Default::default()
         })
         .show(ctx, |ui| {
-            ui.with_layout(egui::Layout::right_to_left(egui::Align::TOP), |ui| {
+            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                // Compilation time.
+                ui.label(app.compilation_time.clone());
+                ui.label(egui::RichText::new("build:").italics());
+
                 // Logo associates.
                 ui.image(egui::include_image!("../../media/partenaires.png"));
             });

@@ -29,6 +29,9 @@ enum Page {
 }
 
 pub struct DaenerysApp {
+    // Compilation time
+    pub compilation_time: String,
+
     // API URL
     pub api_url: String,
 
@@ -168,6 +171,7 @@ pub struct DaenerysApp {
 impl Default for DaenerysApp {
     fn default() -> Self {
         Self {
+            compilation_time: Default::default(),
             rust: Default::default(),
             is_working: Default::default(),
             group_cn_re: Regex::new(GROUP_CN_RE_STRING).unwrap(),
@@ -220,10 +224,11 @@ impl Default for DaenerysApp {
 }
 
 impl DaenerysApp {
-    pub fn new(cc: &CreationContext, api_url: String) -> Self {
+    pub fn new(cc: &CreationContext, api_url: String, compilation_time: String) -> Self {
         // Create application.
         let mut app = DaenerysApp {
             group_cn_re: Regex::new(GROUP_CN_RE_STRING).unwrap(),
+            compilation_time,
             ..Default::default()
         };
 
