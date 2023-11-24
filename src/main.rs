@@ -21,7 +21,7 @@ fn main() -> Result<(), eframe::Error> {
 
     // Set window options.
     let options = eframe::NativeOptions {
-        initial_window_size: Some(egui::vec2(400.0, 400.0)),
+        viewport: egui::ViewportBuilder::default().with_inner_size([400.0, 400.0]),
         ..Default::default()
     };
 
@@ -33,6 +33,7 @@ fn main() -> Result<(), eframe::Error> {
         options,
         Box::new(|cc| {
             egui_extras::install_image_loaders(&cc.egui_ctx);
+
             Box::new(DaenerysApp::new(
                 cc,
                 "http://localhost:3000".to_string(),
