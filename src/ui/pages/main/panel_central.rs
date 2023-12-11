@@ -42,18 +42,24 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
             // Home.
             //
             if app.application_just_loaded {
-                ui.with_layout(egui::Layout::top_down(egui::Align::LEFT), |ui| {
+                ui.with_layout(egui::Layout::top_down(egui::Align::Center), |ui| {
                     ui.add_sized(
-                        [150., 150.],
+                        [100., 100.],
                         egui::Image::new(egui::include_image!(
                             "../../media/circle-question-regular.svg"
                         )),
                     );
+                });
+
+                ui.with_layout(egui::Layout::top_down(egui::Align::LEFT), |ui| {
+                    ui.label(
+                        egui::RichText::new("FAQ").heading(),
+                    );
 
                     ui.label("");
-
+                    
                     ui.label(
-                        egui::RichText::new("I do no see all of my directories?").underline(),
+                        egui::RichText::new("I don't see all of my directories on the left panel").underline(),
                     );
 
                     ui.label("");
@@ -64,15 +70,26 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                     ui.label("");
 
                     ui.label(
-                        egui::RichText::new("I can only set ACLs on the root directories?")
+                        egui::RichText::new("I can not set ACLs on subdirectories")
                             .underline(),
                     );
 
                     ui.label("");
 
-                    ui.label("Yes, for technical reasons you won't be able to put ACLs on sub directories.");
+                    ui.label("No, for technical reasons it is not possible.");
+
+                    ui.label("");
+                    
+                    ui.label(
+                        egui::RichText::new("I have given permission to a person on a directory but he/she can't access it").underline(),
+                    );
+
+                    ui.label("");
+
+                    ui.label(format!("Check that this person is member of {} or {}-invite.", app.group_prefix.as_ref().unwrap(), app.group_prefix.as_ref().unwrap()));
                 });
 
+                
                 ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
                     ui.label("Copyright: Université Clermont Auvergne");
 
@@ -80,19 +97,21 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
 
                     ui.hyperlink("https://www.rust-lang.org/");
                     ui.hyperlink("https://github.com/emilk/egui");
-                    ui.hyperlink("https://github.com/tokio-rs/axum");
+                    ui.hyperlink("https://github.com/tokio-rs/axum");                 
 
                     ui.label("");
 
                     ui.add_sized(
-                        [50., 50.],
-                        egui::Image::new(egui::include_image!("../../media/rust.svg")),
+                        [40., 40.],
+                        egui::Image::new(egui::include_image!(
+                            "../../media/rust.svg"
+                        )),
                     );
 
                     ui.label("");
                     
                     ui.label(
-                        egui::RichText::new("Credits").underline(),
+                        egui::RichText::new("Credits").heading(),
                     );
                 });
             }
