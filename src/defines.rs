@@ -18,7 +18,6 @@ pub const AF_INFO_CODE: char = '\u{f05a}';
 pub const AF_SUN_CODE: char = '\u{f185}';
 pub const AF_MOON_CODE: char = '\u{f186}';
 pub const AF_ADMIN_CODE: char = '\u{f669}';
-pub const AF_RUST_CODE: char = '\u{e07a}';
 pub const AF_GAUGE_CODE: char = '\u{f0a0}';
 pub const AF_LOCK_CODE: char = '\u{f023}';
 pub const AF_HALF_LOCK_CODE: char = '\u{f09c}';

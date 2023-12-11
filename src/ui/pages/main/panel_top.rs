@@ -6,8 +6,8 @@ use egui::{Frame, Margin};
 
 use crate::{
     defines::{
-        AF_ERROR_CODE, AF_INFO_CODE, AF_MOON_CODE, AF_RUST_CODE, AF_SUN_CODE,
-        DARK_BACKGROUND_COLOR, LIGHT_BACKGROUND_COLOR,
+        AF_ERROR_CODE, AF_INFO_CODE, AF_MOON_CODE, AF_SUN_CODE, DARK_BACKGROUND_COLOR,
+        LIGHT_BACKGROUND_COLOR,
     },
     ui::daenerys::DaenerysApp,
 };
@@ -72,15 +72,6 @@ pub fn display_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efra
                     }
                 }
 
-                // Rust !
-                let button_label = format!("{}", AF_RUST_CODE);
-
-                let button = egui::Button::new(button_label);
-
-                if ui.add_sized([30., 30.], button).clicked() {
-                    app.rust = true;
-                }
-
                 // Logo STORM.
                 // ui.vertical_centered_justified(|ui| {
                 if app.theme.dark_mode {
@@ -90,35 +81,5 @@ pub fn display_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efra
                 }
                 // });
             });
-
-            if app.rust {
-                egui::Window::new("Powered by Rust.")
-                    .fixed_size(egui::vec2(300., 150.))
-                    .collapsible(false)
-                    .movable(true)
-                    .resizable(false)
-                    .show(ctx, |ui| {
-                        ui.image(egui::include_image!("../../media/rust.svg"));
-
-                        ui.label("");
-
-                        ui.hyperlink("https://www.rust-lang.org/");
-                        ui.hyperlink("https://github.com/emilk/egui");
-                        ui.hyperlink("https://github.com/tokio-rs/axum");
-
-                        ui.label("");
-
-                        ui.label("Copyright: Université Clermont Auvergne");
-
-                        ui.label("");
-
-                        if ui
-                            .add_sized([200., 30.], egui::Button::new("close"))
-                            .clicked()
-                        {
-                            app.rust = false;
-                        }
-                    });
-            }
         });
 }

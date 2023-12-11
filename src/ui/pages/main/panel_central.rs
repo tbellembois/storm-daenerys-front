@@ -39,6 +39,65 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
             app.central_panel_available_size = ui.available_size();
 
             //
+            // Home.
+            //
+            if app.application_just_loaded {
+                ui.with_layout(egui::Layout::top_down(egui::Align::LEFT), |ui| {
+                    ui.add_sized(
+                        [150., 150.],
+                        egui::Image::new(egui::include_image!(
+                            "../../media/circle-question-regular.svg"
+                        )),
+                    );
+
+                    ui.label("");
+
+                    ui.label(
+                        egui::RichText::new("I do no see all of my directories?").underline(),
+                    );
+
+                    ui.label("");
+
+                    ui.label("The root directory names can only contain letters (lower and upper case), digits and the characters '_' and '-'.");
+                    ui.label("This rule is strictly enforced. You won't be able to manage directories not respecting this naming convention.");
+
+                    ui.label("");
+
+                    ui.label(
+                        egui::RichText::new("I can only set ACLs on the root directories?")
+                            .underline(),
+                    );
+
+                    ui.label("");
+
+                    ui.label("Yes, for technical reasons you won't be able to put ACLs on sub directories.");
+                });
+
+                ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
+                    ui.label("Copyright: Université Clermont Auvergne");
+
+                    ui.label("");
+
+                    ui.hyperlink("https://www.rust-lang.org/");
+                    ui.hyperlink("https://github.com/emilk/egui");
+                    ui.hyperlink("https://github.com/tokio-rs/axum");
+
+                    ui.label("");
+
+                    ui.add_sized(
+                        [50., 50.],
+                        egui::Image::new(egui::include_image!("../../media/rust.svg")),
+                    );
+
+                    ui.label("");
+                    
+                    ui.label(
+                        egui::RichText::new("Credits").underline(),
+                    );
+                });
+            }
+
+            //
             // Spinner.
             //
             if app.is_working {
@@ -51,6 +110,8 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
             // Disk usage.
             //
             if app.du.is_some() {
+                app.application_just_loaded = false;
+
                 let available_height: f32 = ui.available_size().y;
                 let scroll_height: f32 = available_height - 50.;
 
@@ -69,6 +130,8 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
             // Create group form.
             //
             if app.create_group_clicked {
+                app.application_just_loaded = false;
+
                 // Group name.
                 ui.vertical(|ui| {
                     ui.horizontal(|ui| {
@@ -132,6 +195,8 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
             // Directory details and edition.
             //
             if let Some(directory_button_clicked) = &app.directory_button_clicked {
+                app.application_just_loaded = false;
+
                 // Directory name.
                 ui.heading(format!(
                     "{} {}",
@@ -443,6 +508,8 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
             // Group details and edition.
             //
             if let Some(group_button_clicked) = &app.group_button_clicked {
+                app.application_just_loaded = false;
+
                 let is_group_auto = group_button_clicked
                     .cn
                     .eq(app.group_prefix.as_ref().unwrap());

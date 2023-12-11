@@ -29,6 +29,9 @@ enum Page {
 }
 
 pub struct DaenerysApp {
+    // True when application loads, false afterwards.
+    pub application_just_loaded: bool,
+
     // Compilation time
     pub compilation_time: String,
 
@@ -163,16 +166,13 @@ pub struct DaenerysApp {
 
     // Spinner? shown on API calls.
     pub is_working: bool,
-
-    // Rust credits.
-    pub rust: bool,
 }
 
 impl Default for DaenerysApp {
     fn default() -> Self {
         Self {
+            application_just_loaded: true,
             compilation_time: Default::default(),
-            rust: Default::default(),
             is_working: Default::default(),
             group_cn_re: Regex::new(GROUP_CN_RE_STRING).unwrap(),
             page: Default::default(),
