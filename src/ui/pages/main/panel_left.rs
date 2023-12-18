@@ -59,7 +59,7 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
             });
 
             //ui.image(egui::include_image!("../../media/separator.svg"));
-            ui.label("");
+            ui.add_space(20.0);
 
             //
             // Quota.
@@ -96,7 +96,7 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
             }
 
             //ui.image(egui::include_image!("../../media/separator.svg"));
-            ui.label("");
+            ui.add_space(20.0);
 
             //
             // Refresh directory list button.
@@ -162,9 +162,9 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
                 });
 
             //ui.image(egui::include_image!("../../media/separator.svg"));
-            ui.label("");
+            ui.add_space(20.0);
             //ui.image(egui::include_image!("../../media/separator.svg"));
-            ui.label("");
+            ui.add_space(20.0);
 
             //
             // Refresh group list button.
@@ -236,7 +236,7 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
                 });
 
             //ui.image(egui::include_image!("../../media/separator.svg"));
-            ui.label("");
+            ui.add_space(20.0);
 
             //
             // Create group button.

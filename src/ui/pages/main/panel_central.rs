@@ -56,44 +56,44 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                         egui::RichText::new("FAQ").heading(),
                     );
 
-                    ui.label("");
+                    ui.add_space(20.0);
                     
                     ui.label(
                         egui::RichText::new("I don't see all of my directories on the left panel").underline(),
                     );
 
-                    ui.label("");
+                    ui.add_space(20.0);
 
                     ui.label("The root directory names can only contain letters (lower and upper case), digits and the characters '_' and '-'.");
                     ui.label("This rule is strictly enforced. You won't be able to manage directories not respecting this naming convention.");
 
-                    ui.label("");
+                    ui.add_space(20.0);
 
                     ui.label(
                         egui::RichText::new("I can not set ACLs on subdirectories")
                             .underline(),
                     );
 
-                    ui.label("");
+                    ui.add_space(20.0);
 
                     ui.label("No, for technical reasons it is not possible.");
 
-                    ui.label("");
+                    ui.add_space(20.0);
                     
                     ui.label(
                         egui::RichText::new("I have given permission to a person on a directory but he/she can't access it").underline(),
                     );
 
-                    ui.label("");
+                    ui.add_space(20.0);
 
                     ui.label(format!("Check that this person is member of {} or {}-invite.", app.group_prefix.as_ref().unwrap(), app.group_prefix.as_ref().unwrap()));
                 });
 
-                ui.label("");
+                ui.add_space(20.0);
 
                 ui.separator();
                 
-                ui.label("");
+                ui.add_space(20.0);
 
                 ui.with_layout(egui::Layout::top_down(egui::Align::Center), |ui| {
                     ui.add_sized(
@@ -109,13 +109,13 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                         egui::RichText::new("Credits").heading(),
                     );
 
-                    ui.label("");
+                    ui.add_space(20.0);
 
                     ui.hyperlink("https://www.rust-lang.org/");
                     ui.hyperlink("https://github.com/emilk/egui");
                     ui.hyperlink("https://github.com/tokio-rs/axum"); 
 
-                    ui.label("");
+                    ui.add_space(20.0);
 
                     ui.label(
                         egui::RichText::new("Copyright").underline(),
@@ -232,7 +232,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                 ));
 
                 //ui.image(egui::include_image!("../../media/separator.svg"));
-                ui.label("");
+                ui.add_space(20.0);
 
                 let acls = &directory_button_clicked.acls;
 
@@ -352,7 +352,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                 // Display add user and add group buttons.
                 if app.is_directory_editing {
                     //ui.image(egui::include_image!("../../media/separator.svg"));
-                    ui.label("");
+                    ui.add_space(20.0);
 
                     ui.horizontal_top(|ui| {
                         // Add user button.
@@ -389,7 +389,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                 // Display edit button.
                 if !app.is_directory_editing {
                     //ui.image(egui::include_image!("../../media/separator.svg"));
-                    ui.label("");
+                    ui.add_space(20.0);
 
                     let button_label = format!("{} {}", crate::defines::AF_EDIT_CODE, "edit ACLs");
                     let button = egui::Button::new(button_label);
@@ -445,7 +445,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                             .id_source("directory_search_user_scroll")
                             .max_height(scroll_height)
                             .show(ui, |ui| {
-                                ui.label("");
+                                ui.add_space(20.0);
 
                                 for user in app.users.as_ref().unwrap() {
                                     if ui
@@ -479,7 +479,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                     // Group list.
                     if app.groups.is_some() {
                         //ui.image(egui::include_image!("../../media/separator.svg"));
-                        ui.label("");
+                        ui.add_space(20.0);
 
                         for group in app.groups.as_ref().unwrap() {
                             if ui.link(group.clone().cn).clicked() {
@@ -488,7 +488,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                         }
 
                         //ui.image(egui::include_image!("../../media/separator.svg"));
-                        ui.label("");
+                        ui.add_space(20.0);
                     }
 
                     // Done button.
@@ -509,7 +509,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                     && !app.edit_directory_add_user_clicked
                 {
                     //ui.image(egui::include_image!("../../media/separator.svg"));
-                    ui.label("");
+                    ui.add_space(20.0);
 
                     let button_label = format!("{} {}", crate::defines::AF_SAVE_CODE, "save");
 
@@ -553,7 +553,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                 ui.label(egui::RichText::new(group_button_clicked.description.clone()).italics());
 
                 //ui.image(egui::include_image!("../../media/separator.svg"));
-                ui.label("");
+                ui.add_space(20.0);
 
                 match &group_button_clicked.member {
                     Some(members) => {
@@ -595,7 +595,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                 }
 
                 //ui.image(egui::include_image!("../../media/separator.svg"));
-                ui.label("");
+                ui.add_space(20.0);
 
                 // Edit group button.
                 let button_label = format!("{} {}", crate::defines::AF_EDIT_CODE, "edit group");
@@ -705,7 +705,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                             .id_source("group_search_user_scroll")
                             .max_height(scroll_height)
                             .show(ui, |ui| {
-                                ui.label("");
+                                ui.add_space(20.0);
 
                                 for user in app.users.as_ref().unwrap() {
                                     if ui
@@ -737,7 +737,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                 //
                 if app.is_group_editing && !app.edit_group_add_user_clicked {
                     //ui.image(egui::include_image!("../../media/separator.svg"));
-                    ui.label("");
+                    ui.add_space(20.0);
 
                     let button_label = format!("{} {}", crate::defines::AF_SAVE_CODE, "save");
 
