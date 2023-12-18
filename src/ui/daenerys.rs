@@ -10,10 +10,11 @@ use storm_daenerys_common::types::{acl::AclEntry, directory::Directory};
 
 use eframe::{egui, CreationContext};
 
-use egui::{FontFamily, FontId, TextStyle, Vec2, Visuals};
+use egui::{Color32, FontFamily, FontId, TextStyle, Vec2, Visuals};
 use poll_promise::Promise;
 
 use crate::api;
+use crate::defines::{DARK_BACKGROUND_COLOR, LIGHT_BACKGROUND_COLOR};
 use crate::error::apperror::AppError;
 use crate::ui::pages::main;
 
@@ -47,8 +48,11 @@ pub struct DaenerysApp {
     // Central panel available size.
     pub central_panel_available_size: Vec2,
 
-    // Current theme:
+    // Current theme.
     pub theme: Visuals,
+
+    // Background color.
+    pub background_color: Color32,
 
     // Disk usage.
     pub du: Option<String>,
@@ -166,6 +170,12 @@ pub struct DaenerysApp {
 
     // Spinner? shown on API calls.
     pub is_working: bool,
+
+    // Show/hide directory list.
+    pub show_directory_list: bool,
+
+    // Show/hide group list.
+    pub show_group_list: bool,
 }
 
 impl Default for DaenerysApp {
@@ -219,6 +229,9 @@ impl Default for DaenerysApp {
             quota: Default::default(),
             central_panel_available_size: Default::default(),
             group_prefix: Default::default(),
+            background_color: LIGHT_BACKGROUND_COLOR,
+            show_directory_list: true,
+            show_group_list: true,
         }
     }
 }
@@ -288,6 +301,13 @@ impl eframe::App for DaenerysApp {
         //         }
         //     }
         // }
+
+        // Set background color.
+        self.background_color = if self.theme.dark_mode {
+            DARK_BACKGROUND_COLOR
+        } else {
+            LIGHT_BACKGROUND_COLOR
+        };
 
         // Get du promise.
         if let Some(p) = &self.get_du_promise {

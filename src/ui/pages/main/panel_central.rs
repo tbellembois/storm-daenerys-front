@@ -5,12 +5,12 @@ use crate::{
         group::{delete_group, save_group},
     },
     defines::{
-        AF_ADMIN_CODE, AF_GROUP_CODE, AF_USER_CODE, DARK_BACKGROUND_COLOR, LIGHT_BACKGROUND_COLOR,
+        AF_ADMIN_CODE, AF_GROUP_CODE, AF_USER_CODE,
     },
     ui::daenerys::DaenerysApp,
 };
 use eframe::egui::{self, Context};
-use egui::{Color32, Frame, Key, Margin};
+use egui::{Frame, Key, Margin};
 
 use storm_daenerys_common::types::{
     acl::{Qualifier, SetAcl},
@@ -18,12 +18,6 @@ use storm_daenerys_common::types::{
 };
 
 pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut eframe::Frame) {
-    let background: Color32 = if app.theme.dark_mode {
-        DARK_BACKGROUND_COLOR
-    } else {
-        LIGHT_BACKGROUND_COLOR
-    };
-
     egui::CentralPanel::default()
         .frame(Frame {
             inner_margin: Margin {
@@ -32,7 +26,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                 top: 10.0,
                 bottom: 10.0,
             },
-            fill: background,
+            fill: app.background_color,
             ..Default::default()
         })
         .show(ctx, |ui| {
@@ -231,7 +225,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                     directory_button_clicked.name
                 ));
 
-                //ui.image(egui::include_image!("../../media/separator.svg"));
+                
                 ui.add_space(20.0);
 
                 let acls = &directory_button_clicked.acls;
@@ -351,7 +345,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
 
                 // Display add user and add group buttons.
                 if app.is_directory_editing {
-                    //ui.image(egui::include_image!("../../media/separator.svg"));
+                    
                     ui.add_space(20.0);
 
                     ui.horizontal_top(|ui| {
@@ -388,7 +382,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
 
                 // Display edit button.
                 if !app.is_directory_editing {
-                    //ui.image(egui::include_image!("../../media/separator.svg"));
+                    
                     ui.add_space(20.0);
 
                     let button_label = format!("{} {}", crate::defines::AF_EDIT_CODE, "edit ACLs");
@@ -478,7 +472,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                 if app.edit_directory_add_group_clicked {
                     // Group list.
                     if app.groups.is_some() {
-                        //ui.image(egui::include_image!("../../media/separator.svg"));
+                        
                         ui.add_space(20.0);
 
                         for group in app.groups.as_ref().unwrap() {
@@ -487,7 +481,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                             }
                         }
 
-                        //ui.image(egui::include_image!("../../media/separator.svg"));
+                        
                         ui.add_space(20.0);
                     }
 
@@ -508,7 +502,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                     && !app.edit_directory_add_group_clicked
                     && !app.edit_directory_add_user_clicked
                 {
-                    //ui.image(egui::include_image!("../../media/separator.svg"));
+                    
                     ui.add_space(20.0);
 
                     let button_label = format!("{} {}", crate::defines::AF_SAVE_CODE, "save");
@@ -552,7 +546,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                 ));
                 ui.label(egui::RichText::new(group_button_clicked.description.clone()).italics());
 
-                //ui.image(egui::include_image!("../../media/separator.svg"));
+                
                 ui.add_space(20.0);
 
                 match &group_button_clicked.member {
@@ -594,7 +588,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                     }
                 }
 
-                //ui.image(egui::include_image!("../../media/separator.svg"));
+                
                 ui.add_space(20.0);
 
                 // Edit group button.
@@ -736,7 +730,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                 // Save button.
                 //
                 if app.is_group_editing && !app.edit_group_add_user_clicked {
-                    //ui.image(egui::include_image!("../../media/separator.svg"));
+                    
                     ui.add_space(20.0);
 
                     let button_label = format!("{} {}", crate::defines::AF_SAVE_CODE, "save");

@@ -1,19 +1,10 @@
-use egui::{Color32, Context};
+use egui::Context;
 
-use crate::{
-    defines::{DARK_BACKGROUND_COLOR, LIGHT_BACKGROUND_COLOR},
-    ui::daenerys::DaenerysApp,
-};
+use crate::ui::daenerys::DaenerysApp;
 
 use egui::{Frame, Margin};
 
 pub fn display_bottom_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut eframe::Frame) {
-    let background: Color32 = if app.theme.dark_mode {
-        DARK_BACKGROUND_COLOR
-    } else {
-        LIGHT_BACKGROUND_COLOR
-    };
-
     egui::TopBottomPanel::bottom("footer")
         .min_height(60.)
         .max_height(60.)
@@ -25,7 +16,7 @@ pub fn display_bottom_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut e
                 top: 5.0,
                 bottom: 5.0,
             },
-            fill: background,
+            fill: app.background_color,
             ..Default::default()
         })
         .show(ctx, |ui| {

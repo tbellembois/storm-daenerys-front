@@ -5,20 +5,15 @@ use eframe::{
 use egui::{Frame, Margin};
 
 use crate::{
+    api,
     defines::{
-        AF_ERROR_CODE, AF_INFO_CODE, AF_MOON_CODE, AF_SUN_CODE, DARK_BACKGROUND_COLOR,
-        LIGHT_BACKGROUND_COLOR,
+        AF_ERROR_CODE, AF_FOLDER_CODE, AF_GAUGE_CODE, AF_GROUP_CODE, AF_INFO_CODE, AF_MOON_CODE,
+        AF_SUN_CODE,
     },
     ui::daenerys::DaenerysApp,
 };
 
 pub fn display_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut eframe::Frame) {
-    let background: Color32 = if app.theme.dark_mode {
-        DARK_BACKGROUND_COLOR
-    } else {
-        LIGHT_BACKGROUND_COLOR
-    };
-
     egui::TopBottomPanel::top("error_info_panel")
         .min_height(40.)
         .max_height(40.)
@@ -30,41 +25,30 @@ pub fn display_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efra
                 top: 10.0,
                 bottom: 0.0,
             },
-            fill: background,
+            fill: app.background_color,
             ..Default::default()
         })
         .show(ctx, |ui| {
-            // Current error label.
-            if let Some(current_error) = &app.current_error {
-                ui.label(
-                    RichText::new(format!("{} {}", AF_ERROR_CODE, current_error))
-                        .color(Color32::DARK_RED),
-                );
-            }
+            // Logo STORM.
+            ui.image(egui::include_image!("../../media/storm-logo.svg"));
+            ui.add_space(10.0);
 
-            // Current info label.
-            if let Some(current_info) = &app.current_info {
-                ui.label(
-                    RichText::new(format!("{} {}", AF_INFO_CODE, current_info))
-                        .color(Color32::DARK_GREEN),
-                );
-            }
+            ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
+                // Logo STORM.
+                //ui.image(egui::include_image!("../../media/storm-logo.svg"));
 
-            ui.horizontal(|ui| {
+                //
                 // Switch theme.
+                //
                 if app.theme.dark_mode {
-                    let button_label = format!("{}", AF_SUN_CODE);
-
-                    let button = egui::Button::new(button_label);
+                    let button = egui::Button::new(format!("{} light mode", AF_SUN_CODE));
 
                     if ui.add_sized([30., 30.], button).clicked() {
                         app.theme = Visuals::light();
                         ctx.set_visuals(Visuals::light());
                     }
                 } else {
-                    let button_label = format!("{}", AF_MOON_CODE);
-
-                    let button = egui::Button::new(button_label);
+                    let button = egui::Button::new(format!("{} dark mode", AF_MOON_CODE));
 
                     if ui.add_sized([30., 30.], button).clicked() {
                         app.theme = Visuals::dark();
@@ -72,14 +56,56 @@ pub fn display_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efra
                     }
                 }
 
-                // Logo STORM.
-                // ui.vertical_centered_justified(|ui| {
-                if app.theme.dark_mode {
-                    ui.image(egui::include_image!("../../media/storm-light.svg"));
-                } else {
-                    ui.image(egui::include_image!("../../media/storm-dark.svg"));
+                //
+                // Disk usage button.
+                //
+                let button = egui::Button::new(format!("{} show disk usage", AF_GAUGE_CODE));
+
+                if ui.add_sized([150., 30.], button).clicked() {
+                    app.is_working = true;
+                    app.create_group_clicked = false;
+                    app.directory_button_clicked = None;
+                    app.group_button_clicked = None;
+                    app.is_directory_editing = false;
+                    app.is_group_editing = false;
+
+                    let available_width = app.central_panel_available_size.x;
+                    let du_width = available_width as u32 / 2;
+                    app.get_du_promise =
+                        Some(api::root::get_du(ctx, app.api_url.clone(), du_width));
+                };
+
+                // Hide directories button.
+                let button = egui::Button::new(format!("{} toogle directory view", AF_FOLDER_CODE));
+
+                if ui.add_sized([150., 30.], button).clicked() {
+                    app.show_directory_list = !app.show_directory_list;
                 }
-                // });
+
+                // Hide groups button.
+                let button = egui::Button::new(format!("{} toogle group view", AF_GROUP_CODE));
+
+                if ui.add_sized([150., 30.], button).clicked() {
+                    app.show_group_list = !app.show_group_list;
+                }
+
+                // Current error label.
+                if let Some(current_error) = &app.current_error {
+                    ui.label(
+                        RichText::new(format!("{} {}", AF_ERROR_CODE, current_error))
+                            .color(Color32::DARK_RED),
+                    );
+                }
+
+                // Current info label.
+                if let Some(current_info) = &app.current_info {
+                    ui.label(
+                        RichText::new(format!("{} {}", AF_INFO_CODE, current_info))
+                            .color(Color32::DARK_GREEN),
+                    );
+                }
             });
+
+            ui.add_space(10.0);
         });
 }
