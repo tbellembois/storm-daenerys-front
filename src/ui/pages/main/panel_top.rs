@@ -34,9 +34,6 @@ pub fn display_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efra
             ui.add_space(10.0);
 
             ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
-                // Logo STORM.
-                //ui.image(egui::include_image!("../../media/storm-logo.svg"));
-
                 //
                 // Switch theme.
                 //
@@ -56,9 +53,7 @@ pub fn display_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efra
                     }
                 }
 
-                //
                 // Disk usage button.
-                //
                 let button = egui::Button::new(format!("{} show disk usage", AF_GAUGE_CODE));
 
                 if ui.add_sized([150., 30.], button).clicked() {

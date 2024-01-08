@@ -36,8 +36,6 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
             // Quota.
             //
             if let Some(quota) = &app.quota {
-                //ui.label(format!("{:?}", quota));
-
                 let used_space = quota.total_space - quota.available_space;
                 let percent_used: f32 = (used_space * 100 / quota.total_space) as f32;
                 let float_used: f32 = percent_used / 100.;
