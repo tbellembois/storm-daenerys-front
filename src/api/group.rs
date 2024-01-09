@@ -186,8 +186,8 @@ pub fn create_group(
     };
 
     ehttp::fetch(request, move |response| {
-        let add_user_to_group_result = response.and_then(parse_add_del_user_to_group_response);
-        sender.send(add_user_to_group_result);
+        let create_group_result = response.and_then(parse_add_del_user_to_group_response);
+        sender.send(create_group_result);
         ctx.request_repaint(); // wake up UI thread
     });
 
@@ -214,8 +214,8 @@ pub fn delete_group(
     };
 
     ehttp::fetch(request, move |response| {
-        let add_user_to_group_result = response.and_then(parse_add_del_user_to_group_response);
-        sender.send(add_user_to_group_result);
+        let delete_group_result = response.and_then(parse_add_del_user_to_group_response);
+        sender.send(delete_group_result);
         ctx.request_repaint(); // wake up UI thread
     });
 

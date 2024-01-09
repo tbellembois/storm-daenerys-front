@@ -110,7 +110,7 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
                                             format!("{}", AF_WARNING_CODE)
                                         };
 
-                                        let enabled = if directory.valid { true } else { false };
+                                        let enabled = directory.valid;
 
                                         ui.add_sized([30., 30.], egui::Label::new(directory_icon));
 
@@ -144,6 +144,28 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
                                 });
                         }
                     });
+
+                ui.add_space(20.0);
+
+                //
+                // Create directory button.
+                //
+                let button_label =
+                    format!("{} {}", crate::defines::AF_ADD_CODE, "create directory");
+
+                let button = egui::Button::new(button_label);
+
+                if ui.add_sized([150., 30.], button).clicked() {
+                    app.create_directory_clicked = true;
+                    app.create_group_clicked = false;
+                    app.directory_button_clicked = None;
+                    app.group_button_clicked = None;
+                    app.is_directory_editing = false;
+                    app.is_group_editing = false;
+                    app.du = None;
+
+                    app.create_directory_name.clear();
+                }
 
                 ui.add_space(20.0);
             }
@@ -240,6 +262,7 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
 
                 if ui.add_sized([150., 30.], button).clicked() {
                     app.create_group_clicked = true;
+                    app.create_directory_clicked = false;
                     app.directory_button_clicked = None;
                     app.group_button_clicked = None;
                     app.is_directory_editing = false;

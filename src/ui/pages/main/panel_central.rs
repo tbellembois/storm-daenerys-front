@@ -14,7 +14,7 @@ use egui::{Frame, Key, Margin};
 
 use storm_daenerys_common::types::{
     acl::{Qualifier, SetAcl},
-    group::Group,
+    group::Group, directory::CreateDirectory,
 };
 
 pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut eframe::Frame) {
@@ -148,6 +148,60 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
             }
 
             //
+            // Create directory form.
+            //
+            if app.create_directory_clicked {
+                app.application_just_loaded = false;
+
+                // Directory name.
+                ui.vertical(|ui| {
+                    ui.horizontal(|ui| {
+                        //ui.label(format!("{}-", app.group_prefix.as_ref().unwrap()));
+                        ui.add_sized(
+                            [400., 30.],
+                            egui::TextEdit::singleline(&mut app.create_directory_name)
+                                .hint_text("directory name (no space, no accent or special character except - and _)"),
+                        );
+                    });
+
+                    // Create directory button.
+                    // Validate name, disable create button until valid.
+                    let mut enabled: bool = true;
+                    if app.create_directory_name.clone().len() < 2
+                        || !app
+                            .directory_name_re
+                            .is_match(app.create_directory_name.clone().as_str())
+                    {
+                        enabled = false;
+                    }
+                    ui.add_enabled_ui(enabled, |ui| {
+                        let button_label =
+                            format!("{} {}", crate::defines::AF_CREATE_CODE, "create");
+
+                        let button = egui::Button::new(button_label);
+
+                        if ui.add_sized([150., 30.], button).clicked() {
+                            app.current_info =
+                                Some(format!("creating directory {}", app.create_directory_name.clone()));
+
+                            let create_directory = CreateDirectory {
+                                name: app.create_directory_name.clone(),
+                            };
+
+                            app.is_working = true;
+                            app.create_directory_promise = Some(api::directory::create_directory(
+                                ctx,
+                                create_directory,
+                                app.api_url.clone(),
+                            ));
+
+                            app.create_directory_name.clear();
+                        }
+                    });
+                });
+            }
+
+            //
             // Create group form.
             //
             if app.create_group_clicked {
@@ -160,7 +214,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                         ui.add_sized(
                             [400., 30.],
                             egui::TextEdit::singleline(&mut app.create_group_name)
-                                .hint_text("group name (no space, no accent or special character)"),
+                                .hint_text("group name (no space, no accent or special character except _)"),
                         );
                     });
 

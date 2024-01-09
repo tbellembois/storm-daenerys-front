@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 use std::sync::Once;
 
-use storm_daenerys_common::defines::GROUP_CN_RE_STRING;
+use storm_daenerys_common::defines::{DIRECTORY_NAME_RE_STRING, GROUP_CN_RE_STRING};
 use storm_daenerys_common::types::acl::Qualifier;
 use storm_daenerys_common::types::directory::Quota;
 use storm_daenerys_common::types::group::Group;
@@ -41,6 +41,9 @@ pub struct DaenerysApp {
 
     // Group name regex.
     pub group_cn_re: Regex,
+
+    // Directory name regex.
+    pub directory_name_re: Regex,
 
     // Current active page.
     page: Page,
@@ -89,7 +92,8 @@ pub struct DaenerysApp {
     pub get_groups_promise: Option<Promise<Result<Option<Vec<Group>>, String>>>,
     // Promise returned when calling the backend GET /users endpoint.
     pub get_users_promise: Option<Promise<Result<Option<Vec<User>>, String>>>,
-
+    // Promises returned when calling the backend POST /directories endpoint.
+    pub create_directory_promise: Option<Promise<Result<(), String>>>,
     // Promise returned when calling the backend POST /acls endpoint.
     pub save_directory_acl_promise: Option<Promise<Result<(), String>>>,
 
@@ -132,6 +136,9 @@ pub struct DaenerysApp {
     pub create_group_clicked: bool,
     // Create directory.
     pub create_directory_clicked: bool,
+
+    // Directory name input of the create directory form.
+    pub create_directory_name: String,
 
     // Edit directory clicked.
     // pub edit_directory_clicked: Option<Box<Directory>>,
@@ -185,6 +192,7 @@ impl Default for DaenerysApp {
             compilation_time: Default::default(),
             is_working: Default::default(),
             group_cn_re: Regex::new(GROUP_CN_RE_STRING).unwrap(),
+            directory_name_re: Regex::new(DIRECTORY_NAME_RE_STRING).unwrap(),
             page: Default::default(),
             theme: Default::default(),
             directories: Default::default(),
@@ -196,6 +204,7 @@ impl Default for DaenerysApp {
             save_directory_acl_promise: Default::default(),
             save_group_promises: Default::default(),
             create_group_promise: Default::default(),
+            create_directory_promise: Default::default(),
             delete_group_promise: Default::default(),
             current_error: Default::default(),
             current_info: Default::default(),
@@ -215,6 +224,7 @@ impl Default for DaenerysApp {
             user_search: Default::default(),
             create_group_name: Default::default(),
             create_group_description: Default::default(),
+            create_directory_name: Default::default(),
             directory_button_clicked: Default::default(),
             is_directory_editing: Default::default(),
             group_button_clicked: Default::default(),
@@ -481,6 +491,33 @@ impl eframe::App for DaenerysApp {
                 self.current_info = Some("group updated successfully".to_string());
 
                 self.get_groups_promise = Some(api::group::get_groups(ctx, self.api_url.clone()));
+            }
+        }
+
+        // Create directory promise.
+        if let Some(p) = &self.create_directory_promise {
+            println!("create_directory_promise");
+
+            match p.ready() {
+                None => (),
+                Some(try_result) => {
+                    self.is_working = false;
+
+                    match try_result {
+                        Ok(_) => {
+                            self.current_info = Some("directory created successfully".to_string());
+                            self.create_directory_promise = None;
+
+                            self.get_directories_promise = Some(
+                                api::directory::get_root_directories(ctx, self.api_url.clone()),
+                            );
+                        }
+                        Err(e) => {
+                            self.current_error = Some(AppError::InternalError(e.to_string()));
+                            self.current_info = None;
+                        }
+                    };
+                }
             }
         }
 
