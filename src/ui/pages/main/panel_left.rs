@@ -4,7 +4,10 @@ use number_prefix::NumberPrefix;
 
 use crate::{
     api,
-    defines::{AF_FOLDER_CODE, AF_GROUP_CODE, AF_HALF_LOCK_CODE, AF_LOCK_CODE, AF_REFRESH_CODE},
+    defines::{
+        AF_FOLDER_CODE, AF_GROUP_CODE, AF_HALF_LOCK_CODE, AF_LOCK_CODE, AF_REFRESH_CODE,
+        AF_WARNING_CODE,
+    },
     ui::daenerys::DaenerysApp,
 };
 
@@ -101,32 +104,39 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
                                 .num_columns(2)
                                 .show(ui, |ui| {
                                     for directory in app.directories.as_ref().unwrap().iter() {
-                                        ui.add_sized(
-                                            [30., 30.],
-                                            egui::Label::new(format!("{}", AF_FOLDER_CODE)),
-                                        );
+                                        let directory_icon = if directory.valid {
+                                            format!("{}", AF_FOLDER_CODE)
+                                        } else {
+                                            format!("{}", AF_WARNING_CODE)
+                                        };
+
+                                        let enabled = if directory.valid { true } else { false };
+
+                                        ui.add_sized([30., 30.], egui::Label::new(directory_icon));
 
                                         ui.horizontal(|ui| {
-                                            let button_label = directory.name.to_string();
+                                            ui.add_enabled_ui(enabled, |ui| {
+                                                let button_label = directory.name.to_string();
 
-                                            let button = egui::Button::new(button_label);
+                                                let button = egui::Button::new(button_label);
 
-                                            // Save the clicked directory name.
-                                            if ui.add_sized([200., 30.], button).clicked() {
-                                                app.directory_button_clicked =
-                                                    Some(Box::new(directory.clone()));
+                                                // Save the clicked directory name.
+                                                if ui.add_sized([200., 30.], button).clicked() {
+                                                    app.directory_button_clicked =
+                                                        Some(Box::new(directory.clone()));
 
-                                                app.group_button_clicked = None;
-                                                app.is_directory_editing = false;
-                                                app.is_group_editing = false;
-                                                app.edit_directory_add_user_clicked = false;
-                                                app.edit_directory_add_group_clicked = false;
-                                                app.create_group_clicked = false;
-                                                app.current_error = None;
-                                                app.current_info = None;
-                                                app.edit_group_delete_confirm = false;
-                                                app.du = None;
-                                            };
+                                                    app.group_button_clicked = None;
+                                                    app.is_directory_editing = false;
+                                                    app.is_group_editing = false;
+                                                    app.edit_directory_add_user_clicked = false;
+                                                    app.edit_directory_add_group_clicked = false;
+                                                    app.create_group_clicked = false;
+                                                    app.current_error = None;
+                                                    app.current_info = None;
+                                                    app.edit_group_delete_confirm = false;
+                                                    app.du = None;
+                                                };
+                                            });
                                         });
 
                                         ui.end_row()

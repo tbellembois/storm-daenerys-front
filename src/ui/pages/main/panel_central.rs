@@ -53,7 +53,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                     ui.add_space(20.0);
                     
                     ui.label(
-                        egui::RichText::new("I don't see all of my directories on the left panel").underline(),
+                        egui::RichText::new("Some directories are disabled on the left panel").underline(),
                     );
 
                     ui.add_space(20.0);
