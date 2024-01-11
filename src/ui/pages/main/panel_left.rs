@@ -131,6 +131,7 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
                                                     app.edit_directory_add_user_clicked = false;
                                                     app.edit_directory_add_group_clicked = false;
                                                     app.create_group_clicked = false;
+                                                    app.create_directory_clicked = false;
                                                     app.current_error = None;
                                                     app.current_info = None;
                                                     app.edit_group_delete_confirm = false;
@@ -238,6 +239,7 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
                                             app.edit_directory_add_user_clicked = false;
                                             app.edit_directory_add_group_clicked = false;
                                             app.create_group_clicked = false;
+                                            app.create_directory_clicked = false;
                                             app.current_error = None;
                                             app.current_info = None;
                                             app.edit_group_delete_confirm = false;
