@@ -156,7 +156,10 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                 // Directory name.
                 ui.vertical(|ui| {
                     ui.horizontal(|ui| {
-                        //ui.label(format!("{}-", app.group_prefix.as_ref().unwrap()));
+                        
+                        if let Some(admin_restriction) = &app.admin_restriction {
+                            ui.label(format!("{}@_", admin_restriction));
+                        }
                         ui.add_sized(
                             [400., 30.],
                             egui::TextEdit::singleline(&mut app.create_directory_name)

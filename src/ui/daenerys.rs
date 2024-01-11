@@ -65,6 +65,9 @@ pub struct DaenerysApp {
     // Admin of the STORM space.
     pub admin: Option<String>,
 
+    // Admin restriction.
+    pub admin_restriction: Option<String>,
+
     // Group prefix.
     pub group_prefix: Option<String>,
 
@@ -79,6 +82,8 @@ pub struct DaenerysApp {
 
     // Promise returned when calling the backend GET /admin endpoint.
     pub get_admin_promise: Option<Promise<Result<Option<String>, String>>>,
+    // Promise returned when calling the backend GET /adminrestriction endpoint.
+    pub get_admin_restriction_promise: Option<Promise<Result<Option<String>, String>>>,
     // Promise returned when calling the backend GET /du endpoint.
     pub get_du_promise: Option<Promise<Result<Option<String>, String>>>,
     // Promise returned when calling the backend GET /quota endpoint.
@@ -230,8 +235,10 @@ impl Default for DaenerysApp {
             group_button_clicked: Default::default(),
             is_group_editing: Default::default(),
             admin: Default::default(),
+            admin_restriction: Default::default(),
             api_url: "http://localhost:3000".to_string(),
             get_admin_promise: Default::default(),
+            get_admin_restriction_promise: Default::default(),
             get_du_promise: Default::default(),
             get_quota_promise: Default::default(),
             get_group_prefix_promise: Default::default(),
@@ -375,6 +382,26 @@ impl eframe::App for DaenerysApp {
                         Ok(admin) => {
                             self.admin = admin.clone();
                             self.get_admin_promise = None;
+                        }
+                        Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
+                    };
+                }
+            }
+        }
+
+        // Get admin restrictionpromise.
+        if let Some(p) = &self.get_admin_restriction_promise {
+            println!("get_admin_restriction_promise");
+
+            match p.ready() {
+                None => (),
+                Some(try_admin_restriction) => {
+                    self.is_working = false;
+
+                    match try_admin_restriction {
+                        Ok(admin_restriction) => {
+                            self.admin_restriction = admin_restriction.clone();
+                            self.get_admin_restriction_promise = None;
                         }
                         Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
                     };
@@ -824,6 +851,8 @@ impl eframe::App for DaenerysApp {
             ));
             self.get_groups_promise = Some(api::group::get_groups(ctx, self.api_url.clone()));
             self.get_admin_promise = Some(api::root::get_admin(ctx, self.api_url.clone()));
+            self.get_admin_restriction_promise =
+                Some(api::root::get_admin_restriction(ctx, self.api_url.clone()));
             self.get_quota_promise = Some(api::root::get_quota(ctx, self.api_url.clone()));
             self.get_group_prefix_promise =
                 Some(api::root::get_group_prefix(ctx, self.api_url.clone()));
