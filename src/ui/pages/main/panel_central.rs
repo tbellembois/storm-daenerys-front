@@ -157,7 +157,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                 ui.vertical(|ui| {
                     ui.horizontal(|ui| {
                         
-                        if let Some(admin_restriction) = &app.admin_restriction {
+                        if let Some(admin_restriction) = &app.current_admin_restriction {
                             ui.label(format!("{}@_", admin_restriction));
                         }
                         ui.add_sized(
@@ -588,12 +588,40 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
             if let Some(group_button_clicked) = &app.group_button_clicked {
                 app.application_just_loaded = false;
 
-                let is_group_auto = group_button_clicked
-                    .cn
-                    .eq(app.group_prefix.as_ref().unwrap());
-                let is_group_invite = group_button_clicked
-                    .cn
-                    .eq(&format!("{}-invite", app.group_prefix.as_ref().unwrap()));
+                let mut is_group_auto: bool = false;
+                let mut is_group_invite: bool = false;
+
+                match &app.root_groups {
+                    Some(root_groups) => {
+                        for root_group in root_groups {
+                            if group_button_clicked.cn.eq(&format!(
+                                "{}-{}",
+                                app.group_prefix.as_ref().unwrap(),
+                                root_group,
+                            )) {
+                                is_group_auto = true;
+                                break;
+                            }
+
+                            if group_button_clicked.cn.eq(&format!(
+                                "{}-{}-invite",
+                                app.group_prefix.as_ref().unwrap(),
+                                root_group,
+                            )) {
+                                is_group_invite = true;
+                                break;
+                            }
+                        }
+                    }
+                    None => {
+                        is_group_auto =
+                        group_button_clicked.cn.eq(app.group_prefix.as_ref().unwrap());
+                        is_group_invite = group_button_clicked.cn.eq(&format!(
+                            "{}-invite",
+                            app.group_prefix.as_ref().unwrap()
+                        ));
+                    }
+                }
 
                 // Group name.
                 ui.heading(format!(

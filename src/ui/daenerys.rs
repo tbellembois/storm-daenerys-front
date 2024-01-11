@@ -3,6 +3,7 @@ use std::sync::Once;
 
 use storm_daenerys_common::defines::{DIRECTORY_NAME_RE_STRING, GROUP_CN_RE_STRING};
 use storm_daenerys_common::types::acl::Qualifier;
+use storm_daenerys_common::types::config::Config;
 use storm_daenerys_common::types::directory::Quota;
 use storm_daenerys_common::types::group::Group;
 use storm_daenerys_common::types::user::User;
@@ -65,11 +66,14 @@ pub struct DaenerysApp {
     // Admin of the STORM space.
     pub admin: Option<String>,
 
-    // Admin restriction.
-    pub admin_restriction: Option<String>,
+    // Admin restriction of the connected user.
+    pub current_admin_restriction: Option<String>,
 
     // Group prefix.
     pub group_prefix: Option<String>,
+
+    // Root groups.
+    pub root_groups: Option<Vec<String>>,
 
     // Directory list.
     pub directories: Option<Vec<Directory>>,
@@ -80,16 +84,11 @@ pub struct DaenerysApp {
     // User list.
     pub users: Option<Vec<User>>,
 
-    // Promise returned when calling the backend GET /admin endpoint.
-    pub get_admin_promise: Option<Promise<Result<Option<String>, String>>>,
-    // Promise returned when calling the backend GET /adminrestriction endpoint.
-    pub get_admin_restriction_promise: Option<Promise<Result<Option<String>, String>>>,
     // Promise returned when calling the backend GET /du endpoint.
     pub get_du_promise: Option<Promise<Result<Option<String>, String>>>,
-    // Promise returned when calling the backend GET /quota endpoint.
-    pub get_quota_promise: Option<Promise<Result<Option<Quota>, String>>>,
-    // Promise returned when calling the backend GET /groupprefix endpoint.
-    pub get_group_prefix_promise: Option<Promise<Result<Option<String>, String>>>,
+
+    // Promise returned when calling the backend GET /config endpoint.
+    pub get_config_prefix_promise: Option<Promise<Result<Config, String>>>,
 
     // Promise returned when calling the backend GET /folders endpoint.
     pub get_directories_promise: Option<Promise<Result<Option<Vec<Directory>>, String>>>,
@@ -202,10 +201,12 @@ impl Default for DaenerysApp {
             theme: Default::default(),
             directories: Default::default(),
             groups: Default::default(),
+            root_groups: Default::default(),
             users: Default::default(),
             get_directories_promise: Default::default(),
             get_groups_promise: Default::default(),
             get_users_promise: Default::default(),
+            get_config_prefix_promise: Default::default(),
             save_directory_acl_promise: Default::default(),
             save_group_promises: Default::default(),
             create_group_promise: Default::default(),
@@ -235,13 +236,9 @@ impl Default for DaenerysApp {
             group_button_clicked: Default::default(),
             is_group_editing: Default::default(),
             admin: Default::default(),
-            admin_restriction: Default::default(),
+            current_admin_restriction: Default::default(),
             api_url: "http://localhost:3000".to_string(),
-            get_admin_promise: Default::default(),
-            get_admin_restriction_promise: Default::default(),
             get_du_promise: Default::default(),
-            get_quota_promise: Default::default(),
-            get_group_prefix_promise: Default::default(),
             du: Default::default(),
             quota: Default::default(),
             central_panel_available_size: Default::default(),
@@ -346,82 +343,31 @@ impl eframe::App for DaenerysApp {
             }
         }
 
-        // Get quota promise.
-        if let Some(p) = &self.get_quota_promise {
-            println!("get_quota_promise");
+        // Get config promise.
+        if let Some(p) = &self.get_config_prefix_promise {
+            println!("get_config_prefix_promise");
 
             match p.ready() {
                 None => (),
-                Some(try_quota) => {
+                Some(try_config) => {
                     self.is_working = false;
 
-                    match try_quota {
-                        Ok(quota) => {
-                            self.quota = Some(Quota {
-                                available_space: quota.as_ref().unwrap().available_space,
-                                total_space: quota.as_ref().unwrap().total_space,
-                            });
-                            self.get_quota_promise = None;
-                        }
-                        Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
-                    };
-                }
-            }
-        }
+                    match try_config {
+                        Ok(config) => {
+                            self.admin = Some(config.admin.clone());
+                            self.current_admin_restriction =
+                                config.current_admin_restriction.clone();
+                            self.group_prefix = Some(config.users_dsi_api_group_prefix.clone());
+                            self.root_groups = config.root_groups.clone();
+                            self.quota = Some(config.quota.clone());
 
-        // Get admin promise.
-        if let Some(p) = &self.get_admin_promise {
-            println!("get_admin_promise");
+                            self.get_config_prefix_promise = None;
 
-            match p.ready() {
-                None => (),
-                Some(try_admin) => {
-                    self.is_working = false;
-
-                    match try_admin {
-                        Ok(admin) => {
-                            self.admin = admin.clone();
-                            self.get_admin_promise = None;
-                        }
-                        Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
-                    };
-                }
-            }
-        }
-
-        // Get admin restrictionpromise.
-        if let Some(p) = &self.get_admin_restriction_promise {
-            println!("get_admin_restriction_promise");
-
-            match p.ready() {
-                None => (),
-                Some(try_admin_restriction) => {
-                    self.is_working = false;
-
-                    match try_admin_restriction {
-                        Ok(admin_restriction) => {
-                            self.admin_restriction = admin_restriction.clone();
-                            self.get_admin_restriction_promise = None;
-                        }
-                        Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
-                    };
-                }
-            }
-        }
-
-        // Get group prefix promise.
-        if let Some(p) = &self.get_group_prefix_promise {
-            println!("get_group_prefix_promise");
-
-            match p.ready() {
-                None => (),
-                Some(try_group_prefix) => {
-                    self.is_working = false;
-
-                    match try_group_prefix {
-                        Ok(group_prefix) => {
-                            self.group_prefix = group_prefix.clone();
-                            self.get_group_prefix_promise = None;
+                            self.get_directories_promise = Some(
+                                api::directory::get_root_directories(ctx, self.api_url.clone()),
+                            );
+                            self.get_groups_promise =
+                                Some(api::group::get_groups(ctx, self.api_url.clone()));
                         }
                         Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
                     };
@@ -845,17 +791,8 @@ impl eframe::App for DaenerysApp {
         // Get initial directory and group list and admin.
         START.call_once(|| {
             self.is_working = true;
-            self.get_directories_promise = Some(api::directory::get_root_directories(
-                ctx,
-                self.api_url.clone(),
-            ));
-            self.get_groups_promise = Some(api::group::get_groups(ctx, self.api_url.clone()));
-            self.get_admin_promise = Some(api::root::get_admin(ctx, self.api_url.clone()));
-            self.get_admin_restriction_promise =
-                Some(api::root::get_admin_restriction(ctx, self.api_url.clone()));
-            self.get_quota_promise = Some(api::root::get_quota(ctx, self.api_url.clone()));
-            self.get_group_prefix_promise =
-                Some(api::root::get_group_prefix(ctx, self.api_url.clone()));
+
+            self.get_config_prefix_promise = Some(api::root::get_config(ctx, self.api_url.clone()));
         });
     }
 }
