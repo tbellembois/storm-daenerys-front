@@ -5,7 +5,7 @@ use crate::{
         group::{delete_group, save_group},
     },
     defines::{
-        AF_ADMIN_CODE, AF_GROUP_CODE, AF_USER_CODE,
+        AF_ADMIN_CODE, AF_GROUP_CODE, AF_USER_CODE, AF_LOCK_CODE, AF_HALF_LOCK_CODE,
     },
     ui::daenerys::DaenerysApp,
 };
@@ -53,7 +53,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                     ui.add_space(20.0);
                     
                     ui.label(
-                        egui::RichText::new("Some directories are disabled on the left panel").underline(),
+                        egui::RichText::new("Why are some directories disabled on the left panel?").underline(),
                     );
 
                     ui.add_space(20.0);
@@ -64,7 +64,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                     ui.add_space(20.0);
 
                     ui.label(
-                        egui::RichText::new("I can not set ACLs on subdirectories")
+                        egui::RichText::new("Can I set ACLs on subdirectories?")
                             .underline(),
                     );
 
@@ -80,7 +80,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
 
                     ui.add_space(20.0);
 
-                    ui.label(format!("Check that this person is member of {} or {}-invite.", app.group_prefix.as_ref().unwrap(), app.group_prefix.as_ref().unwrap()));
+                    ui.label(format!("Check that this person is member of one of the group with a {} or a {}.", AF_LOCK_CODE, AF_HALF_LOCK_CODE));
                 });
 
                 ui.add_space(20.0);

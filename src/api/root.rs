@@ -1,7 +1,7 @@
 use eframe::egui;
 use log::debug;
 use poll_promise::Promise;
-use storm_daenerys_common::types::{config::Config, directory::Quota, error::CommonError};
+use storm_daenerys_common::types::{config::Config, error::CommonError};
 
 pub fn get_config(ctx: &egui::Context, api_url: String) -> Promise<Result<Config, String>> {
     dbg!("Get config.");

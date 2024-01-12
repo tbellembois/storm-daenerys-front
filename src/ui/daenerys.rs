@@ -325,8 +325,6 @@ impl eframe::App for DaenerysApp {
 
         // Get du promise.
         if let Some(p) = &self.get_du_promise {
-            println!("get_du_promise");
-
             match p.ready() {
                 None => (),
                 Some(try_du) => {
@@ -345,8 +343,6 @@ impl eframe::App for DaenerysApp {
 
         // Get config promise.
         if let Some(p) = &self.get_config_prefix_promise {
-            println!("get_config_prefix_promise");
-
             match p.ready() {
                 None => (),
                 Some(try_config) => {
@@ -377,8 +373,6 @@ impl eframe::App for DaenerysApp {
 
         // Get directories promises.
         if let Some(p) = &self.get_directories_promise {
-            println!("get_directories_promise");
-
             match p.ready() {
                 None => (),
                 Some(try_directories) => {
@@ -403,8 +397,6 @@ impl eframe::App for DaenerysApp {
 
         // Save acl promise.
         if let Some(p) = &self.save_directory_acl_promise {
-            println!("save_acl_promise");
-
             match p.ready() {
                 None => (),
                 Some(try_result) => {
@@ -469,8 +461,6 @@ impl eframe::App for DaenerysApp {
 
         // Create directory promise.
         if let Some(p) = &self.create_directory_promise {
-            println!("create_directory_promise");
-
             match p.ready() {
                 None => (),
                 Some(try_result) => {
@@ -496,8 +486,6 @@ impl eframe::App for DaenerysApp {
 
         // Create group promise.
         if let Some(p) = &self.create_group_promise {
-            println!("create_group_promise");
-
             match p.ready() {
                 None => (),
                 Some(try_result) => {
@@ -522,8 +510,6 @@ impl eframe::App for DaenerysApp {
 
         // Delete group promise.
         if let Some(p) = &self.delete_group_promise {
-            println!("delete_group_promise");
-
             match p.ready() {
                 None => (),
                 Some(try_result) => {
@@ -548,8 +534,6 @@ impl eframe::App for DaenerysApp {
 
         // Get groups promises.
         if let Some(p) = &self.get_groups_promise {
-            println!("get_groups_promise");
-
             match p.ready() {
                 None => (),
                 Some(try_groups) => {
@@ -595,8 +579,6 @@ impl eframe::App for DaenerysApp {
 
         // Get users promise.
         if let Some(p) = &self.get_users_promise {
-            println!("get_users_promise");
-
             match p.ready() {
                 None => (),
                 Some(try_users) => {

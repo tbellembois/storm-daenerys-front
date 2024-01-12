@@ -34,9 +34,7 @@ pub fn display_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efra
             ui.add_space(10.0);
 
             ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
-                //
                 // Switch theme.
-                //
                 if app.theme.dark_mode {
                     let button = egui::Button::new(format!("{} light mode", AF_SUN_CODE));
 
@@ -65,7 +63,7 @@ pub fn display_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efra
                     app.is_group_editing = false;
 
                     let available_width = app.central_panel_available_size.x;
-                    let du_width = available_width as u32 / 2;
+                    let du_width = available_width as u32;
                     app.get_du_promise =
                         Some(api::root::get_du(ctx, app.api_url.clone(), du_width));
                 };
