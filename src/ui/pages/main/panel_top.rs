@@ -57,6 +57,7 @@ pub fn display_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efra
                 if ui.add_sized([150., 30.], button).clicked() {
                     app.is_working = true;
                     app.create_group_clicked = false;
+                    app.create_directory_clicked = false;
                     app.directory_button_clicked = None;
                     app.group_button_clicked = None;
                     app.is_directory_editing = false;

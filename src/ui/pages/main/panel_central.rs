@@ -1,3 +1,5 @@
+use std::mem;
+
 use crate::{
     api::{
         self,
@@ -646,7 +648,27 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                                     .num_columns(2)
                                     .show(ui, |ui| {
                                         for member in members {
-                                            ui.label(member);
+                                    
+                                            let (display, color) = match app.user_display_cache.get(member) {
+                                                Some(maybe_display_name) => match maybe_display_name {
+                                                    Some(display_name) => (format!("{} ({})", display_name, member), egui::Color32::from_rgb(0, 0, 0)),
+                                                    None => (format!("<invalid account> ({})", member), egui::Color32::from_rgb(255, 0, 0)),
+                                                },
+                                                None => {
+                                                    if !app.get_user_display_promises.contains_key(member) {
+                                                    app.get_user_display_promises.insert(member.to_string(),  Some(api::user::get_user_display(
+                                                        ctx,
+                                                        member.clone(),
+                                                        app.api_url.clone(),
+                                                    )));
+                                                    }
+
+                                                    (member.to_string(), egui::Color32::from_rgb(255, 165, 0))
+                                                },
+                                            };
+
+                                            ui.label(egui::RichText::new(display).color(color));
+                                            // ui.label(display);
 
                                             if app.is_group_editing {
                                                 // Delete member button.

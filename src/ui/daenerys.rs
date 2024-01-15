@@ -1,4 +1,5 @@
 use std::cmp::Ordering;
+use std::collections::HashMap;
 use std::sync::Once;
 
 use storm_daenerys_common::defines::{DIRECTORY_NAME_RE_STRING, GROUP_CN_RE_STRING};
@@ -100,6 +101,11 @@ pub struct DaenerysApp {
     pub create_directory_promise: Option<Promise<Result<(), String>>>,
     // Promise returned when calling the backend POST /acls endpoint.
     pub save_directory_acl_promise: Option<Promise<Result<(), String>>>,
+
+    // Promises returned when calling the backend GET /userdisplay endpoint.
+    pub get_user_display_promises: HashMap<String, Option<Promise<Result<Option<String>, String>>>>,
+    // User display name cache.
+    pub user_display_cache: HashMap<String, Option<String>>,
 
     // Promises returned when calling save_group.
     pub save_group_promises: Option<Vec<Promise<Result<(), std::string::String>>>>,
@@ -246,6 +252,8 @@ impl Default for DaenerysApp {
             background_color: LIGHT_BACKGROUND_COLOR,
             show_directory_list: true,
             show_group_list: true,
+            get_user_display_promises: HashMap::new(),
+            user_display_cache: HashMap::new(),
         }
     }
 }
@@ -322,6 +330,27 @@ impl eframe::App for DaenerysApp {
         } else {
             LIGHT_BACKGROUND_COLOR
         };
+
+        // Get user display promises.
+        let mut user_display_promises_done: Vec<String> = vec![];
+        for (username, maybe_p) in self.get_user_display_promises.iter() {
+            if let Some(p) = maybe_p {
+                if let Some(try_display) = p.ready() {
+                    match try_display {
+                        Ok(display) => {
+                            self.user_display_cache
+                                .insert(username.to_string(), display.clone());
+                            user_display_promises_done.push(username.to_string());
+                        }
+                        Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
+                    }
+                }
+            }
+        }
+
+        for username in user_display_promises_done.iter() {
+            self.get_user_display_promises.remove(username);
+        }
 
         // Get du promise.
         if let Some(p) = &self.get_du_promise {

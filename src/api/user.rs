@@ -4,6 +4,29 @@ use poll_promise::Promise;
 
 use storm_daenerys_common::types::{error::CommonError, user::User};
 
+pub fn get_user_display(
+    ctx: &egui::Context,
+    q: String,
+    api_url: String,
+) -> Promise<Result<Option<String>, String>> {
+    dbg!("Get user display.");
+
+    // Begin download.
+    // We download the image using `ehttp`, a library that works both in WASM and on native.
+    // We use the `poll-promise` library to communicate with the UI thread.
+    let ctx = ctx.clone();
+    let (sender, promise) = Promise::new();
+    let request = ehttp::Request::get(format!("{}/userdisplay?q={}", api_url, q));
+
+    ehttp::fetch(request, move |response| {
+        let userdisplay = response.and_then(parse_get_user_display_response);
+        sender.send(userdisplay);
+        ctx.request_repaint(); // wake up UI thread
+    });
+
+    promise
+}
+
 pub fn get_users(
     ctx: &egui::Context,
     q: String,
@@ -25,6 +48,60 @@ pub fn get_users(
     });
 
     promise
+}
+
+fn parse_get_user_display_response(response: ehttp::Response) -> Result<Option<String>, String> {
+    let status = &response.status;
+    let status_text = &response.status_text;
+    let maybe_text_response = response.text();
+
+    dbg!("{:?}", status);
+    dbg!("{:?}", status_text);
+    dbg!("{:?}", maybe_text_response);
+
+    // TODO: check Config
+
+    match status {
+        200 => match maybe_text_response {
+            Some(text_response) => {
+                let maybe_json_response: Option<String> =
+                    serde_json::from_str(text_response).unwrap();
+                match maybe_json_response {
+                    Some(json_response) => {
+                        dbg!("a");
+                        Ok(Some(json_response))
+                    }
+                    None => {
+                        dbg!("z");
+                        Ok(None)
+                    }
+                }
+            }
+
+            None => Ok(Some(String::from("invalid user"))),
+        },
+        _ => match maybe_text_response {
+            Some(text_response) => {
+                let common_error: CommonError =
+                    match serde_json::from_str::<CommonError>(text_response) {
+                        Ok(common_error) => {
+                            dbg!("c");
+                            common_error
+                        }
+                        Err(e) => {
+                            dbg!("d");
+                            CommonError::InternalServerError(e.to_string())
+                        }
+                    };
+                dbg!("b");
+                Err(common_error.to_string())
+            }
+            None => {
+                dbg!("y");
+                Err(status.to_string())
+            }
+        },
+    }
 }
 
 fn parse_get_users_response(response: ehttp::Response) -> Result<Option<Vec<User>>, String> {
