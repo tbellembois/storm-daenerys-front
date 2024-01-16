@@ -327,7 +327,27 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                                             // User icon.
                                             ui.label(AF_USER_CODE.to_string());
                                             // User cn.
-                                            ui.label(acl.qualifier_cn.as_ref().unwrap());
+                                            let member = acl.qualifier_cn.as_ref().unwrap();
+                                            let (display, color) = match app.user_display_cache.get(member) {
+                                                Some(maybe_display_name) => match maybe_display_name {
+                                                    Some(display_name) => (format!("{} ({})", display_name, member), egui::Color32::from_rgb(0, 0, 0)),
+                                                    None => (format!("<invalid account> ({})", member), egui::Color32::from_rgb(255, 0, 0)),
+                                                },
+                                                None => {
+                                                    if !app.get_user_display_promises.contains_key(member) {
+                                                    app.get_user_display_promises.insert(member.to_string(),  Some(api::user::get_user_display(
+                                                        ctx,
+                                                        member.clone(),
+                                                        app.api_url.clone(),
+                                                    )));
+                                                    }
+
+                                                    (member.to_string(), egui::Color32::from_rgb(255, 165, 0))
+                                                },
+                                            };
+
+                                            ui.label(egui::RichText::new(display).color(color));
+                                            // ui.label(acl.qualifier_cn.as_ref().unwrap());
 
                                             if !is_admin {
                                                 if ui
@@ -569,11 +589,18 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                     let button = egui::Button::new(button_label);
 
                     if ui.add_sized([150., 30.], button).clicked() {
+                        
+                        let mut directory_name = directory_button_clicked.name.clone();
+
+                        if let Some(admin_restriction) = &app.current_admin_restriction {
+                            directory_name = format!("{}@_{}", admin_restriction, directory_name);
+                        }
+                        
                         app.current_info =
-                            Some(format!("saving acl for {}", directory_button_clicked.name));
+                            Some(format!("saving acl for {}", directory_name));
 
                         let set_acl = SetAcl {
-                            name: directory_button_clicked.name.clone(),
+                            name: directory_name,
                             acls: directory_button_clicked.acls.clone(),
                         };
 
