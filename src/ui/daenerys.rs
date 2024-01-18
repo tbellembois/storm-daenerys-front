@@ -815,6 +815,23 @@ fn setup_custom_fonts(ctx: &egui::Context) {
     // Install custom fonts.
     // .ttf and .otf files supported.
     fonts.font_data.insert(
+        "Luciole-Bold-Italic".to_owned(),
+        egui::FontData::from_static(include_bytes!("fonts/Luciole-Bold-Italic.ttf")),
+    );
+    fonts.font_data.insert(
+        "Luciole-Bold".to_owned(),
+        egui::FontData::from_static(include_bytes!("fonts/Luciole-Bold.ttf")),
+    );
+    fonts.font_data.insert(
+        "Luciole-Regular-Italic".to_owned(),
+        egui::FontData::from_static(include_bytes!("fonts/Luciole-Regular-Italic.ttf")),
+    );
+    fonts.font_data.insert(
+        "Luciole-Regular".to_owned(),
+        egui::FontData::from_static(include_bytes!("fonts/Luciole-Regular.ttf")),
+    );
+
+    fonts.font_data.insert(
         "B612-Bold".to_owned(),
         egui::FontData::from_static(include_bytes!("fonts/B612-Bold.ttf")),
     );
