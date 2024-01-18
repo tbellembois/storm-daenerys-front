@@ -590,11 +590,11 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
 
                     if ui.add_sized([150., 30.], button).clicked() {
                         
-                        let mut directory_name = directory_button_clicked.name.clone();
+                        let directory_name = directory_button_clicked.name.clone();
 
-                        if let Some(admin_restriction) = &app.current_admin_restriction {
-                            directory_name = format!("{}@_{}", admin_restriction, directory_name);
-                        }
+                        // if let Some(admin_restriction) = &app.current_admin_restriction {
+                        //     directory_name = format!("{}@_{}", admin_restriction, directory_name);
+                        // }
                         
                         app.current_info =
                             Some(format!("saving acl for {}", directory_name));
