@@ -16,16 +16,16 @@ name = "storm_daenerys_front"
 path = "src/lib.rs"
 
 [dependencies]
-chrono = "0.4.31"
+chrono = "0.4"
 eframe = "0.25"
 egui = "0.25"
 egui_extras = { version = "0.25", features = ["svg", "all_loaders"]}
-ehttp = "0.3.0"
+ehttp = "0.4"
 image = { version = "0.24", default-features = false, features = ["png"] }
 log = "0.4"
-number_prefix = "0.4.0"
-poll-promise = "0.3.0"
-regex = "1.9"
+number_prefix = "0.4"
+poll-promise = "0.3"
+regex = "1.10"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
