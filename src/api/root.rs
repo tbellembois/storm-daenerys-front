@@ -4,7 +4,7 @@ use poll_promise::Promise;
 use storm_daenerys_common::types::{config::Config, error::CommonError};
 
 pub fn get_config(ctx: &egui::Context, api_url: String) -> Promise<Result<Config, String>> {
-    dbg!("Get config.");
+    debug!("Get config.");
 
     // Begin download.
     // We download the image using `ehttp`, a library that works both in WASM and on native.
@@ -27,7 +27,7 @@ pub fn get_du(
     api_url: String,
     width: u32,
 ) -> Promise<Result<Option<String>, String>> {
-    dbg!("Get du.");
+    debug!("Get du.");
 
     // Begin download.
     // We download the image using `ehttp`, a library that works both in WASM and on native.

@@ -9,7 +9,7 @@ pub fn save_acl(
     set_acl: SetAcl,
     api_url: String,
 ) -> Promise<Result<(), std::string::String>> {
-    dbg!("Save ACL.");
+    debug!("Save ACL.");
 
     let ctx = ctx.clone();
     let (sender, promise) = Promise::new();

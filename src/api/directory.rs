@@ -12,7 +12,7 @@ pub fn create_directory(
     create_directory: CreateDirectory,
     api_url: String,
 ) -> Promise<Result<(), String>> {
-    dbg!("Create directory: {:?}", &create_directory);
+    debug!("Create directory: {:?}", &create_directory);
 
     let ctx = ctx.clone();
     let (sender, promise) = Promise::new();
@@ -45,7 +45,7 @@ pub fn get_root_directories(
     ctx: &egui::Context,
     api_url: String,
 ) -> Promise<Result<Option<Vec<Directory>>, String>> {
-    dbg!("Get directory list.");
+    debug!("Get directory list.");
 
     // Begin download.
     // We download the image using `ehttp`, a library that works both in WASM and on native.

@@ -95,7 +95,7 @@ pub fn del_user_from_group(
     del_user_from_group: AddDelUserToGroup,
     api_url: String,
 ) -> Promise<Result<(), std::string::String>> {
-    dbg!("Del user from group: {:?}", &del_user_from_group);
+    debug!("Del user from group: {:?}", &del_user_from_group);
 
     let ctx = ctx.clone();
     let (sender, promise) = Promise::new();
@@ -129,7 +129,7 @@ pub fn add_user_to_group(
     add_user_to_group: AddDelUserToGroup,
     api_url: String,
 ) -> Promise<Result<(), std::string::String>> {
-    dbg!("Add user to group: {:?}", &add_user_to_group);
+    debug!("Add user to group: {:?}", &add_user_to_group);
 
     let ctx = ctx.clone();
     let (sender, promise) = Promise::new();
@@ -142,7 +142,7 @@ pub fn add_user_to_group(
         }
     };
 
-    dbg!("request_payload: {}", &request_payload);
+    debug!("request_payload: {}", &request_payload);
 
     let request = ehttp::Request {
         method: "PATCH".to_owned(),
@@ -165,7 +165,7 @@ pub fn create_group(
     create_group: Group,
     api_url: String,
 ) -> Promise<Result<(), String>> {
-    dbg!("Create group: {:?}", &create_group);
+    debug!("Create group: {:?}", &create_group);
 
     let ctx = ctx.clone();
     let (sender, promise) = Promise::new();
@@ -199,7 +199,7 @@ pub fn delete_group(
     cn: String,
     api_url: String,
 ) -> Promise<Result<(), String>> {
-    dbg!("Delete group: {:?}", &cn);
+    debug!("Delete group: {:?}", &cn);
 
     let request_payload = "".to_string();
 
@@ -226,7 +226,7 @@ pub fn get_groups(
     ctx: &egui::Context,
     api_url: String,
 ) -> Promise<Result<Option<Vec<Group>>, String>> {
-    dbg!("Get group list.");
+    debug!("Get group list.");
 
     // Begin download.
     // We download the image using `ehttp`, a library that works both in WASM and on native.

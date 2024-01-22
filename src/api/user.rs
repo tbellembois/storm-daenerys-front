@@ -9,7 +9,7 @@ pub fn get_user_display(
     q: String,
     api_url: String,
 ) -> Promise<Result<Option<String>, String>> {
-    dbg!("Get user display.");
+    debug!("Get user display.");
 
     // Begin download.
     // We download the image using `ehttp`, a library that works both in WASM and on native.
@@ -32,7 +32,7 @@ pub fn get_users(
     q: String,
     api_url: String,
 ) -> Promise<Result<Option<Vec<User>>, String>> {
-    dbg!("Get user list.");
+    debug!("Get user list.");
 
     // Begin download.
     // We download the image using `ehttp`, a library that works both in WASM and on native.
@@ -55,9 +55,9 @@ fn parse_get_user_display_response(response: ehttp::Response) -> Result<Option<S
     let status_text = &response.status_text;
     let maybe_text_response = response.text();
 
-    dbg!("{:?}", status);
-    dbg!("{:?}", status_text);
-    dbg!("{:?}", maybe_text_response);
+    debug!("{:?}", status);
+    debug!("{:?}", status_text);
+    debug!("{:?}", maybe_text_response);
 
     // TODO: check Config
 
@@ -68,11 +68,11 @@ fn parse_get_user_display_response(response: ehttp::Response) -> Result<Option<S
                     serde_json::from_str(text_response).unwrap();
                 match maybe_json_response {
                     Some(json_response) => {
-                        dbg!("a");
+                        debug!("a");
                         Ok(Some(json_response))
                     }
                     None => {
-                        dbg!("z");
+                        debug!("z");
                         Ok(None)
                     }
                 }
@@ -85,19 +85,19 @@ fn parse_get_user_display_response(response: ehttp::Response) -> Result<Option<S
                 let common_error: CommonError =
                     match serde_json::from_str::<CommonError>(text_response) {
                         Ok(common_error) => {
-                            dbg!("c");
+                            debug!("c");
                             common_error
                         }
                         Err(e) => {
-                            dbg!("d");
+                            debug!("d");
                             CommonError::InternalServerError(e.to_string())
                         }
                     };
-                dbg!("b");
+                debug!("b");
                 Err(common_error.to_string())
             }
             None => {
-                dbg!("y");
+                debug!("y");
                 Err(status.to_string())
             }
         },
