@@ -29,7 +29,7 @@ pub fn create_directory(
         method: "POST".to_owned(),
         url: format!("{}/directories", api_url),
         body: request_payload.as_bytes().to_vec(),
-        headers: ehttp::headers(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
+        headers: ehttp::Headers::new(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
     };
 
     ehttp::fetch(request, move |response| {

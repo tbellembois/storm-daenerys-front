@@ -26,7 +26,7 @@ pub fn save_acl(
         method: "POST".to_owned(),
         url: format!("{}/acls", api_url),
         body: request_payload.as_bytes().to_vec(),
-        headers: ehttp::headers(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
+        headers: ehttp::Headers::new(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
     };
 
     ehttp::fetch(request, move |response| {

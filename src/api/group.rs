@@ -112,7 +112,7 @@ pub fn del_user_from_group(
         method: "DELETE".to_owned(),
         url: format!("{}/groups/user", api_url),
         body: request_payload.as_bytes().to_vec(),
-        headers: ehttp::headers(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
+        headers: ehttp::Headers::new(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
     };
 
     ehttp::fetch(request, move |response| {
@@ -148,7 +148,7 @@ pub fn add_user_to_group(
         method: "PATCH".to_owned(),
         url: format!("{}/groups/user", api_url),
         body: request_payload.as_bytes().to_vec(),
-        headers: ehttp::headers(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
+        headers: ehttp::Headers::new(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
     };
 
     ehttp::fetch(request, move |response| {
@@ -182,7 +182,7 @@ pub fn create_group(
         method: "POST".to_owned(),
         url: format!("{}/groups", api_url),
         body: request_payload.as_bytes().to_vec(),
-        headers: ehttp::headers(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
+        headers: ehttp::Headers::new(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
     };
 
     ehttp::fetch(request, move |response| {
@@ -210,7 +210,7 @@ pub fn delete_group(
         method: "DELETE".to_owned(),
         url: format!("{}/groups/{}", api_url, cn),
         body: request_payload.as_bytes().to_vec(),
-        headers: ehttp::headers(&[("Accept", "*/*")]),
+        headers: ehttp::Headers::new(&[("Accept", "*/*")]),
     };
 
     ehttp::fetch(request, move |response| {
