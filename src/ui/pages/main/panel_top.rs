@@ -30,7 +30,11 @@ pub fn display_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efra
         })
         .show(ctx, |ui| {
             // Logo STORM.
-            ui.image(egui::include_image!("../../media/storm-logo.svg"));
+            ui.add_sized(
+                [250., 70.],
+                egui::Image::new(egui::include_image!("../../media/storm-logo2.svg")),
+            );
+            //ui.image(egui::include_image!("../../media/storm-logo2.svg"));
             ui.add_space(10.0);
 
             ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
