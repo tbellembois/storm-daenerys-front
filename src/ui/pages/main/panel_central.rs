@@ -12,6 +12,7 @@ use crate::{
 use eframe::egui::{self, Context};
 use egui::{Frame, Key, Margin};
 
+use log::debug;
 use storm_daenerys_common::types::{
     acl::{Qualifier, SetAcl},
     group::Group, directory::CreateDirectory,
@@ -672,15 +673,26 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                                 egui::Grid::new("group_detail")
                                     .num_columns(2)
                                     .show(ui, |ui| {
-                                        for member in members {
+
+                                        let mut sorted_members = members.clone();
+                                        sorted_members.sort_by(|a,b| {
+
+                                            let a_display = app.user_display_cache.get(a).unwrap_or(&Some(a.clone())).clone().unwrap_or("".to_string());
+                                            let b_display = app.user_display_cache.get(b).unwrap_or(&Some(b.clone())).clone().unwrap_or("".to_string());
+    
+                                            a_display.to_lowercase().cmp(&b_display.to_lowercase())
+                                        }
+                                            );
+
+                                        for member in sorted_members {
                                     
-                                            let (display, color) = match app.user_display_cache.get(member) {
+                                            let (display, color) = match app.user_display_cache.get(&member) {
                                                 Some(maybe_display_name) => match maybe_display_name {
                                                     Some(display_name) => (format!("{} ({})", display_name, member), egui::Color32::from_rgb(0, 0, 0)),
                                                     None => (format!("<invalid account> ({})", member), egui::Color32::from_rgb(255, 0, 0)),
                                                 },
                                                 None => {
-                                                    if !app.get_user_display_promises.contains_key(member) {
+                                                    if !app.get_user_display_promises.contains_key(&member) {
                                                     app.get_user_display_promises.insert(member.to_string(),  Some(api::user::get_user_display(
                                                         ctx,
                                                         member.clone(),
