@@ -12,7 +12,6 @@ use crate::{
 use eframe::egui::{self, Context};
 use egui::{Frame, Key, Margin};
 
-use log::debug;
 use storm_daenerys_common::types::{
     acl::{Qualifier, SetAcl},
     group::Group, directory::CreateDirectory,
@@ -294,7 +293,21 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                         egui::Grid::new("acl_list_edit")
                             .num_columns(4)
                             .show(ui, |ui| {
-                                for acl in acls {
+
+                                let mut sorted_acls = acls.clone();
+                                sorted_acls.sort_by(|a,b| {
+
+                                    let a_qualifier_cn = a.qualifier_cn.clone().unwrap_or_default();
+                                    let b_qualifier_cn = b.qualifier_cn.clone().unwrap_or_default();
+
+                                    let a_display = app.user_display_cache.get(&a_qualifier_cn).unwrap_or(&Some("".to_string())).clone().unwrap_or_default();
+                                    let b_display = app.user_display_cache.get(&b_qualifier_cn).unwrap_or(&Some("".to_string())).clone().unwrap_or_default();
+
+                                    a_display.to_lowercase().cmp(&b_display.to_lowercase())
+                                }
+                                    );
+
+                                for acl in sorted_acls {
                                     // FIXME
                                     // Keep only necessary acls.
                                     match acl.qualifier {
@@ -677,8 +690,8 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                                         let mut sorted_members = members.clone();
                                         sorted_members.sort_by(|a,b| {
 
-                                            let a_display = app.user_display_cache.get(a).unwrap_or(&Some(a.clone())).clone().unwrap_or("".to_string());
-                                            let b_display = app.user_display_cache.get(b).unwrap_or(&Some(b.clone())).clone().unwrap_or("".to_string());
+                                            let a_display = app.user_display_cache.get(a).unwrap_or(&Some(a.clone())).clone().unwrap_or_default();
+                                            let b_display = app.user_display_cache.get(b).unwrap_or(&Some(b.clone())).clone().unwrap_or_default();
     
                                             a_display.to_lowercase().cmp(&b_display.to_lowercase())
                                         }
