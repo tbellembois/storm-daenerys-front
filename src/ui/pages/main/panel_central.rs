@@ -45,13 +45,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                     );
                 });
 
-                ui.with_layout(egui::Layout::top_down(egui::Align::LEFT), |ui| {
-                    ui.label(
-                        egui::RichText::new("FAQ").heading(),
-                    );
-
-                    ui.add_space(20.0);
-                    
+                ui.with_layout(egui::Layout::top_down(egui::Align::LEFT), |ui| {                   
                     ui.label(
                         egui::RichText::new("Why are some directories disabled on the left panel?").underline(),
                     );
@@ -99,12 +93,6 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                 });
 
                 ui.with_layout(egui::Layout::top_down(egui::Align::LEFT), |ui| {
-                    ui.label(
-                        egui::RichText::new("Credits").heading(),
-                    );
-
-                    ui.add_space(20.0);
-
                     ui.hyperlink("https://www.rust-lang.org/");
                     ui.hyperlink("https://github.com/emilk/egui");
                     ui.hyperlink("https://github.com/tokio-rs/axum"); 

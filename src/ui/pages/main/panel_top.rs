@@ -7,8 +7,8 @@ use egui::{Frame, Margin};
 use crate::{
     api,
     defines::{
-        AF_ERROR_CODE, AF_FOLDER_CODE, AF_GAUGE_CODE, AF_GROUP_CODE, AF_INFO_CODE, AF_MOON_CODE,
-        AF_SUN_CODE,
+        AF_CONNECTED_USER_CODE, AF_ERROR_CODE, AF_FOLDER_CODE, AF_GAUGE_CODE, AF_GROUP_CODE,
+        AF_INFO_CODE, AF_MOON_CODE, AF_SUN_CODE,
     },
     ui::daenerys::DaenerysApp,
 };
@@ -31,10 +31,19 @@ pub fn display_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efra
         .show(ctx, |ui| {
             // Logo STORM.
             ui.add_sized(
-                [250., 70.],
-                egui::Image::new(egui::include_image!("../../media/storm-logo2.svg")),
+                [200., 70.],
+                egui::Image::new(egui::include_image!("../../media/storm-logo.svg")),
             );
-            //ui.image(egui::include_image!("../../media/storm-logo2.svg"));
+            ui.add_space(10.0);
+
+            // Connected user.
+            if let Some(connected_user) = &app.connected_user {
+                ui.label(egui::RichText::new(format!(
+                    "{} {}",
+                    AF_CONNECTED_USER_CODE, connected_user
+                )));
+            }
+
             ui.add_space(10.0);
 
             ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {

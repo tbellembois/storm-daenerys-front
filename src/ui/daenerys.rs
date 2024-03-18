@@ -67,6 +67,9 @@ pub struct DaenerysApp {
     // Admin of the STORM space.
     pub admin: Option<String>,
 
+    // Connected user.
+    pub connected_user: Option<String>,
+
     // Admin restriction of the connected user.
     pub current_admin_restriction: Option<String>,
 
@@ -254,6 +257,7 @@ impl Default for DaenerysApp {
             show_group_list: true,
             get_user_display_promises: HashMap::new(),
             user_display_cache: HashMap::new(),
+            connected_user: Default::default(),
         }
     }
 }
@@ -380,6 +384,7 @@ impl eframe::App for DaenerysApp {
                     match try_config {
                         Ok(config) => {
                             self.admin = Some(config.admin.clone());
+                            self.connected_user = Some(config.connected_user.clone());
                             self.current_admin_restriction =
                                 config.current_admin_restriction.clone();
                             self.group_prefix = Some(config.users_dsi_api_group_prefix.clone());

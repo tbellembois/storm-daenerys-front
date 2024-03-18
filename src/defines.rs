@@ -12,6 +12,7 @@ pub const AF_SAVE_CODE: char = '\u{f0c7}';
 pub const AF_DELETE_CODE: char = '\u{f2ed}';
 pub const AF_CONFIRM_CODE: char = '\u{f00c}';
 pub const AF_USER_CODE: char = '\u{f007}';
+pub const AF_CONNECTED_USER_CODE: char = '\u{f2bd}';
 pub const AF_GROUP_CODE: char = '\u{f0c0}';
 pub const AF_ERROR_CODE: char = '\u{f071}';
 pub const AF_INFO_CODE: char = '\u{f05a}';
