@@ -73,7 +73,7 @@ pub fn display_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efra
                     app.create_directory_clicked = false;
                     app.directory_button_clicked = None;
                     app.group_button_clicked = None;
-                    app.is_directory_editing = false;
+                    app.is_directory_acl_editing = false;
                     app.is_group_editing = false;
 
                     let available_width = app.central_panel_available_size.x;

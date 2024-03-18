@@ -2,11 +2,14 @@ use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::sync::Once;
 
-use storm_daenerys_common::defines::{DIRECTORY_NAME_RE_STRING, GROUP_CN_RE_STRING};
+use storm_daenerys_common::defines::{
+    DIRECTORY_NAME_RE_STRING, GROUP_CN_RE_STRING, QUOTA_FORMAT_RE_STRING,
+};
 use storm_daenerys_common::types::acl::Qualifier;
 use storm_daenerys_common::types::config::Config;
 use storm_daenerys_common::types::directory::Quota;
 use storm_daenerys_common::types::group::Group;
+use storm_daenerys_common::types::quota::QuotaUnit;
 use storm_daenerys_common::types::user::User;
 use storm_daenerys_common::types::{acl::AclEntry, directory::Directory};
 
@@ -46,6 +49,9 @@ pub struct DaenerysApp {
 
     // Directory name regex.
     pub directory_name_re: Regex,
+
+    // Quota format regex.
+    pub quota_format_re: Regex,
 
     // Current active page.
     page: Page,
@@ -104,6 +110,8 @@ pub struct DaenerysApp {
     pub create_directory_promise: Option<Promise<Result<(), String>>>,
     // Promise returned when calling the backend POST /acls endpoint.
     pub save_directory_acl_promise: Option<Promise<Result<(), String>>>,
+    // Promise returned when calling the backend POST /quota endpoint.
+    pub save_directory_quota_promise: Option<Promise<Result<(), String>>>,
 
     // Promises returned when calling the backend GET /userdisplay endpoint.
     pub get_user_display_promises: HashMap<String, Option<Promise<Result<Option<String>, String>>>>,
@@ -140,8 +148,10 @@ pub struct DaenerysApp {
     // Group button clicked.
     pub group_button_clicked: Option<Box<Group>>,
 
-    // Directory edition.
-    pub is_directory_editing: bool,
+    // Directory ACL's edition.
+    pub is_directory_acl_editing: bool,
+    // Directory quota edition.
+    pub is_directory_quota_editing: bool,
     // Group edition.
     pub is_group_editing: bool,
 
@@ -176,6 +186,10 @@ pub struct DaenerysApp {
     pub edited_directory_add_user: Option<String>,
     // Clicking on a group : group cn to add in the edited directory.
     pub edited_directory_add_group: Option<String>,
+    // Directory quota.
+    pub edited_directory_quota: String,
+    // Directory quota unit.
+    pub edited_directory_quota_unit: QuotaUnit,
     // Clicking on a user (after user search click): user id to add in the edited group.
     pub edited_group_add_user: Option<String>,
 
@@ -206,6 +220,7 @@ impl Default for DaenerysApp {
             is_working: Default::default(),
             group_cn_re: Regex::new(GROUP_CN_RE_STRING).unwrap(),
             directory_name_re: Regex::new(DIRECTORY_NAME_RE_STRING).unwrap(),
+            quota_format_re: Regex::new(QUOTA_FORMAT_RE_STRING).unwrap(),
             page: Default::default(),
             theme: Default::default(),
             directories: Default::default(),
@@ -217,6 +232,7 @@ impl Default for DaenerysApp {
             get_users_promise: Default::default(),
             get_config_prefix_promise: Default::default(),
             save_directory_acl_promise: Default::default(),
+            save_directory_quota_promise: Default::default(),
             save_group_promises: Default::default(),
             create_group_promise: Default::default(),
             create_directory_promise: Default::default(),
@@ -241,7 +257,8 @@ impl Default for DaenerysApp {
             create_group_description: Default::default(),
             create_directory_name: Default::default(),
             directory_button_clicked: Default::default(),
-            is_directory_editing: Default::default(),
+            is_directory_acl_editing: Default::default(),
+            is_directory_quota_editing: Default::default(),
             group_button_clicked: Default::default(),
             is_group_editing: Default::default(),
             admin: Default::default(),
@@ -258,6 +275,8 @@ impl Default for DaenerysApp {
             get_user_display_promises: HashMap::new(),
             user_display_cache: HashMap::new(),
             connected_user: Default::default(),
+            edited_directory_quota: Default::default(),
+            edited_directory_quota_unit: QuotaUnit::Megabyte,
         }
     }
 }
@@ -440,6 +459,31 @@ impl eframe::App for DaenerysApp {
                         Ok(_) => {
                             self.current_info = Some("acl set successfully".to_string());
                             self.save_directory_acl_promise = None;
+
+                            self.get_directories_promise = Some(
+                                api::directory::get_root_directories(ctx, self.api_url.clone()),
+                            );
+                        }
+                        Err(e) => {
+                            self.current_error = Some(AppError::InternalError(e.to_string()));
+                            self.current_info = None;
+                        }
+                    };
+                }
+            }
+        }
+
+        // Save quota promise.
+        if let Some(p) = &self.save_directory_quota_promise {
+            match p.ready() {
+                None => (),
+                Some(try_result) => {
+                    self.is_working = false;
+
+                    match try_result {
+                        Ok(_) => {
+                            self.current_info = Some("quota set successfully".to_string());
+                            self.save_directory_quota_promise = None;
 
                             self.get_directories_promise = Some(
                                 api::directory::get_root_directories(ctx, self.api_url.clone()),

@@ -2,19 +2,16 @@ use crate::{
     api::{
         self,
         acl::save_acl,
-        group::{delete_group, save_group},
-    },
-    defines::{
-        AF_ADMIN_CODE, AF_GROUP_CODE, AF_USER_CODE, AF_LOCK_CODE, AF_HALF_LOCK_CODE,
-    },
-    ui::daenerys::DaenerysApp,
+        group::{delete_group, save_group}, quota::save_quota,
+    }, defines::{
+        AF_ADMIN_CODE, AF_GROUP_CODE, AF_HALF_LOCK_CODE, AF_LOCK_CODE, AF_USER_CODE
+    }, error::apperror::AppError, ui::daenerys::DaenerysApp
 };
 use eframe::egui::{self, Context};
 use egui::{Frame, Key, Margin};
 
 use storm_daenerys_common::types::{
-    acl::{Qualifier, SetAcl},
-    group::Group, directory::CreateDirectory,
+    acl::{Qualifier, SetAcl}, directory::CreateDirectory, group::Group, quota::{QuotaUnit, SetQuota}
 };
 
 pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut eframe::Frame) {
@@ -44,6 +41,8 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                         )),
                     );
                 });
+
+                ui.add_space(20.0);
 
                 ui.with_layout(egui::Layout::top_down(egui::Align::LEFT), |ui| {                   
                     ui.label(
@@ -77,11 +76,8 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                     ui.label(format!("Check that this person is member of one of the group with a {} or a {}.", AF_LOCK_CODE, AF_HALF_LOCK_CODE));
                 });
 
-                ui.add_space(20.0);
+                ui.add_space(40.0);
 
-                ui.separator();
-                
-                ui.add_space(20.0);
 
                 ui.with_layout(egui::Layout::top_down(egui::Align::Center), |ui| {
                     ui.add_sized(
@@ -91,6 +87,8 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                         )),
                     );
                 });
+
+                ui.add_space(20.0);
 
                 ui.with_layout(egui::Layout::top_down(egui::Align::LEFT), |ui| {
                     ui.hyperlink("https://www.rust-lang.org/");
@@ -277,7 +275,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
 
                 // ACLs.
                 egui::Grid::new("acl_list").num_columns(3).show(ui, |ui| {
-                    ui.add_enabled_ui(app.is_directory_editing, |ui| {
+                    ui.add_enabled_ui(app.is_directory_acl_editing, |ui| {
                         egui::Grid::new("acl_list_edit")
                             .num_columns(4)
                             .show(ui, |ui| {
@@ -401,7 +399,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                                     }
 
                                     // Delete acl button.
-                                    if app.is_directory_editing && !is_admin {
+                                    if app.is_directory_acl_editing && !is_admin {
                                         let button_label = format!(
                                             "{} {}",
                                             crate::defines::AF_DELETE_CODE,
@@ -422,8 +420,73 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                     });
                 });
 
+                // Display quota edition form.
+                if app.is_directory_quota_editing {
+                    ui.horizontal_top(|ui| {
+                        ui.add_sized(
+                            [200., 30.],
+                            egui::TextEdit::singleline(&mut app.edited_directory_quota)
+                                .hint_text("enter quota"),
+                        );
+                        egui::ComboBox::from_label("")
+                        .selected_text(format!("{}", app.edited_directory_quota_unit))
+                        .show_ui(ui, |ui| {
+                            ui.selectable_value(&mut app.edited_directory_quota_unit, QuotaUnit::Megabyte, "MiB");
+                            ui.selectable_value(&mut app.edited_directory_quota_unit, QuotaUnit::Gigabyte, "GiB");
+                            ui.selectable_value(&mut app.edited_directory_quota_unit, QuotaUnit::Terabyte, "TiB");
+                        }
+                    );
+
+                    ui.add_space(20.0);
+                    
+                    let mut enabled: bool = true;
+                    if app.edited_directory_quota.clone().is_empty()
+                        || !app
+                            .quota_format_re
+                            .is_match(app.edited_directory_quota.clone().as_str())
+                    {
+                        enabled = false;
+                    }
+
+                    ui.add_enabled_ui(enabled, |ui| {
+                    let button_label = format!("{} {}", crate::defines::AF_SAVE_CODE, "save");
+                    let button = egui::Button::new(button_label);
+
+                    if ui.add_sized([150., 30.], button).clicked() {
+
+                        let directory_name = directory_button_clicked.name.clone();
+                       
+                        app.current_info =
+                            Some(format!("saving quota for {}", directory_name));
+
+                        let maybe_quota = app.edited_directory_quota.parse::<u64>();
+
+                        if let Err(e) = maybe_quota {
+                            app.current_error = Some(AppError::InternalError(e.to_string()));
+                        } else {
+                                                    
+                            let new_quota = match app.edited_directory_quota_unit {
+                                QuotaUnit::Megabyte => maybe_quota.unwrap() * 1024 * 1024,
+                                QuotaUnit::Gigabyte => maybe_quota.unwrap() * 1024 * 1024 * 1024,
+                                QuotaUnit::Terabyte => maybe_quota.unwrap() * 1024 * 1024 * 1024 * 1024,
+                            };
+                            let set_quota = SetQuota {
+                                name: directory_name,
+                                quota: new_quota,
+                            };
+
+                            app.is_working = true;
+                            app.save_directory_quota_promise =
+                                Some(save_quota(ctx, set_quota, app.api_url.clone()));
+                        }
+
+                    }
+                });
+                    });
+                }
+
                 // Display add user and add group buttons.
-                if app.is_directory_editing {
+                if app.is_directory_acl_editing {
                     
                     ui.add_space(20.0);
 
@@ -459,8 +522,10 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                     });
                 }
 
-                // Display edit button.
-                if !app.is_directory_editing {
+                ui.horizontal_top(|ui| {
+
+                // Display edit ACL's button.
+                if !app.is_directory_acl_editing && !app.is_directory_quota_editing {
                     
                     ui.add_space(20.0);
 
@@ -468,11 +533,26 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                     let button = egui::Button::new(button_label);
 
                     if ui.add_sized([150., 30.], button).clicked() {
-                        app.is_directory_editing = true;
+                        app.is_directory_acl_editing = true;
                         app.is_group_editing = false;
                     }
                 }
 
+                // Display edit quota button.
+                if !app.is_directory_acl_editing && !app.is_directory_quota_editing {
+    
+                    ui.add_space(20.0);
+
+                    let button_label = format!("{} {}", crate::defines::AF_EDIT_CODE, "edit quota");
+                    let button = egui::Button::new(button_label);
+
+                    if ui.add_sized([150., 30.], button).clicked() {
+                        app.is_directory_quota_editing = true;
+                        app.is_group_editing = false;
+                    }
+                }
+                });
+                
                 //
                 // Add user form.
                 //
@@ -577,7 +657,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                 //
                 // Save button.
                 //
-                if app.is_directory_editing
+                if app.is_directory_acl_editing
                     && !app.edit_directory_add_group_clicked
                     && !app.edit_directory_add_user_clicked
                 {
@@ -591,11 +671,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                     if ui.add_sized([150., 30.], button).clicked() {
                         
                         let directory_name = directory_button_clicked.name.clone();
-
-                        // if let Some(admin_restriction) = &app.current_admin_restriction {
-                        //     directory_name = format!("{}@_{}", admin_restriction, directory_name);
-                        // }
-                        
+                       
                         app.current_info =
                             Some(format!("saving acl for {}", directory_name));
 
@@ -747,7 +823,7 @@ pub fn display_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut 
                     app.edit_group_clicked_backup = Some(Box::new(Group {
                         ..*group_button_clicked.clone()
                     }));
-                    app.is_directory_editing = false;
+                    app.is_directory_acl_editing = false;
                     app.is_group_editing = true;
                 }
 

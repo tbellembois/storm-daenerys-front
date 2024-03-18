@@ -23,6 +23,7 @@ pub const AF_GAUGE_CODE: char = '\u{f0a0}';
 pub const AF_LOCK_CODE: char = '\u{f023}';
 pub const AF_HALF_LOCK_CODE: char = '\u{f09c}';
 pub const AF_WARNING_CODE: char = '\u{f071}';
+pub const AF_QUOTA: char = '\u{51}';
 
 pub const DARK_BACKGROUND_COLOR: Color32 = Color32::from_rgb(27, 27, 27);
 pub const LIGHT_BACKGROUND_COLOR: Color32 = Color32::from_rgb(248, 248, 248);

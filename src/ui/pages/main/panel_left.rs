@@ -1,11 +1,13 @@
 use eframe::egui::{self, Context};
 use egui::{Color32, Frame, Margin};
+use human_bytes::human_bytes;
 use number_prefix::NumberPrefix;
+use storm_daenerys_common::types::quota::QuotaUnit;
 
 use crate::{
     api,
     defines::{
-        AF_FOLDER_CODE, AF_GROUP_CODE, AF_HALF_LOCK_CODE, AF_LOCK_CODE, AF_REFRESH_CODE,
+        AF_FOLDER_CODE, AF_GROUP_CODE, AF_HALF_LOCK_CODE, AF_LOCK_CODE, AF_QUOTA, AF_REFRESH_CODE,
         AF_WARNING_CODE,
     },
     ui::daenerys::DaenerysApp,
@@ -125,8 +127,17 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
                                                     app.directory_button_clicked =
                                                         Some(Box::new(directory.clone()));
 
+                                                    if let Some(quota) = directory.quota {
+                                                        let quota_in_mb = quota / 1024 / 1024;
+                                                        app.edited_directory_quota =
+                                                            quota_in_mb.to_string()
+                                                    }
+                                                    app.edited_directory_quota_unit =
+                                                        QuotaUnit::Megabyte;
+
                                                     app.group_button_clicked = None;
-                                                    app.is_directory_editing = false;
+                                                    app.is_directory_acl_editing = false;
+                                                    app.is_directory_quota_editing = false;
                                                     app.is_group_editing = false;
                                                     app.edit_directory_add_user_clicked = false;
                                                     app.edit_directory_add_group_clicked = false;
@@ -139,6 +150,14 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
                                                 };
                                             });
                                         });
+
+                                        if let Some(quota) = directory.quota {
+                                            ui.label(format!(
+                                                "{} {}",
+                                                AF_QUOTA,
+                                                human_bytes(quota as f64)
+                                            ));
+                                        }
 
                                         ui.end_row()
                                     }
@@ -161,7 +180,7 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
                     app.create_group_clicked = false;
                     app.directory_button_clicked = None;
                     app.group_button_clicked = None;
-                    app.is_directory_editing = false;
+                    app.is_directory_acl_editing = false;
                     app.is_group_editing = false;
                     app.du = None;
 
@@ -262,7 +281,7 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
                                                 Some(Box::new(group.clone()));
 
                                             app.directory_button_clicked = None;
-                                            app.is_directory_editing = false;
+                                            app.is_directory_acl_editing = false;
                                             app.is_group_editing = false;
                                             app.edit_directory_add_user_clicked = false;
                                             app.edit_directory_add_group_clicked = false;
@@ -295,7 +314,7 @@ pub fn display_left_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efr
                     app.create_directory_clicked = false;
                     app.directory_button_clicked = None;
                     app.group_button_clicked = None;
-                    app.is_directory_editing = false;
+                    app.is_directory_acl_editing = false;
                     app.is_group_editing = false;
                     app.du = None;
 

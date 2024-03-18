@@ -1577,6 +1577,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "human_bytes"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "91f255a4535024abf7640cb288260811fc14794f62b063652ed349f9a6c2348e"
+
+[[package]]
 name = "iana-time-zone"
 version = "0.1.60"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2749,7 +2755,6 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "storm_daenerys_common"
 version = "0.1.0"
-source = "git+https://github.com/tbellembois/storm-daenerys-common.git#ce62f9a6316ab5985117d9777d4f952c50c5bd08"
 dependencies = [
  "log",
  "serde",
@@ -2765,6 +2770,7 @@ dependencies = [
  "egui",
  "egui_extras",
  "ehttp",
+ "human_bytes",
  "image",
  "log",
  "number_prefix",
