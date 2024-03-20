@@ -3,8 +3,6 @@ use egui::Ui;
 use crate::ui::daenerys::DaenerysApp;
 
 pub fn render_disk_usage(app: &mut DaenerysApp, ui: &mut Ui) {
-    app.application_just_loaded = false;
-
     let available_height: f32 = ui.available_size().y;
     let scroll_height: f32 = available_height - 50.;
 

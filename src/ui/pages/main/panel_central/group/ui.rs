@@ -1,11 +1,8 @@
-use egui::{Key, Ui};
+use egui::Ui;
 use storm_daenerys_common::types::group::Group;
 
 use crate::{
-    api::{
-        self,
-        group::{delete_group, save_group},
-    },
+    api::group::{delete_group, save_group},
     ui::daenerys::DaenerysApp,
 };
 
@@ -17,11 +14,10 @@ pub fn render_show_group(
     ui: &mut Ui,
     group_button_clicked: Box<Group>,
 ) {
-    app.application_just_loaded = false;
-
     let mut is_group_auto: bool = false;
     let mut is_group_invite: bool = false;
 
+    // Check if group is auto or invite.
     match &app.root_groups {
         Some(root_groups) => {
             for root_group in root_groups {
@@ -111,30 +107,4 @@ pub fn render_show_group(
             }
         }
     });
-
-    // Save button.
-    if app.is_group_editing && !app.edit_group_add_user_clicked {
-        ui.add_space(20.0);
-
-        let button_label = format!("{} {}", crate::defines::AF_SAVE_CODE, "save");
-
-        let button = egui::Button::new(button_label);
-
-        if ui.add_sized([150., 30.], button).clicked() {
-            app.current_info = Some(format!("saving group {}", group_button_clicked.cn));
-
-            app.is_working = true;
-            app.save_group_promises = Some(save_group(
-                ctx,
-                *app.edit_group_clicked_backup.as_ref().unwrap().clone(),
-                *group_button_clicked.clone(),
-                app.api_url.clone(),
-            ));
-        }
-    }
-
-    // User add.
-    if app.edit_group_add_user_clicked {
-        render_add_user(app, ctx, ui)
-    }
 }

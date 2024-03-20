@@ -1,22 +1,6 @@
-use crate::{
-    api::{
-        self,
-        acl::save_acl,
-        group::{delete_group, save_group},
-        quota::save_quota,
-    },
-    defines::{AF_ADMIN_CODE, AF_GROUP_CODE, AF_USER_CODE},
-    error::apperror::AppError,
-    ui::daenerys::DaenerysApp,
-};
+use crate::ui::daenerys::DaenerysApp;
 use eframe::egui::{self, Context};
-use egui::{Frame, Key, Margin};
-
-use storm_daenerys_common::types::{
-    acl::{Qualifier, SetAcl},
-    group::Group,
-    quota::{QuotaUnit, SetQuota},
-};
+use egui::{Frame, Margin};
 
 use super::{
     directory::{create::render_create_directory, ui::render_show_directory},
@@ -54,26 +38,31 @@ pub fn render_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut e
 
             // Disk usage.
             if app.du.is_some() {
+                app.application_just_loaded = false;
                 render_disk_usage(app, ui);
             }
 
             // Create directory form.
             if app.create_directory_clicked {
+                app.application_just_loaded = false;
                 render_create_directory(app, ctx, ui);
             }
 
             // Create group form.
             if app.create_group_clicked {
+                app.application_just_loaded = false;
                 render_create_group(app, ctx, ui);
             }
 
             // Directory details and edition.
             if let Some(directory_button_clicked) = &app.directory_button_clicked {
+                app.application_just_loaded = false;
                 render_show_directory(app, ctx, ui, directory_button_clicked.clone());
             }
 
             // Group details and edition.
             if let Some(group_button_clicked) = &app.group_button_clicked {
+                app.application_just_loaded = false;
                 render_show_group(app, ctx, ui, group_button_clicked.clone());
             };
         });

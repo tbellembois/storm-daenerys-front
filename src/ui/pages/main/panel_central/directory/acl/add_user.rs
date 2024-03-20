@@ -1,13 +1,12 @@
-use egui::{Key, Ui};
-use storm_daenerys_common::types::{acl::AclEntry, directory::Directory};
-
 use crate::{api, ui::daenerys::DaenerysApp};
+use egui::{Key, Ui};
+use storm_daenerys_common::types::directory::Directory;
 
 pub fn render_add_user(
     app: &mut DaenerysApp,
     ctx: &egui::Context,
     ui: &mut Ui,
-    directory_button_clicked: Box<Directory>,
+    _directory_button_clicked: Box<Directory>,
 ) {
     // Search user form.
     ui.horizontal_top(|ui| {
@@ -19,7 +18,6 @@ pub fn render_add_user(
 
         // Search user button.
         let button_label = format!("{} {}", crate::defines::AF_SEARCH_CODE, "search");
-
         let button = egui::Button::new(button_label);
 
         if ui.add_sized([150., 30.], button).clicked() {
@@ -62,9 +60,10 @@ pub fn render_add_user(
             });
     }
 
+    ui.add_space(20.0);
+
     // Done button.
     let button_label = format!("{} {}", crate::defines::AF_CANCEL_CODE, "done");
-
     let button = egui::Button::new(button_label);
 
     if ui.add_sized([150., 30.], button).clicked() {

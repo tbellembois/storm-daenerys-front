@@ -4,8 +4,6 @@ use storm_daenerys_common::types::group::Group;
 use crate::{api, ui::daenerys::DaenerysApp};
 
 pub fn render_create_group(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui) {
-    app.application_just_loaded = false;
-
     // Group name.
     ui.vertical(|ui| {
         ui.horizontal(|ui| {

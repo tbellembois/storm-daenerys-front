@@ -10,8 +10,6 @@ pub fn render_show_directory(
     ui: &mut Ui,
     directory_button_clicked: Box<Directory>,
 ) {
-    app.application_just_loaded = false;
-
     // Directory name.
     ui.heading(format!(
         "{} {}",
@@ -32,11 +30,11 @@ pub fn render_show_directory(
         );
     }
 
+    ui.add_space(20.0);
+
     // ACLs and quota edit buttons.
     ui.horizontal_top(|ui| {
         if !app.is_directory_acl_editing && !app.is_directory_quota_editing {
-            ui.add_space(20.0);
-
             let button_label = format!("{} {}", crate::defines::AF_EDIT_CODE, "edit ACLs");
             let button = egui::Button::new(button_label);
 
@@ -47,8 +45,6 @@ pub fn render_show_directory(
         }
 
         if !app.is_directory_acl_editing && !app.is_directory_quota_editing {
-            ui.add_space(20.0);
-
             let button_label = format!("{} {}", crate::defines::AF_EDIT_CODE, "edit quota");
             let button = egui::Button::new(button_label);
 

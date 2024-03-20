@@ -197,9 +197,12 @@ pub fn render_show_edit_acl(
                 app.edit_directory_add_group_clicked = true;
                 app.edit_directory_add_user_clicked = false;
             }
+        });
 
-            // ui.add_space(20.0);
+        ui.add_space(20.0);
 
+        // Save button.
+        if !app.edit_directory_add_user_clicked && !app.edit_directory_add_group_clicked {
             let button_label = format!("{} {}", crate::defines::AF_SAVE_CODE, "save");
             let button = egui::Button::new(button_label);
 
@@ -216,7 +219,7 @@ pub fn render_show_edit_acl(
                 app.is_working = true;
                 app.save_directory_acl_promise = Some(save_acl(ctx, set_acl, app.api_url.clone()));
             }
-        });
+        }
     }
 
     // User add.

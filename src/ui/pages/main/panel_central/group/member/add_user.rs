@@ -23,6 +23,7 @@ pub fn render_add_user(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui) 
             ));
         }
 
+        // Search user input.
         if ctx.input(|i| i.key_pressed(Key::Enter)) {
             app.is_working = true;
             app.get_users_promise = Some(api::user::get_users(
@@ -54,9 +55,10 @@ pub fn render_add_user(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui) 
             });
     }
 
+    ui.add_space(20.0);
+
     // Done button.
     let button_label = format!("{} {}", crate::defines::AF_CANCEL_CODE, "done");
-
     let button = egui::Button::new(button_label);
 
     if ui.add_sized([150., 30.], button).clicked() {

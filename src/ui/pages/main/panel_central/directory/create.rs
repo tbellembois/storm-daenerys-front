@@ -4,8 +4,6 @@ use storm_daenerys_common::types::directory::CreateDirectory;
 use crate::{api, ui::daenerys::DaenerysApp};
 
 pub fn render_create_directory(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui) {
-    app.application_just_loaded = false;
-
     // Directory name.
     ui.vertical(|ui| {
         ui.horizontal(|ui| {

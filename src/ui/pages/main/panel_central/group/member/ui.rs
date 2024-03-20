@@ -2,16 +2,18 @@ use egui::Ui;
 use storm_daenerys_common::types::group::Group;
 
 use crate::{
-    api::{self, group::delete_group},
+    api::{self, group::save_group},
     ui::daenerys::DaenerysApp,
 };
+
+use super::add_user::render_add_user;
 
 pub fn render_show_edit_member(
     app: &mut DaenerysApp,
     ctx: &egui::Context,
     ui: &mut Ui,
     group_button_clicked: Box<Group>,
-    is_group_invite: bool,
+    _is_group_invite: bool,
 ) {
     match &group_button_clicked.member {
         Some(members) => {
@@ -72,7 +74,7 @@ pub fn render_show_edit_member(
 
                                 ui.label(egui::RichText::new(display).color(color));
 
-                                if (app.is_group_editing && !app.edit_group_add_user_clicked) {
+                                if app.is_group_editing && !app.edit_group_add_user_clicked {
                                     // Delete member button.
                                     let button_label = format!(
                                         "{} {}",
@@ -98,14 +100,40 @@ pub fn render_show_edit_member(
 
     // Add user button.
     if !app.is_working && app.is_group_editing {
+        ui.add_space(20.0);
+
         ui.horizontal_top(|ui| {
             let button_label = format!("{} {}", crate::defines::AF_ADD_CODE, "add user");
-
             let button = egui::Button::new(button_label);
 
             if !app.edit_group_add_user_clicked && ui.add_sized([150., 30.], button).clicked() {
                 app.edit_group_add_user_clicked = true;
             }
         });
+    }
+
+    ui.add_space(20.0);
+
+    // Save button.
+    if app.is_group_editing && !app.edit_group_add_user_clicked {
+        let button_label = format!("{} {}", crate::defines::AF_SAVE_CODE, "save");
+        let button = egui::Button::new(button_label);
+
+        if ui.add_sized([150., 30.], button).clicked() {
+            app.current_info = Some(format!("saving group {}", group_button_clicked.cn));
+
+            app.is_working = true;
+            app.save_group_promises = Some(save_group(
+                ctx,
+                *app.edit_group_clicked_backup.as_ref().unwrap().clone(),
+                *group_button_clicked.clone(),
+                app.api_url.clone(),
+            ));
+        }
+    }
+
+    // User add.
+    if app.edit_group_add_user_clicked {
+        render_add_user(app, ctx, ui)
     }
 }
