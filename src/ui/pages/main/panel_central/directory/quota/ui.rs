@@ -12,6 +12,10 @@ pub fn render_edit_quota(
     ui: &mut Ui,
     directory_button_clicked: Box<Directory>,
 ) {
+    ui.label("Set quota to 0 to remove it.");
+
+    ui.add_space(10.0);
+
     ui.horizontal_top(|ui| {
         ui.add_sized(
             [200., 30.],

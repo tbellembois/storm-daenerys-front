@@ -1,8 +1,8 @@
-use crate::ui::daenerys::DaenerysApp;
-use egui::Ui;
-use storm_daenerys_common::types::directory::Directory;
-
 use super::{acl::ui::render_show_edit_acl, quota::ui::render_edit_quota};
+use crate::{defines::AF_QUOTA, ui::daenerys::DaenerysApp};
+use egui::Ui;
+use human_bytes::human_bytes;
+use storm_daenerys_common::types::directory::Directory;
 
 pub fn render_show_directory(
     app: &mut DaenerysApp,
@@ -16,6 +16,9 @@ pub fn render_show_directory(
         crate::defines::AF_FOLDER_CODE,
         directory_button_clicked.name
     ));
+    if let Some(quota) = directory_button_clicked.quota {
+        ui.label(format!("{} {}", AF_QUOTA, human_bytes(quota as f64)));
+    }
 
     ui.add_space(20.0);
 
