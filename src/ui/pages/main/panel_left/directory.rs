@@ -98,24 +98,6 @@ pub fn render_directory_list(
                         }
                     });
                 ui.add_space(20.0);
-
-                // Create directory button.
-                let button_label =
-                    format!("{} {}", crate::defines::AF_ADD_CODE, "create directory");
-
-                let button = egui::Button::new(button_label);
-
-                if ui.add_sized([150., 30.], button).clicked() {
-                    app.create_directory_clicked = true;
-                    app.create_group_clicked = false;
-                    app.directory_button_clicked = None;
-                    app.group_button_clicked = None;
-                    app.is_directory_acl_editing = false;
-                    app.is_group_editing = false;
-                    app.du = None;
-
-                    app.create_directory_name.clear();
-                }
             }
         });
 }

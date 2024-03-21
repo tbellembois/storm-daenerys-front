@@ -1,12 +1,9 @@
 use egui::Ui;
 use storm_daenerys_common::types::group::Group;
 
-use crate::{
-    api::group::{delete_group, save_group},
-    ui::daenerys::DaenerysApp,
-};
+use crate::{api::group::delete_group, ui::daenerys::DaenerysApp};
 
-use super::member::{add_user::render_add_user, ui::render_show_edit_member};
+use super::member::ui::render_show_edit_member;
 
 pub fn render_show_group(
     app: &mut DaenerysApp,
