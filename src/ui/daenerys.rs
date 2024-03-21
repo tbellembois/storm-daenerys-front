@@ -38,10 +38,10 @@ pub struct DaenerysApp {
     // True when application loads, false afterwards.
     pub application_just_loaded: bool,
 
-    // Compilation time
-    pub compilation_time: String,
+    // Application version.
+    pub app_version: String,
 
-    // API URL
+    // API URL.
     pub api_url: String,
 
     // Group name regex.
@@ -216,7 +216,7 @@ impl Default for DaenerysApp {
     fn default() -> Self {
         Self {
             application_just_loaded: true,
-            compilation_time: Default::default(),
+            app_version: Default::default(),
             is_working: Default::default(),
             group_cn_re: Regex::new(GROUP_CN_RE_STRING).unwrap(),
             directory_name_re: Regex::new(DIRECTORY_NAME_RE_STRING).unwrap(),
@@ -282,11 +282,11 @@ impl Default for DaenerysApp {
 }
 
 impl DaenerysApp {
-    pub fn new(cc: &CreationContext, api_url: String, compilation_time: String) -> Self {
+    pub fn new(cc: &CreationContext, api_url: String, app_version: String) -> Self {
         // Create application.
         let mut app = DaenerysApp {
             group_cn_re: Regex::new(GROUP_CN_RE_STRING).unwrap(),
-            compilation_time,
+            app_version,
             ..Default::default()
         };
 
