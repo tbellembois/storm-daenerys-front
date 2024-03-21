@@ -70,7 +70,10 @@ pub fn render_directory_list(
                                         if let Some(quota) = directory.quota {
                                             let quota_in_mb = quota / 1024 / 1024;
                                             app.edited_directory_quota = quota_in_mb.to_string()
+                                        } else {
+                                            app.edited_directory_quota = 0.to_string();
                                         }
+
                                         app.edited_directory_quota_unit = QuotaUnit::Megabyte;
 
                                         app.group_button_clicked = None;
@@ -91,7 +94,9 @@ pub fn render_directory_list(
 
                             // Directory quota.
                             if let Some(quota) = directory.quota {
-                                ui.label(format!("{} {}", AF_QUOTA, human_bytes(quota as f64)));
+                                if quota.ne(&0) {
+                                    ui.label(format!("{} {}", AF_QUOTA, human_bytes(quota as f64)));
+                                }
                             }
 
                             ui.end_row()

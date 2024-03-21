@@ -17,7 +17,9 @@ pub fn render_show_directory(
         directory_button_clicked.name
     ));
     if let Some(quota) = directory_button_clicked.quota {
-        ui.label(format!("{} {}", AF_QUOTA, human_bytes(quota as f64)));
+        if quota.ne(&0) {
+            ui.label(format!("{} {}", AF_QUOTA, human_bytes(quota as f64)));
+        }
     }
 
     ui.add_space(20.0);
