@@ -1,12 +1,11 @@
-use egui::{Color32, Ui};
-use human_bytes::human_bytes;
-use storm_daenerys_common::types::quota::QuotaUnit;
-
 use crate::{
     api,
     defines::{AF_FOLDER_CODE, AF_QUOTA, AF_REFRESH_CODE, AF_WARNING_CODE},
     ui::daenerys::DaenerysApp,
 };
+use egui::Ui;
+use human_bytes::human_bytes;
+use storm_daenerys_common::types::quota::QuotaUnit;
 
 pub fn render_directory_list(
     app: &mut DaenerysApp,
@@ -18,9 +17,12 @@ pub fn render_directory_list(
     ui.horizontal_top(|ui| {
         ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
             ui.label(
-                egui::RichText::new("my root directories")
-                    .size(20.0)
-                    .color(Color32::from_rgb(60, 179, 113)),
+                egui::RichText::new("my root directories").size(20.0).color(
+                    app.state
+                        .active_theme
+                        .fg_primary_text_color_visuals()
+                        .unwrap(),
+                ),
             );
         });
 

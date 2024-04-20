@@ -22,6 +22,7 @@ chrono = "0.4"
 eframe = "0.26"
 egui = "0.26"
 egui_extras = { version = "0.26", features = ["svg", "all_loaders"]}
+egui-aesthetix = { version = "0.2.2", features = ["all_themes"] }
 ehttp = "0.4"
 human_bytes = "0.4.3"
 image = { version = "0.24", default-features = false, features = ["png"] }

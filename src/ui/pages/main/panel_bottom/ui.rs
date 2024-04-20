@@ -1,22 +1,16 @@
-use egui::Context;
-
 use crate::ui::daenerys::DaenerysApp;
-
-use egui::{Frame, Margin};
+use egui::Context;
+use egui::Frame;
 
 pub fn render_bottom_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut eframe::Frame) {
     egui::TopBottomPanel::bottom("footer")
         .min_height(60.)
         .max_height(60.)
-        .show_separator_line(false)
+        .show_separator_line(true)
         .frame(Frame {
-            inner_margin: Margin {
-                left: 10.0,
-                right: 10.0,
-                top: 5.0,
-                bottom: 5.0,
-            },
-            fill: app.background_color,
+            inner_margin: app.state.active_theme.margin_style().into(),
+            fill: app.state.active_theme.bg_secondary_color_visuals(),
+            stroke: egui::Stroke::new(1.0, app.state.active_theme.bg_secondary_color_visuals()),
             ..Default::default()
         })
         .show(ctx, |ui| {

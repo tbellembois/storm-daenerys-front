@@ -1,24 +1,18 @@
-use eframe::egui::{self, Context};
-use egui::{Frame, Margin};
-
-use crate::ui::daenerys::DaenerysApp;
-
 use super::{directory::render_directory_list, group::render_group_list, quota::render_quota};
+use crate::ui::daenerys::DaenerysApp;
+use eframe::egui::{self, Context};
+use egui::Frame;
 
 pub fn render_left_panel(app: &mut DaenerysApp, ctx: &Context) {
     egui::SidePanel::left("group_and_directory_list")
         .frame(Frame {
-            inner_margin: Margin {
-                left: 20.0,
-                right: 20.0,
-                top: 10.0,
-                bottom: 10.0,
-            },
-            fill: app.background_color,
+            inner_margin: app.state.active_theme.margin_style().into(),
+            fill: app.state.active_theme.bg_secondary_color_visuals(),
+            stroke: egui::Stroke::new(1.0, app.state.active_theme.bg_secondary_color_visuals()),
             ..Default::default()
         })
         .resizable(false)
-        .show_separator_line(false)
+        .show_separator_line(true)
         .show(ctx, |ui| {
             ui.set_width(300.0);
 

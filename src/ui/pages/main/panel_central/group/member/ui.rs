@@ -49,11 +49,14 @@ pub fn render_show_edit_member(
                                     Some(maybe_display_name) => match maybe_display_name {
                                         Some(display_name) => (
                                             format!("{} ({})", display_name, member),
-                                            egui::Color32::from_rgb(0, 0, 0),
+                                            app.state
+                                                .active_theme
+                                                .fg_primary_text_color_visuals()
+                                                .unwrap(),
                                         ),
                                         None => (
                                             format!("<invalid account> ({})", member),
-                                            egui::Color32::from_rgb(255, 0, 0),
+                                            app.state.active_theme.fg_warn_text_color_visuals(),
                                         ),
                                     },
                                     None => {
@@ -68,7 +71,13 @@ pub fn render_show_edit_member(
                                             );
                                         }
 
-                                        (member.to_string(), egui::Color32::from_rgb(255, 165, 0))
+                                        (
+                                            member.to_string(),
+                                            app.state
+                                                .active_theme
+                                                .fg_primary_text_color_visuals()
+                                                .unwrap(),
+                                        )
                                     }
                                 };
 

@@ -1,10 +1,9 @@
-use egui::{Color32, Ui};
-
 use crate::{
     api,
     defines::{AF_GROUP_CODE, AF_HALF_LOCK_CODE, AF_LOCK_CODE, AF_REFRESH_CODE},
     ui::daenerys::DaenerysApp,
 };
+use egui::Ui;
 
 pub fn render_group_list(
     app: &mut DaenerysApp,
@@ -16,9 +15,12 @@ pub fn render_group_list(
     ui.horizontal_top(|ui| {
         ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
             ui.label(
-                egui::RichText::new("my storm groups")
-                    .size(20.0)
-                    .color(Color32::from_rgb(60, 179, 113)),
+                egui::RichText::new("my storm groups").size(20.0).color(
+                    app.state
+                        .active_theme
+                        .fg_primary_text_color_visuals()
+                        .unwrap(),
+                ),
             );
         });
 

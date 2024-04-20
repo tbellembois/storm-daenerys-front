@@ -1,7 +1,16 @@
+use crate::api;
+use crate::error::apperror::AppError;
+use crate::ui::pages::main;
+use eframe::{egui, CreationContext};
+use egui::Vec2;
+use egui_aesthetix::themes::{CarlDark, StandardDark, StandardLight};
+use egui_aesthetix::{self, Aesthetix};
+use poll_promise::Promise;
+use regex::Regex;
 use std::cmp::Ordering;
 use std::collections::HashMap;
+use std::rc::Rc;
 use std::sync::Once;
-
 use storm_daenerys_common::defines::{
     DIRECTORY_NAME_RE_STRING, GROUP_CN_RE_STRING, QUOTA_FORMAT_RE_STRING,
 };
@@ -13,28 +22,17 @@ use storm_daenerys_common::types::quota::QuotaUnit;
 use storm_daenerys_common::types::user::User;
 use storm_daenerys_common::types::{acl::AclEntry, directory::Directory};
 
-use eframe::{egui, CreationContext};
-
-use egui::{Color32, FontFamily, FontId, TextStyle, Vec2, Visuals};
-use poll_promise::Promise;
-
-use crate::api;
-use crate::defines::{DARK_BACKGROUND_COLOR, LIGHT_BACKGROUND_COLOR};
-use crate::error::apperror::AppError;
-use crate::ui::pages::main;
-
-use regex::Regex;
+use super::state::{ApplicationState, Page};
 
 static START: Once = Once::new();
 
-// Applications pages.
-#[derive(Default)]
-enum Page {
-    #[default]
-    Main,
-}
-
 pub struct DaenerysApp {
+    // Application state.
+    pub state: ApplicationState,
+
+    // Holds the supported themes that the user can switch between.
+    pub themes: Vec<Rc<dyn Aesthetix>>,
+
     // True when application loads, false afterwards.
     pub application_just_loaded: bool,
 
@@ -53,17 +51,8 @@ pub struct DaenerysApp {
     // Quota format regex.
     pub quota_format_re: Regex,
 
-    // Current active page.
-    page: Page,
-
     // Central panel available size.
     pub central_panel_available_size: Vec2,
-
-    // Current theme.
-    pub theme: Visuals,
-
-    // Background color.
-    pub background_color: Color32,
 
     // Disk usage.
     pub du: Option<String>,
@@ -221,8 +210,6 @@ impl Default for DaenerysApp {
             group_cn_re: Regex::new(GROUP_CN_RE_STRING).unwrap(),
             directory_name_re: Regex::new(DIRECTORY_NAME_RE_STRING).unwrap(),
             quota_format_re: Regex::new(QUOTA_FORMAT_RE_STRING).unwrap(),
-            page: Default::default(),
-            theme: Default::default(),
             directories: Default::default(),
             groups: Default::default(),
             root_groups: Default::default(),
@@ -269,7 +256,6 @@ impl Default for DaenerysApp {
             quota: Default::default(),
             central_panel_available_size: Default::default(),
             group_prefix: Default::default(),
-            background_color: LIGHT_BACKGROUND_COLOR,
             show_directory_list: true,
             show_group_list: true,
             get_user_display_promises: HashMap::new(),
@@ -277,19 +263,14 @@ impl Default for DaenerysApp {
             connected_user: Default::default(),
             edited_directory_quota: Default::default(),
             edited_directory_quota_unit: QuotaUnit::Megabyte,
+            state: Default::default(),
+            themes: Default::default(),
         }
     }
 }
 
 impl DaenerysApp {
     pub fn new(cc: &CreationContext, api_url: String, app_version: String) -> Self {
-        // Create application.
-        let mut app = DaenerysApp {
-            group_cn_re: Regex::new(GROUP_CN_RE_STRING).unwrap(),
-            app_version,
-            ..Default::default()
-        };
-
         // Create channels.
         // let (app_tx, app_rx) = mpsc::channel();
         // let (worker_tx, worker_rx) = mpsc::channel();
@@ -308,18 +289,37 @@ impl DaenerysApp {
         // app.sender = Some(app_tx);
         // app.receiver = Some(worker_rx);
 
-        // Set custom fonts and styles.
+        // Load custom fonts and styles.
         setup_custom_fonts(&cc.egui_ctx);
-        setup_custom_styles(&cc.egui_ctx);
+        // setup_custom_styles(&cc.egui_ctx);
 
-        // Set default theme.
-        app.theme = Visuals::light();
-        cc.egui_ctx.set_visuals(Visuals::light());
+        // Load themes.
+        let themes: Vec<Rc<dyn Aesthetix>> = vec![
+            Rc::new(StandardDark),
+            Rc::new(StandardLight),
+            Rc::new(CarlDark),
+        ];
+        let active_theme: Rc<dyn Aesthetix> = match themes.first() {
+            Some(theme) => theme.clone(),
+            None => panic!("The first theme in the list of available themes could not be loaded."),
+        };
 
-        // Set API URL.
-        app.api_url = api_url;
+        // Create application state.
+        let state = ApplicationState::new(active_theme);
 
-        app
+        // Initialize the custom theme/styles for egui.
+        cc.egui_ctx.set_style(state.active_theme.custom_style());
+
+        // Create application.
+
+        DaenerysApp {
+            group_cn_re: Regex::new(GROUP_CN_RE_STRING).unwrap(),
+            app_version,
+            api_url,
+            state,
+            themes,
+            ..Default::default()
+        }
     }
 }
 
@@ -346,13 +346,6 @@ impl eframe::App for DaenerysApp {
         //         }
         //     }
         // }
-
-        // Set background color.
-        self.background_color = if self.theme.dark_mode {
-            DARK_BACKGROUND_COLOR
-        } else {
-            LIGHT_BACKGROUND_COLOR
-        };
 
         // Get user display promises.
         let mut user_display_promises_done: Vec<String> = vec![];
@@ -843,7 +836,7 @@ impl eframe::App for DaenerysApp {
 
         // Render page only when admin and group prefix are retrieved.
         if self.admin.is_some() && self.group_prefix.is_some() {
-            match self.page {
+            match self.state.active_page {
                 Page::Main => main::ui::update(self, ctx, frame),
             }
         }
@@ -864,40 +857,6 @@ fn setup_custom_fonts(ctx: &egui::Context) {
     // Install custom fonts.
     // .ttf and .otf files supported.
     fonts.font_data.insert(
-        "Luciole-Bold-Italic".to_owned(),
-        egui::FontData::from_static(include_bytes!("fonts/Luciole-Bold-Italic.ttf")),
-    );
-    fonts.font_data.insert(
-        "Luciole-Bold".to_owned(),
-        egui::FontData::from_static(include_bytes!("fonts/Luciole-Bold.ttf")),
-    );
-    fonts.font_data.insert(
-        "Luciole-Regular-Italic".to_owned(),
-        egui::FontData::from_static(include_bytes!("fonts/Luciole-Regular-Italic.ttf")),
-    );
-    fonts.font_data.insert(
-        "Luciole-Regular".to_owned(),
-        egui::FontData::from_static(include_bytes!("fonts/Luciole-Regular.ttf")),
-    );
-
-    fonts.font_data.insert(
-        "B612-Bold".to_owned(),
-        egui::FontData::from_static(include_bytes!("fonts/B612-Bold.ttf")),
-    );
-    fonts.font_data.insert(
-        "B612-BoldItalic".to_owned(),
-        egui::FontData::from_static(include_bytes!("fonts/B612-BoldItalic.ttf")),
-    );
-    fonts.font_data.insert(
-        "B612-Italic".to_owned(),
-        egui::FontData::from_static(include_bytes!("fonts/B612-Italic.ttf")),
-    );
-    fonts.font_data.insert(
-        "B612-Regular".to_owned(),
-        egui::FontData::from_static(include_bytes!("fonts/B612-Regular.ttf")),
-    );
-
-    fonts.font_data.insert(
         "Font-Awesome-6-Brands-Regular-400".to_owned(),
         egui::FontData::from_static(include_bytes!(
             "fonts/Font-Awesome-6-Brands-Regular-400.otf"
@@ -912,84 +871,23 @@ fn setup_custom_fonts(ctx: &egui::Context) {
         egui::FontData::from_static(include_bytes!("fonts/Font-Awesome-6-Free-Solid-900.otf")),
     );
 
-    fonts.font_data.insert(
-        "LiberationSans-Regular".to_owned(),
-        egui::FontData::from_static(include_bytes!("fonts/LiberationSans-Regular.ttf")),
-    );
-    fonts.font_data.insert(
-        "LiberationSans-Bold".to_owned(),
-        egui::FontData::from_static(include_bytes!("fonts/LiberationSans-Bold.ttf")),
-    );
-    // Put my font first (highest priority) for proportional text:
+    // Start at 1 not 0 to keep the default font.
     fonts
         .families
         .entry(egui::FontFamily::Proportional)
         .or_default()
-        .insert(0, "B612-Regular".to_owned());
+        .insert(1, "Font-Awesome-6-Brands-Regular-400".to_owned());
     fonts
         .families
         .entry(egui::FontFamily::Proportional)
         .or_default()
-        .insert(1, "B612-Bold".to_owned());
+        .insert(2, "Font-Awesome-6-Free-Regular-400".to_owned());
     fonts
         .families
         .entry(egui::FontFamily::Proportional)
         .or_default()
-        .insert(2, "B612-BoldItalic".to_owned());
-    fonts
-        .families
-        .entry(egui::FontFamily::Proportional)
-        .or_default()
-        .insert(3, "B612-Italic".to_owned());
-
-    fonts
-        .families
-        .entry(egui::FontFamily::Proportional)
-        .or_default()
-        .insert(4, "Font-Awesome-6-Brands-Regular-400".to_owned());
-    fonts
-        .families
-        .entry(egui::FontFamily::Proportional)
-        .or_default()
-        .insert(5, "Font-Awesome-6-Free-Regular-400".to_owned());
-    fonts
-        .families
-        .entry(egui::FontFamily::Proportional)
-        .or_default()
-        .insert(6, "Font-Awesome-6-Free-Solid-900".to_owned());
-
-    fonts
-        .families
-        .entry(egui::FontFamily::Proportional)
-        .or_default()
-        .insert(7, "LiberationSans-Regular".to_owned());
-    fonts
-        .families
-        .entry(egui::FontFamily::Proportional)
-        .or_default()
-        .insert(8, "LiberationSans-Bold".to_owned());
-
-    // Put my font as last fallback for monospace:
-    fonts
-        .families
-        .entry(egui::FontFamily::Monospace)
-        .or_default()
-        .push("B612-Regular".to_owned());
+        .insert(3, "Font-Awesome-6-Free-Solid-900".to_owned());
 
     // Tell egui to use these fonts:
     ctx.set_fonts(fonts);
-}
-
-fn setup_custom_styles(ctx: &egui::Context) {
-    use FontFamily::{Monospace, Proportional};
-
-    let mut style = (*ctx.style()).clone();
-    style.text_styles = [
-        (TextStyle::Heading, FontId::new(18.0, Proportional)),
-        (TextStyle::Body, FontId::new(14.0, Proportional)),
-        (TextStyle::Button, FontId::new(14.0, Proportional)),
-        (TextStyle::Monospace, FontId::new(14.0, Monospace)),
-    ]
-    .into();
-    ctx.set_style(style);
 }

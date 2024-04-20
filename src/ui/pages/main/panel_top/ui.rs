@@ -1,14 +1,11 @@
-use eframe::{
-    egui::{self, Context, RichText, Visuals},
-    epaint::Color32,
-};
-use egui::{Frame, Margin};
+use eframe::egui::{self, Context, RichText};
+use egui::Frame;
 
 use crate::{
     api,
     defines::{
         AF_CONNECTED_USER_CODE, AF_ERROR_CODE, AF_FOLDER_CODE, AF_GAUGE_CODE, AF_GROUP_CODE,
-        AF_INFO_CODE, AF_MOON_CODE, AF_SUN_CODE,
+        AF_INFO_CODE,
     },
     ui::daenerys::DaenerysApp,
 };
@@ -17,15 +14,11 @@ pub fn render_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efram
     egui::TopBottomPanel::top("error_info_panel")
         .min_height(40.)
         .max_height(40.)
-        .show_separator_line(false)
+        .show_separator_line(true)
         .frame(Frame {
-            inner_margin: Margin {
-                left: 10.0,
-                right: 10.0,
-                top: 10.0,
-                bottom: 0.0,
-            },
-            fill: app.background_color,
+            inner_margin: app.state.active_theme.margin_style().into(),
+            fill: app.state.active_theme.bg_secondary_color_visuals(),
+            stroke: egui::Stroke::new(1.0, app.state.active_theme.bg_secondary_color_visuals()),
             ..Default::default()
         })
         .show(ctx, |ui| {
@@ -49,21 +42,23 @@ pub fn render_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efram
 
             ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
                 // Switch theme.
-                if app.theme.dark_mode {
-                    let button = egui::Button::new(format!("{} light mode", AF_SUN_CODE));
-
-                    if ui.add_sized([30., 30.], button).clicked() {
-                        app.theme = Visuals::light();
-                        ctx.set_visuals(Visuals::light());
-                    }
-                } else {
-                    let button = egui::Button::new(format!("{} dark mode", AF_MOON_CODE));
-
-                    if ui.add_sized([30., 30.], button).clicked() {
-                        app.theme = Visuals::dark();
-                        ctx.set_visuals(Visuals::dark());
-                    }
-                }
+                egui::ComboBox::from_id_source("settings_theme_combo_box")
+                    .width(200.0)
+                    .selected_text(app.state.active_theme.name())
+                    .show_ui(ui, |ui_combobox| {
+                        for theme in app.themes.iter() {
+                            let res: egui::Response = ui_combobox.selectable_value(
+                                &mut app.state.active_theme,
+                                theme.clone(),
+                                theme.name(),
+                            );
+                            if res.changed() {
+                                ui_combobox
+                                    .ctx()
+                                    .set_style(app.state.active_theme.custom_style());
+                            }
+                        }
+                    });
 
                 // Disk usage button.
                 let button = egui::Button::new(format!("{} show disk usage", AF_GAUGE_CODE));
@@ -99,7 +94,7 @@ pub fn render_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efram
                 if let Some(current_error) = &app.current_error {
                     ui.label(
                         RichText::new(format!("{} {}", AF_ERROR_CODE, current_error))
-                            .color(Color32::DARK_RED),
+                            .color(app.state.active_theme.fg_error_text_color_visuals()),
                     );
                 }
 
@@ -107,7 +102,7 @@ pub fn render_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efram
                 if let Some(current_info) = &app.current_info {
                     ui.label(
                         RichText::new(format!("{} {}", AF_INFO_CODE, current_info))
-                            .color(Color32::DARK_GREEN),
+                            .color(app.state.active_theme.fg_success_text_color_visuals()),
                     );
                 }
             });

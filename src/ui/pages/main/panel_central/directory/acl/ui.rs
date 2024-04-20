@@ -16,7 +16,7 @@ pub fn render_show_edit_acl(
     app: &mut DaenerysApp,
     ctx: &egui::Context,
     ui: &mut Ui,
-    acls: &Vec<AclEntry>,
+    acls: &[AclEntry],
     directory_button_clicked: Box<Directory>,
 ) {
     egui::Grid::new("acl_list").num_columns(3).show(ui, |ui| {
@@ -24,8 +24,8 @@ pub fn render_show_edit_acl(
             egui::Grid::new("acl_list_edit")
                 .num_columns(4)
                 .show(ui, |ui| {
-                    let mut sorted_acls = acls.clone();
-                    sorted_acls.sort_by(|a, b| {
+                    let sorted_acls = acls;
+                    sorted_acls.to_owned().sort_by(|a, b| {
                         let a_qualifier_cn = a.qualifier_cn.clone().unwrap_or_default();
                         let b_qualifier_cn = b.qualifier_cn.clone().unwrap_or_default();
 
@@ -82,11 +82,14 @@ pub fn render_show_edit_acl(
                                     Some(maybe_display_name) => match maybe_display_name {
                                         Some(display_name) => (
                                             format!("{} ({})", display_name, member),
-                                            egui::Color32::from_rgb(0, 0, 0),
+                                            app.state
+                                                .active_theme
+                                                .fg_primary_text_color_visuals()
+                                                .unwrap(),
                                         ),
                                         None => (
                                             format!("<invalid account> ({})", member),
-                                            egui::Color32::from_rgb(255, 0, 0),
+                                            app.state.active_theme.fg_warn_text_color_visuals(),
                                         ),
                                     },
                                     None => {
@@ -101,7 +104,13 @@ pub fn render_show_edit_acl(
                                             );
                                         }
 
-                                        (member.to_string(), egui::Color32::from_rgb(255, 165, 0))
+                                        (
+                                            member.to_string(),
+                                            app.state
+                                                .active_theme
+                                                .fg_primary_text_color_visuals()
+                                                .unwrap(),
+                                        )
                                     }
                                 };
 
