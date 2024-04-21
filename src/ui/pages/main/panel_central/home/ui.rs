@@ -1,11 +1,9 @@
 use egui::Ui;
 
-use crate::defines::{AF_HALF_LOCK_CODE, AF_LOCK_CODE};
-
 pub fn render_home(ui: &mut Ui) {
     ui.with_layout(egui::Layout::top_down(egui::Align::Center), |ui| {
         ui.add_sized(
-            [80., 80.],
+            [160., 160.],
             egui::Image::new(egui::include_image!("../../../../media/rust.svg")),
         );
     });

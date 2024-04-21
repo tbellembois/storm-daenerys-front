@@ -1,6 +1,6 @@
 [package]
 name = "storm_daenerys_front"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["Thomas Bellembois <thomas.bellembois@uca.fr]>"]
 description = "STORM Daenerys frontend"
 repository = "https://git.mesocentre.uca.fr/mesocentre/storm-daenerys-frontend"
