@@ -5,7 +5,6 @@ use egui::Frame;
 pub fn render_bottom_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut eframe::Frame) {
     egui::TopBottomPanel::bottom("footer")
         .min_height(60.)
-        .max_height(60.)
         .show_separator_line(true)
         .frame(Frame {
             inner_margin: app.state.active_theme.margin_style().into(),
@@ -15,12 +14,12 @@ pub fn render_bottom_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut ef
         })
         .show(ctx, |ui| {
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                // Logo associates.
+                ui.image(egui::include_image!("../../../media/partenaires.png"));
+
                 // Application version.
                 ui.label(app.app_version.clone());
                 ui.label(egui::RichText::new("version:").italics());
-
-                // Logo associates.
-                ui.image(egui::include_image!("../../../media/partenaires.png"));
             });
         });
 }
