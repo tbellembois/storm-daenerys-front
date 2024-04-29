@@ -20,17 +20,7 @@ pub fn render_add_user(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui) 
         let button_label = format!("{} {}", AF_SEARCH_CODE, "search");
         let button = egui::Button::new(button_label);
 
-        if ui.add_sized([150., 30.], button).clicked() {
-            app.is_working = true;
-            app.get_users_promise = Some(api::user::get_users(
-                ctx,
-                app.user_search.clone(),
-                app.api_url.clone(),
-            ));
-        }
-
-        // Search user input.
-        if ctx.input(|i| i.key_pressed(Key::Enter)) {
+        if ui.add_sized([150., 30.], button).clicked() || ctx.input(|i| i.key_pressed(Key::Enter)) {
             app.is_working = true;
             app.get_users_promise = Some(api::user::get_users(
                 ctx,
@@ -48,12 +38,36 @@ pub fn render_add_user(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui) 
             .id_source("group_search_user_scroll")
             .max_height(scroll_height)
             .show(ui, |ui| {
-                for user in app.users.as_ref().unwrap() {
+                for user in app.users.as_ref().unwrap().clone() {
                     if ui
                         .link(format!("{} [{}]", user.clone().display, user.clone().id))
                         .clicked()
                     {
-                        app.edited_group_add_user = Some(user.id.clone());
+                        // Find already exist.
+                        let mut found: bool = false;
+
+                        if app.active_group.as_ref().unwrap().member.is_some() {
+                            for m in app.active_group.as_ref().unwrap().member.as_ref().unwrap() {
+                                if m.eq(&user.id.clone()) {
+                                    found = true;
+                                }
+                            }
+                        } else {
+                            app.active_group.as_mut().unwrap().member = Some(Vec::new());
+                        }
+
+                        if !found {
+                            app.active_group
+                                .as_mut()
+                                .unwrap()
+                                .member
+                                .as_mut()
+                                .unwrap()
+                                .push(user.id.clone().to_string());
+
+                            app.user_search = "".to_string();
+                            app.users = None;
+                        }
                     }
                 }
             });

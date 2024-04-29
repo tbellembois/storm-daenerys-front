@@ -7,7 +7,7 @@ use crate::{
 use egui::Ui;
 
 pub fn render_show_edit_member(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui) {
-    match &app.active_group.as_ref().unwrap().member {
+    match &app.active_group.as_ref().unwrap().clone().member {
         Some(members) => {
             let scroll_height = ui.available_height() - 150.;
 
@@ -81,8 +81,16 @@ pub fn render_show_edit_member(app: &mut DaenerysApp, ctx: &egui::Context, ui: &
                                         format!("{} {}", AF_DELETE_CODE, "delete member");
                                     let button = egui::Button::new(button_label);
 
-                                    if ui.add_sized([150., 25.], button).clicked() {
-                                        app.edited_group_remove_member = Some(member.to_string());
+                                    if ui.add_sized([150., 25.], button).clicked()
+                                        && app.active_group.as_ref().unwrap().member.is_some()
+                                    {
+                                        app.active_group
+                                            .as_mut()
+                                            .unwrap()
+                                            .member
+                                            .as_mut()
+                                            .unwrap()
+                                            .retain(|u| u.ne(&member.to_string()));
                                     }
                                 }
 

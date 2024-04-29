@@ -150,26 +150,15 @@ pub struct DaenerysApp {
     // Active group been showned/edited.
     pub active_group: Option<Box<Group>>,
 
-    // Directory name input of the create directory form.
-    pub create_directory_name: String,
-
     // Edit group clicked - backup before edition.
     pub edit_group_clicked_backup: Option<Box<Group>>,
 
-    // Clicking on a user (after user search click): user id to add in the edited directory.
-    pub edited_directory_add_user: Option<String>,
-    // Clicking on a group : group cn to add in the edited directory.
-    pub edited_directory_add_group: Option<String>,
+    // Directory name input of the create directory form.
+    pub create_directory_name: String,
     // Directory quota.
     pub edited_directory_quota: String,
     // Directory quota unit.
     pub edited_directory_quota_unit: QuotaUnit,
-    // Clicking on a user (after user search click): user id to add in the edited group.
-    pub edited_group_add_user: Option<String>,
-
-    // Clicking on the delete member button: user_cn to remove of the edited group.
-    pub edited_group_remove_member: Option<String>,
-
     // User search input of the add user form.
     pub user_search: String,
     // Groupe name and description input of the create group form.
@@ -209,10 +198,6 @@ impl Default for DaenerysApp {
             current_error: Default::default(),
             current_info: Default::default(),
             edit_group_clicked_backup: Default::default(),
-            edited_directory_add_user: Default::default(),
-            edited_directory_add_group: Default::default(),
-            edited_group_add_user: Default::default(),
-            edited_group_remove_member: Default::default(),
             user_search: Default::default(),
             create_group_name: Default::default(),
             create_group_description: Default::default(),
@@ -689,138 +674,6 @@ impl eframe::App for DaenerysApp {
                     };
                 }
             }
-        }
-
-        // Check directory add user.
-        if let Some(edited_directory_add_user) = &self.edited_directory_add_user {
-            // Find already exist.
-            let mut found: bool = false;
-            for acl in &self.active_directory.as_ref().unwrap().acls {
-                if let Qualifier::User(_) = acl.qualifier {
-                    if acl
-                        .qualifier_cn
-                        .as_ref()
-                        .unwrap()
-                        .eq(edited_directory_add_user)
-                    {
-                        found = true;
-                    }
-                }
-            }
-
-            if !found {
-                self.active_directory.as_mut().unwrap().acls.push(AclEntry {
-                    qualifier: storm_daenerys_common::types::acl::Qualifier::User(0), // FIXME
-                    qualifier_cn: Some(edited_directory_add_user.to_string()),
-                    qualifier_display: Some(edited_directory_add_user.to_string()),
-                    perm: 7,
-                });
-
-                self.user_search = "".to_string();
-                self.users = None;
-            }
-
-            self.edited_directory_add_user = None;
-        }
-
-        // Check directory add group.
-        if let Some(edited_directory_add_group) = &self.edited_directory_add_group {
-            // Find already exist.
-            let mut found: bool = false;
-            for acl in &self.active_directory.as_ref().unwrap().acls {
-                if let Qualifier::Group(_) = acl.qualifier {
-                    if acl
-                        .qualifier_cn
-                        .as_ref()
-                        .unwrap()
-                        .eq(edited_directory_add_group)
-                    {
-                        found = true;
-                    }
-                }
-            }
-
-            if !found {
-                self.active_directory.as_mut().unwrap().acls.push(AclEntry {
-                    qualifier: storm_daenerys_common::types::acl::Qualifier::Group(0), // FIXME
-                    qualifier_cn: Some(edited_directory_add_group.to_string()),
-                    qualifier_display: Some(edited_directory_add_group.to_string()),
-                    perm: 7,
-                });
-            }
-
-            self.edited_directory_add_group = None;
-        }
-
-        // Check directory acl read_only change.
-        // if let Some(edited_directory_toogle_read_only) = &self.edited_directory_toogle_read_only {
-        //     if self.active_directory.is_some() {
-        //         let (qualifier_cn, read_only) = edited_directory_toogle_read_only;
-
-        //         for acl in self.active_directory.as_mut().unwrap().acls.iter_mut() {
-        //             // FIXME
-        //             // Keep only necessary acls.
-        //             match acl.qualifier {
-        //                 Qualifier::User(_) => (),
-        //                 Qualifier::Group(_) => (),
-        //                 _ => continue,
-        //             }
-
-        //             if acl.qualifier_cn.as_ref().unwrap().eq(qualifier_cn) {
-        //                 if *read_only {
-        //                     acl.perm = 5;
-        //                 } else {
-        //                     acl.perm = 7;
-        //                 }
-        //             }
-        //         }
-        //     };
-        // }
-
-        // Check group add user.
-        if let Some(edited_group_add_user) = &self.edited_group_add_user {
-            // Find already exist.
-            let mut found: bool = false;
-
-            if self.active_group.as_ref().unwrap().member.is_some() {
-                for m in self.active_group.as_ref().unwrap().member.as_ref().unwrap() {
-                    if m.eq(edited_group_add_user) {
-                        found = true;
-                    }
-                }
-            } else {
-                self.active_group.as_mut().unwrap().member = Some(Vec::new());
-            }
-
-            if !found {
-                self.active_group
-                    .as_mut()
-                    .unwrap()
-                    .member
-                    .as_mut()
-                    .unwrap()
-                    .push(edited_group_add_user.to_string());
-
-                self.user_search = "".to_string();
-                self.users = None;
-            }
-
-            self.edited_group_add_user = None;
-        }
-
-        // Check group remove user.
-        if let Some(edited_group_remove_member) = &self.edited_group_remove_member {
-            if self.active_group.as_ref().unwrap().member.is_some() {
-                self.active_group
-                    .as_mut()
-                    .unwrap()
-                    .member
-                    .as_mut()
-                    .unwrap()
-                    .retain(|u| u.ne(edited_group_remove_member));
-            }
-
-            self.edited_group_remove_member = None;
         }
 
         // Render page only when admin and group prefix are retrieved.
