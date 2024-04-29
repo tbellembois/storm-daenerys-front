@@ -1,6 +1,9 @@
+use super::state::{ApplicationState, Page};
 use crate::api;
 use crate::error::apperror::AppError;
 use crate::ui::pages::main;
+use crate::worker::builder::Worker;
+use crate::worker::message::{ToApp, ToWorker};
 use eframe::{egui, CreationContext};
 use egui::Vec2;
 use egui_aesthetix::themes::{CarlDark, StandardDark, StandardLight};
@@ -9,8 +12,11 @@ use poll_promise::Promise;
 use regex::Regex;
 use std::cmp::Ordering;
 use std::collections::HashMap;
+use std::fmt::Display;
 use std::rc::Rc;
+use std::sync::mpsc::{self, Receiver, Sender};
 use std::sync::Once;
+use std::thread;
 use storm_daenerys_common::defines::{
     DIRECTORY_NAME_RE_STRING, GROUP_CN_RE_STRING, QUOTA_FORMAT_RE_STRING,
 };
@@ -22,73 +28,89 @@ use storm_daenerys_common::types::quota::QuotaUnit;
 use storm_daenerys_common::types::user::User;
 use storm_daenerys_common::types::{acl::AclEntry, directory::Directory};
 
-use super::state::{ApplicationState, Page};
-
 static START: Once = Once::new();
+
+#[derive(PartialEq)]
+pub enum Action {
+    Home,
+    DiskUsage,
+    DirectoryEdit,
+    DirectoryCreate,
+    DirectoryEditAcl,
+    DirectoryEditQuota,
+    DirectoryEditAclAddUser,
+    DirectoryEditAclAddGroup,
+    GroupEdit,
+    GroupCreate,
+    GroupEditDeleteConfirm,
+    GroupEditAddUser,
+    GroupEditUsers,
+}
+
+impl Display for Action {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Action::Home => write!(f, "home"),
+            Action::DirectoryCreate => write!(f, "directory_create"),
+            Action::DirectoryEdit => write!(f, "directory_edit"),
+            Action::DirectoryEditAcl => write!(f, "directory_edit_acl"),
+            Action::DirectoryEditQuota => write!(f, "directory_edit_quota"),
+            Action::DirectoryEditAclAddUser => write!(f, "directory_edit_acl_add_user"),
+            Action::DirectoryEditAclAddGroup => write!(f, "directory_edit_acl_add_group"),
+            Action::GroupEdit => write!(f, "group_edit"),
+            Action::GroupCreate => write!(f, "group_create"),
+            Action::GroupEditDeleteConfirm => write!(f, "group_edit_delete_confirm"),
+            Action::GroupEditAddUser => write!(f, "group_edit_add_user"),
+            Action::GroupEditUsers => write!(f, "group_edit_users"),
+            Action::DiskUsage => write!(f, "disk_usage"),
+        }
+    }
+}
 
 pub struct DaenerysApp {
     // Application state.
     pub state: ApplicationState,
-
+    // Action in progress.
+    pub active_action: Action,
     // Holds the supported themes that the user can switch between.
     pub themes: Vec<Rc<dyn Aesthetix>>,
-
-    // True when application loads, false afterwards.
-    pub application_just_loaded: bool,
-
     // Application version.
     pub app_version: String,
-
     // API URL.
     pub api_url: String,
-
     // Group name regex.
     pub group_cn_re: Regex,
-
     // Directory name regex.
     pub directory_name_re: Regex,
-
     // Quota format regex.
     pub quota_format_re: Regex,
-
     // Central panel available size.
     pub central_panel_available_size: Vec2,
-
     // Disk usage.
     pub du: Option<String>,
     // Quota.
     pub quota: Option<Quota>,
-
     // Admin of the STORM space.
     pub admin: Option<String>,
-
     // Connected user.
     pub connected_user: Option<String>,
-
     // Admin restriction of the connected user.
     pub current_admin_restriction: Option<String>,
-
     // Group prefix.
     pub group_prefix: Option<String>,
-
     // Root groups.
     pub root_groups: Option<Vec<String>>,
-
     // Directory list.
     pub directories: Option<Vec<Directory>>,
-
     // Group list.
     pub groups: Option<Vec<Group>>,
-
     // User list.
     pub users: Option<Vec<User>>,
 
     // Promise returned when calling the backend GET /du endpoint.
     pub get_du_promise: Option<Promise<Result<Option<String>, String>>>,
-
     // Promise returned when calling the backend GET /config endpoint.
     pub get_config_prefix_promise: Option<Promise<Result<Config, String>>>,
-
     // Promise returned when calling the backend GET /folders endpoint.
     pub get_directories_promise: Option<Promise<Result<Option<Vec<Directory>>, String>>>,
     // Promise returned when calling the backend GET /groups endpoint.
@@ -101,76 +123,39 @@ pub struct DaenerysApp {
     pub save_directory_acl_promise: Option<Promise<Result<(), String>>>,
     // Promise returned when calling the backend POST /quota endpoint.
     pub save_directory_quota_promise: Option<Promise<Result<(), String>>>,
-
     // Promises returned when calling the backend GET /userdisplay endpoint.
     pub get_user_display_promises: HashMap<String, Option<Promise<Result<Option<String>, String>>>>,
-    // User display name cache.
-    pub user_display_cache: HashMap<String, Option<String>>,
-
     // Promises returned when calling save_group.
     pub save_group_promises: Option<Vec<Promise<Result<(), std::string::String>>>>,
-    // Promises returned when calling the backend POST /group endpoint.
+    // Promise returned when calling the backend POST /group endpoint.
     pub create_group_promise: Option<Promise<Result<(), String>>>,
     // Promise return when calling the backend DELETE /groups/:cn endpoint.
     pub delete_group_promise: Option<Promise<Result<(), String>>>,
 
+    // User display name cache.
+    pub user_display_cache: HashMap<String, Option<String>>,
+
     // Channels for communication beetween
     // application (GUI) and worker.
-    // pub sender: Option<Sender<ToWorker>>,
-    // receiver: Option<Receiver<ToApp>>,
+    pub sender: Option<Sender<ToWorker>>,
+    receiver: Option<Receiver<ToApp>>,
 
     // Current error if one.
     pub current_error: Option<AppError>,
     // Current info if one.
     pub current_info: Option<String>,
 
-    //
-    // UI widget states
-    //
-    // Directory button clicked.
-    // pub display_directory_button_clicked: Option<Directory>,
-    // Group button clicked.
-    // pub display_group_button_clicked: Option<Group>,
-
-    // Directory button clicked.
-    pub directory_button_clicked: Option<Box<Directory>>,
-    // Group button clicked.
-    pub group_button_clicked: Option<Box<Group>>,
-
-    // Directory ACL's edition.
-    pub is_directory_acl_editing: bool,
-    // Directory quota edition.
-    pub is_directory_quota_editing: bool,
-    // Group edition.
-    pub is_group_editing: bool,
-
-    // Create group.
-    pub create_group_clicked: bool,
-    // Create directory.
-    pub create_directory_clicked: bool,
+    // Active directory been showned/edited.
+    pub active_directory: Option<Box<Directory>>,
+    // Active group been showned/edited.
+    pub active_group: Option<Box<Group>>,
 
     // Directory name input of the create directory form.
     pub create_directory_name: String,
 
-    // Edit directory clicked.
-    // pub edit_directory_clicked: Option<Box<Directory>>,
-    // Edit group clicked.
-    // pub edit_group_clicked: Option<Group>,
     // Edit group clicked - backup before edition.
     pub edit_group_clicked_backup: Option<Box<Group>>,
-    // Add user clicked.
-    pub edit_directory_add_user_clicked: bool,
-    // Add group clicked.
-    pub edit_directory_add_group_clicked: bool,
-    // Add user clicked.
-    pub edit_group_add_user_clicked: bool,
-    // Confirm delete.
-    pub edit_group_delete_confirm: bool,
 
-    // Clicking on the delete ACL button: ACL qualifier_cn to remove of the edited directory.
-    pub edited_directory_remove_acl: Option<String>,
-    // Clicking on the ACL read_only checkbox: ACL qualifier_cn of the read_only to set of the edited directory.
-    pub edited_directory_toogle_read_only: Option<(String, bool)>,
     // Clicking on a user (after user search click): user id to add in the edited directory.
     pub edited_directory_add_user: Option<String>,
     // Clicking on a group : group cn to add in the edited directory.
@@ -193,10 +178,8 @@ pub struct DaenerysApp {
 
     // Spinner? shown on API calls.
     pub is_working: bool,
-
     // Show/hide directory list.
     pub show_directory_list: bool,
-
     // Show/hide group list.
     pub show_group_list: bool,
 }
@@ -204,7 +187,6 @@ pub struct DaenerysApp {
 impl Default for DaenerysApp {
     fn default() -> Self {
         Self {
-            application_just_loaded: true,
             app_version: Default::default(),
             is_working: Default::default(),
             group_cn_re: Regex::new(GROUP_CN_RE_STRING).unwrap(),
@@ -226,15 +208,7 @@ impl Default for DaenerysApp {
             delete_group_promise: Default::default(),
             current_error: Default::default(),
             current_info: Default::default(),
-            create_group_clicked: Default::default(),
-            create_directory_clicked: Default::default(),
             edit_group_clicked_backup: Default::default(),
-            edit_directory_add_user_clicked: Default::default(),
-            edit_directory_add_group_clicked: Default::default(),
-            edit_group_add_user_clicked: Default::default(),
-            edit_group_delete_confirm: Default::default(),
-            edited_directory_remove_acl: Default::default(),
-            edited_directory_toogle_read_only: Default::default(),
             edited_directory_add_user: Default::default(),
             edited_directory_add_group: Default::default(),
             edited_group_add_user: Default::default(),
@@ -243,11 +217,8 @@ impl Default for DaenerysApp {
             create_group_name: Default::default(),
             create_group_description: Default::default(),
             create_directory_name: Default::default(),
-            directory_button_clicked: Default::default(),
-            is_directory_acl_editing: Default::default(),
-            is_directory_quota_editing: Default::default(),
-            group_button_clicked: Default::default(),
-            is_group_editing: Default::default(),
+            active_directory: Default::default(),
+            active_group: Default::default(),
             admin: Default::default(),
             current_admin_restriction: Default::default(),
             api_url: "http://localhost:3000".to_string(),
@@ -265,6 +236,9 @@ impl Default for DaenerysApp {
             edited_directory_quota_unit: QuotaUnit::Megabyte,
             state: Default::default(),
             themes: Default::default(),
+            sender: Default::default(),
+            receiver: Default::default(),
+            active_action: Action::Home,
         }
     }
 }
@@ -272,26 +246,21 @@ impl Default for DaenerysApp {
 impl DaenerysApp {
     pub fn new(cc: &CreationContext, api_url: String, app_version: String) -> Self {
         // Create channels.
-        // let (app_tx, app_rx) = mpsc::channel();
-        // let (worker_tx, worker_rx) = mpsc::channel();
+        let (app_tx, app_rx) = mpsc::channel();
+        let (worker_tx, worker_rx) = mpsc::channel();
 
-        // let context = cc.egui_ctx.clone();
-
-        //info!("Spawning new worker.");
+        dbg!("Spawning new worker.");
 
         // Spawn a thread with a new worker.
-        // thread::spawn(move || {
-        //     Worker::new(worker_tx, app_rx, context).init();
-        // });
+        let context = cc.egui_ctx.clone();
+        thread::spawn(move || {
+            Worker::new(worker_tx, app_rx, context).init();
+        });
 
-        // info!("New worker spawned.");
-
-        // app.sender = Some(app_tx);
-        // app.receiver = Some(worker_rx);
+        dbg!("New worker spawned.");
 
         // Load custom fonts and styles.
         setup_custom_fonts(&cc.egui_ctx);
-        // setup_custom_styles(&cc.egui_ctx);
 
         // Load themes.
         let themes: Vec<Rc<dyn Aesthetix>> = vec![
@@ -311,13 +280,14 @@ impl DaenerysApp {
         cc.egui_ctx.set_style(state.active_theme.custom_style());
 
         // Create application.
-
         DaenerysApp {
             group_cn_re: Regex::new(GROUP_CN_RE_STRING).unwrap(),
             app_version,
             api_url,
             state,
             themes,
+            sender: Some(app_tx),
+            receiver: Some(worker_rx),
             ..Default::default()
         }
     }
@@ -378,6 +348,8 @@ impl eframe::App for DaenerysApp {
                     match try_du {
                         Ok(du) => {
                             self.du = du.clone();
+
+                            self.active_action = Action::DiskUsage;
                             self.get_du_promise = None;
                         }
                         Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
@@ -427,12 +399,65 @@ impl eframe::App for DaenerysApp {
                     match try_directories {
                         Ok(directories) => {
                             self.directories = directories.clone();
+
                             if self.directories.is_some() {
+                                // Filter directory ACLs.
+                                for directory in self.directories.as_mut().unwrap() {
+                                    directory.acls.retain(|acl| {
+                                        if acl.perm == 0 {
+                                            false
+                                        } else {
+                                            matches!(
+                                                acl.qualifier,
+                                                Qualifier::User(_) | Qualifier::Group(_)
+                                            )
+                                        }
+                                    });
+                                }
+
+                                // Get display name for each user of the ACLs.
+                                for directory in self.directories.as_mut().unwrap() {
+                                    for acl in directory.acls.iter_mut() {
+                                        let qualifier_cn = acl.qualifier_cn.clone().unwrap();
+
+                                        acl.qualifier_display = match self
+                                            .user_display_cache
+                                            .get(&qualifier_cn)
+                                        {
+                                            Some(maybe_display_name) => match maybe_display_name {
+                                                Some(display_name) => {
+                                                    Some(display_name.to_string())
+                                                }
+                                                None => Some(format!(
+                                                    "<invalid account> ({})",
+                                                    &qualifier_cn
+                                                )),
+                                            },
+                                            None => {
+                                                if !self
+                                                    .get_user_display_promises
+                                                    .contains_key(&qualifier_cn)
+                                                {
+                                                    self.get_user_display_promises.insert(
+                                                        qualifier_cn.clone(),
+                                                        Some(api::user::get_user_display(
+                                                            ctx,
+                                                            qualifier_cn.clone(),
+                                                            self.api_url.clone(),
+                                                        )),
+                                                    );
+                                                }
+
+                                                Some(qualifier_cn)
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // Sort directories.
                                 self.directories.as_mut().unwrap().sort();
                             }
 
-                            self.directory_button_clicked = None;
-                            self.edited_directory_toogle_read_only = None;
                             self.get_directories_promise = None;
                         }
                         Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
@@ -639,7 +664,6 @@ impl eframe::App for DaenerysApp {
                                 })
                             }
 
-                            self.group_button_clicked = None;
                             self.get_groups_promise = None;
                         }
                         Err(e) => self.current_error = Some(AppError::InternalError(e.to_string())),
@@ -667,27 +691,11 @@ impl eframe::App for DaenerysApp {
             }
         }
 
-        // Check directory remove user or group (acl).
-        if let Some(edited_directory_remove_acl) = &self.edited_directory_remove_acl {
-            self.directory_button_clicked
-                .as_mut()
-                .unwrap()
-                .acls
-                .retain(|a| {
-                    match a.qualifier_cn.clone() {
-                        Some(qualidier_cn) => qualidier_cn.ne(edited_directory_remove_acl),
-                        None => true, // non User(u) or Group(g) acl
-                    }
-                });
-
-            self.edited_directory_remove_acl = None;
-        }
-
         // Check directory add user.
         if let Some(edited_directory_add_user) = &self.edited_directory_add_user {
             // Find already exist.
             let mut found: bool = false;
-            for acl in &self.directory_button_clicked.as_ref().unwrap().acls {
+            for acl in &self.active_directory.as_ref().unwrap().acls {
                 if let Qualifier::User(_) = acl.qualifier {
                     if acl
                         .qualifier_cn
@@ -701,15 +709,12 @@ impl eframe::App for DaenerysApp {
             }
 
             if !found {
-                self.directory_button_clicked
-                    .as_mut()
-                    .unwrap()
-                    .acls
-                    .push(AclEntry {
-                        qualifier: storm_daenerys_common::types::acl::Qualifier::User(0), // FIXME
-                        qualifier_cn: Some(edited_directory_add_user.to_string()),
-                        perm: 7,
-                    });
+                self.active_directory.as_mut().unwrap().acls.push(AclEntry {
+                    qualifier: storm_daenerys_common::types::acl::Qualifier::User(0), // FIXME
+                    qualifier_cn: Some(edited_directory_add_user.to_string()),
+                    qualifier_display: Some(edited_directory_add_user.to_string()),
+                    perm: 7,
+                });
 
                 self.user_search = "".to_string();
                 self.users = None;
@@ -722,7 +727,7 @@ impl eframe::App for DaenerysApp {
         if let Some(edited_directory_add_group) = &self.edited_directory_add_group {
             // Find already exist.
             let mut found: bool = false;
-            for acl in &self.directory_button_clicked.as_ref().unwrap().acls {
+            for acl in &self.active_directory.as_ref().unwrap().acls {
                 if let Qualifier::Group(_) = acl.qualifier {
                     if acl
                         .qualifier_cn
@@ -736,75 +741,59 @@ impl eframe::App for DaenerysApp {
             }
 
             if !found {
-                self.directory_button_clicked
-                    .as_mut()
-                    .unwrap()
-                    .acls
-                    .push(AclEntry {
-                        qualifier: storm_daenerys_common::types::acl::Qualifier::Group(0), // FIXME
-                        qualifier_cn: Some(edited_directory_add_group.to_string()),
-                        perm: 7,
-                    });
+                self.active_directory.as_mut().unwrap().acls.push(AclEntry {
+                    qualifier: storm_daenerys_common::types::acl::Qualifier::Group(0), // FIXME
+                    qualifier_cn: Some(edited_directory_add_group.to_string()),
+                    qualifier_display: Some(edited_directory_add_group.to_string()),
+                    perm: 7,
+                });
             }
 
             self.edited_directory_add_group = None;
         }
 
         // Check directory acl read_only change.
-        if let Some(edited_directory_toogle_read_only) = &self.edited_directory_toogle_read_only {
-            if self.directory_button_clicked.is_some() {
-                let (qualifier_cn, read_only) = edited_directory_toogle_read_only;
+        // if let Some(edited_directory_toogle_read_only) = &self.edited_directory_toogle_read_only {
+        //     if self.active_directory.is_some() {
+        //         let (qualifier_cn, read_only) = edited_directory_toogle_read_only;
 
-                for acl in self
-                    .directory_button_clicked
-                    .as_mut()
-                    .unwrap()
-                    .acls
-                    .iter_mut()
-                {
-                    // FIXME
-                    // Keep only necessary acls.
-                    match acl.qualifier {
-                        Qualifier::User(_) => (),
-                        Qualifier::Group(_) => (),
-                        _ => continue,
-                    }
+        //         for acl in self.active_directory.as_mut().unwrap().acls.iter_mut() {
+        //             // FIXME
+        //             // Keep only necessary acls.
+        //             match acl.qualifier {
+        //                 Qualifier::User(_) => (),
+        //                 Qualifier::Group(_) => (),
+        //                 _ => continue,
+        //             }
 
-                    if acl.qualifier_cn.as_ref().unwrap().eq(qualifier_cn) {
-                        if *read_only {
-                            acl.perm = 5;
-                        } else {
-                            acl.perm = 7;
-                        }
-                    }
-                }
-            };
-        }
+        //             if acl.qualifier_cn.as_ref().unwrap().eq(qualifier_cn) {
+        //                 if *read_only {
+        //                     acl.perm = 5;
+        //                 } else {
+        //                     acl.perm = 7;
+        //                 }
+        //             }
+        //         }
+        //     };
+        // }
 
         // Check group add user.
         if let Some(edited_group_add_user) = &self.edited_group_add_user {
             // Find already exist.
             let mut found: bool = false;
 
-            if self.group_button_clicked.as_ref().unwrap().member.is_some() {
-                for m in self
-                    .group_button_clicked
-                    .as_ref()
-                    .unwrap()
-                    .member
-                    .as_ref()
-                    .unwrap()
-                {
+            if self.active_group.as_ref().unwrap().member.is_some() {
+                for m in self.active_group.as_ref().unwrap().member.as_ref().unwrap() {
                     if m.eq(edited_group_add_user) {
                         found = true;
                     }
                 }
             } else {
-                self.group_button_clicked.as_mut().unwrap().member = Some(Vec::new());
+                self.active_group.as_mut().unwrap().member = Some(Vec::new());
             }
 
             if !found {
-                self.group_button_clicked
+                self.active_group
                     .as_mut()
                     .unwrap()
                     .member
@@ -821,8 +810,8 @@ impl eframe::App for DaenerysApp {
 
         // Check group remove user.
         if let Some(edited_group_remove_member) = &self.edited_group_remove_member {
-            if self.group_button_clicked.as_ref().unwrap().member.is_some() {
-                self.group_button_clicked
+            if self.active_group.as_ref().unwrap().member.is_some() {
+                self.active_group
                     .as_mut()
                     .unwrap()
                     .member

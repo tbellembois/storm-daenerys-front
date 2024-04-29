@@ -1,5 +1,8 @@
 use super::{directory::render_directory_list, group::render_group_list, quota::render_quota};
-use crate::ui::daenerys::DaenerysApp;
+use crate::{
+    defines::AF_ADD_CODE,
+    ui::daenerys::{Action, DaenerysApp},
+};
 use eframe::egui::{self, Context};
 use egui::Frame;
 
@@ -37,17 +40,14 @@ pub fn render_left_panel(app: &mut DaenerysApp, ctx: &Context) {
             ui.add_space(20.0);
 
             // Create directory button.
-            let button_label = format!("{} {}", crate::defines::AF_ADD_CODE, "create directory");
-
+            let button_label = format!("{} {}", AF_ADD_CODE, "create directory");
             let button = egui::Button::new(button_label);
 
             if ui.add_sized([150., 30.], button).clicked() {
-                app.create_directory_clicked = true;
-                app.create_group_clicked = false;
-                app.directory_button_clicked = None;
-                app.group_button_clicked = None;
-                app.is_directory_acl_editing = false;
-                app.is_group_editing = false;
+                app.active_action = Action::DirectoryCreate;
+
+                app.active_directory = None;
+                app.active_group = None;
                 app.du = None;
 
                 app.create_directory_name.clear();
@@ -63,16 +63,14 @@ pub fn render_left_panel(app: &mut DaenerysApp, ctx: &Context) {
             ui.add_space(20.0);
 
             // Create group button.
-            let button_label = format!("{} {}", crate::defines::AF_ADD_CODE, "create group");
+            let button_label = format!("{} {}", AF_ADD_CODE, "create group");
             let button = egui::Button::new(button_label);
 
             if ui.add_sized([150., 30.], button).clicked() {
-                app.create_group_clicked = true;
-                app.create_directory_clicked = false;
-                app.directory_button_clicked = None;
-                app.group_button_clicked = None;
-                app.is_directory_acl_editing = false;
-                app.is_group_editing = false;
+                app.active_action = Action::GroupCreate;
+
+                app.active_directory = None;
+                app.active_group = None;
                 app.du = None;
 
                 app.create_group_name.clear();

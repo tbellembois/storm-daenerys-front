@@ -1,17 +1,12 @@
 use egui::Ui;
-use storm_daenerys_common::types::{
-    directory::Directory,
-    quota::{QuotaUnit, SetQuota},
+use storm_daenerys_common::types::quota::{QuotaUnit, SetQuota};
+
+use crate::{
+    api::quota::save_quota, defines::AF_SAVE_CODE, error::apperror::AppError,
+    ui::daenerys::DaenerysApp,
 };
 
-use crate::{api::quota::save_quota, error::apperror::AppError, ui::daenerys::DaenerysApp};
-
-pub fn render_edit_quota(
-    app: &mut DaenerysApp,
-    ctx: &egui::Context,
-    ui: &mut Ui,
-    directory_button_clicked: Box<Directory>,
-) {
+pub fn render_edit_quota(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui) {
     ui.label("Set quota to 0 to remove it.");
 
     ui.add_space(10.0);
@@ -55,11 +50,11 @@ pub fn render_edit_quota(
     }
 
     ui.add_enabled_ui(enabled, |ui| {
-        let button_label = format!("{} {}", crate::defines::AF_SAVE_CODE, "save");
+        let button_label = format!("{} {}", AF_SAVE_CODE, "save");
         let button = egui::Button::new(button_label);
 
         if ui.add_sized([150., 30.], button).clicked() {
-            let directory_name = directory_button_clicked.name.clone();
+            let directory_name = app.active_directory.as_ref().unwrap().name.clone();
 
             app.current_info = Some(format!("saving quota for {}", directory_name));
 

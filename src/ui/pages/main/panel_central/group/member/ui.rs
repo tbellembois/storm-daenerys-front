@@ -1,21 +1,13 @@
-use egui::Ui;
-use storm_daenerys_common::types::group::Group;
-
+use super::add_user::render_add_user;
 use crate::{
     api::{self, group::save_group},
-    ui::daenerys::DaenerysApp,
+    defines::{AF_ADD_CODE, AF_DELETE_CODE, AF_SAVE_CODE},
+    ui::daenerys::{Action, DaenerysApp},
 };
+use egui::Ui;
 
-use super::add_user::render_add_user;
-
-pub fn render_show_edit_member(
-    app: &mut DaenerysApp,
-    ctx: &egui::Context,
-    ui: &mut Ui,
-    group_button_clicked: Box<Group>,
-    _is_group_invite: bool,
-) {
-    match &group_button_clicked.member {
+pub fn render_show_edit_member(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui) {
+    match &app.active_group.as_ref().unwrap().member {
         Some(members) => {
             let scroll_height = ui.available_height() - 150.;
 
@@ -83,13 +75,10 @@ pub fn render_show_edit_member(
 
                                 ui.label(egui::RichText::new(display).color(color));
 
-                                if app.is_group_editing && !app.edit_group_add_user_clicked {
+                                if app.active_action == Action::GroupEditUsers {
                                     // Delete member button.
-                                    let button_label = format!(
-                                        "{} {}",
-                                        crate::defines::AF_DELETE_CODE,
-                                        "delete member"
-                                    );
+                                    let button_label =
+                                        format!("{} {}", AF_DELETE_CODE, "delete member");
                                     let button = egui::Button::new(button_label);
 
                                     if ui.add_sized([150., 25.], button).clicked() {
@@ -108,41 +97,42 @@ pub fn render_show_edit_member(
     }
 
     // Add user button.
-    if !app.is_working && app.is_group_editing {
+    if !app.is_working && app.active_action == Action::GroupEditUsers {
         ui.add_space(20.0);
 
         ui.horizontal_top(|ui| {
-            let button_label = format!("{} {}", crate::defines::AF_ADD_CODE, "add user");
+            let button_label = format!("{} {}", AF_ADD_CODE, "add user");
             let button = egui::Button::new(button_label);
 
-            if !app.edit_group_add_user_clicked && ui.add_sized([150., 30.], button).clicked() {
-                app.edit_group_add_user_clicked = true;
+            if ui.add_sized([150., 30.], button).clicked() {
+                app.active_action = Action::GroupEditAddUser;
             }
         });
-    }
 
-    ui.add_space(20.0);
+        ui.add_space(20.0);
 
-    // Save button.
-    if app.is_group_editing && !app.edit_group_add_user_clicked {
-        let button_label = format!("{} {}", crate::defines::AF_SAVE_CODE, "save");
+        // Save button.
+        let button_label = format!("{} {}", AF_SAVE_CODE, "save");
         let button = egui::Button::new(button_label);
 
         if ui.add_sized([150., 30.], button).clicked() {
-            app.current_info = Some(format!("saving group {}", group_button_clicked.cn));
+            app.current_info = Some(format!(
+                "saving group {}",
+                app.active_group.as_ref().unwrap().cn
+            ));
 
             app.is_working = true;
             app.save_group_promises = Some(save_group(
                 ctx,
                 *app.edit_group_clicked_backup.as_ref().unwrap().clone(),
-                *group_button_clicked.clone(),
+                *app.active_group.as_ref().unwrap().clone(),
                 app.api_url.clone(),
             ));
         }
     }
 
     // User add.
-    if app.edit_group_add_user_clicked {
+    if app.active_action == Action::GroupEditAddUser {
         render_add_user(app, ctx, ui)
     }
 }

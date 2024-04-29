@@ -1,7 +1,7 @@
 use crate::{
     api,
     defines::{AF_GROUP_CODE, AF_HALF_LOCK_CODE, AF_LOCK_CODE, AF_REFRESH_CODE},
-    ui::daenerys::DaenerysApp,
+    ui::daenerys::{Action, DaenerysApp},
 };
 use egui::Ui;
 
@@ -89,18 +89,12 @@ pub fn render_group_list(
 
                             // Save the clicked group name.
                             if ui.add_sized([200., 30.], button).clicked() {
-                                app.group_button_clicked = Some(Box::new(group.clone()));
+                                app.active_action = Action::GroupEdit;
+                                app.active_group = Some(Box::new(group.clone()));
 
-                                app.directory_button_clicked = None;
-                                app.is_directory_acl_editing = false;
-                                app.is_group_editing = false;
-                                app.edit_directory_add_user_clicked = false;
-                                app.edit_directory_add_group_clicked = false;
-                                app.create_group_clicked = false;
-                                app.create_directory_clicked = false;
+                                app.active_directory = None;
                                 app.current_error = None;
                                 app.current_info = None;
-                                app.edit_group_delete_confirm = false;
                                 app.du = None;
                             }
                         });

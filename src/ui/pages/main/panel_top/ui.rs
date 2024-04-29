@@ -7,7 +7,7 @@ use crate::{
         AF_CONNECTED_USER_CODE, AF_ERROR_CODE, AF_FOLDER_CODE, AF_GAUGE_CODE, AF_GROUP_CODE,
         AF_INFO_CODE,
     },
-    ui::daenerys::DaenerysApp,
+    ui::daenerys::{Action, DaenerysApp},
 };
 
 pub fn render_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut eframe::Frame) {
@@ -65,12 +65,6 @@ pub fn render_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efram
 
                 if ui.add_sized([150., 30.], button).clicked() {
                     app.is_working = true;
-                    app.create_group_clicked = false;
-                    app.create_directory_clicked = false;
-                    app.directory_button_clicked = None;
-                    app.group_button_clicked = None;
-                    app.is_directory_acl_editing = false;
-                    app.is_group_editing = false;
 
                     let available_width = app.central_panel_available_size.x;
                     let du_width = available_width as u32;

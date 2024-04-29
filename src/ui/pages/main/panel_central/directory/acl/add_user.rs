@@ -1,13 +1,13 @@
-use crate::{api, ui::daenerys::DaenerysApp};
+use crate::{
+    api,
+    defines::{AF_CANCEL_CODE, AF_SEARCH_CODE},
+    ui::daenerys::{Action, DaenerysApp},
+};
 use egui::{Key, Ui};
-use storm_daenerys_common::types::directory::Directory;
 
-pub fn render_add_user(
-    app: &mut DaenerysApp,
-    ctx: &egui::Context,
-    ui: &mut Ui,
-    _directory_button_clicked: Box<Directory>,
-) {
+pub fn render_add_user(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui) {
+    ui.add_space(20.0);
+
     // Search user form.
     ui.horizontal_top(|ui| {
         ui.add_sized(
@@ -17,7 +17,7 @@ pub fn render_add_user(
         );
 
         // Search user button.
-        let button_label = format!("{} {}", crate::defines::AF_SEARCH_CODE, "search");
+        let button_label = format!("{} {}", AF_SEARCH_CODE, "search");
         let button = egui::Button::new(button_label);
 
         if ui.add_sized([150., 30.], button).clicked() {
@@ -47,8 +47,6 @@ pub fn render_add_user(
             .id_source("directory_search_user_scroll")
             .max_height(scroll_height)
             .show(ui, |ui| {
-                ui.add_space(20.0);
-
                 for user in app.users.as_ref().unwrap() {
                     if ui
                         .link(format!("{} [{}]", user.clone().display, user.clone().id))
@@ -60,13 +58,11 @@ pub fn render_add_user(
             });
     }
 
-    ui.add_space(20.0);
-
     // Done button.
-    let button_label = format!("{} {}", crate::defines::AF_CANCEL_CODE, "done");
+    let button_label = format!("{} {}", AF_CANCEL_CODE, "done");
     let button = egui::Button::new(button_label);
 
     if ui.add_sized([150., 30.], button).clicked() {
-        app.edit_directory_add_user_clicked = false;
+        app.active_action = Action::DirectoryEditAcl;
     }
 }

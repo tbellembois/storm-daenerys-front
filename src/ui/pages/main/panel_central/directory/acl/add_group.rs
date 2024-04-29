@@ -1,4 +1,7 @@
-use crate::ui::daenerys::DaenerysApp;
+use crate::{
+    defines::AF_CANCEL_CODE,
+    ui::daenerys::{Action, DaenerysApp},
+};
 use egui::Ui;
 
 pub fn render_add_group(app: &mut DaenerysApp, ui: &mut Ui) {
@@ -11,13 +14,11 @@ pub fn render_add_group(app: &mut DaenerysApp, ui: &mut Ui) {
         }
     }
 
-    ui.add_space(20.0);
-
     // Done button.
-    let button_label = format!("{} {}", crate::defines::AF_CANCEL_CODE, "done");
+    let button_label = format!("{} {}", AF_CANCEL_CODE, "done");
     let button = egui::Button::new(button_label);
 
     if ui.add_sized([150., 30.], button).clicked() {
-        app.edit_directory_add_group_clicked = false;
+        app.active_action = Action::DirectoryEditAcl;
     }
 }

@@ -1,7 +1,7 @@
 use crate::{
     api,
     defines::{AF_FOLDER_CODE, AF_QUOTA, AF_REFRESH_CODE, AF_WARNING_CODE},
-    ui::daenerys::DaenerysApp,
+    ui::daenerys::{Action, DaenerysApp},
 };
 use egui::Ui;
 use human_bytes::human_bytes;
@@ -65,8 +65,8 @@ pub fn render_directory_list(
 
                                     if ui.add_sized([200., 30.], button).clicked() {
                                         // Save the clicked directory.
-                                        app.directory_button_clicked =
-                                            Some(Box::new(directory.clone()));
+                                        app.active_action = Action::DirectoryEdit;
+                                        app.active_directory = Some(Box::new(directory.clone()));
 
                                         // And its quota in bytes to populate the quota edition input text.
                                         if let Some(quota) = directory.quota {
@@ -77,18 +77,9 @@ pub fn render_directory_list(
                                         }
 
                                         app.edited_directory_quota_unit = QuotaUnit::Megabyte;
-
-                                        app.group_button_clicked = None;
-                                        app.is_directory_acl_editing = false;
-                                        app.is_directory_quota_editing = false;
-                                        app.is_group_editing = false;
-                                        app.edit_directory_add_user_clicked = false;
-                                        app.edit_directory_add_group_clicked = false;
-                                        app.create_group_clicked = false;
-                                        app.create_directory_clicked = false;
+                                        app.active_group = None;
                                         app.current_error = None;
                                         app.current_info = None;
-                                        app.edit_group_delete_confirm = false;
                                         app.du = None;
                                     };
                                 });

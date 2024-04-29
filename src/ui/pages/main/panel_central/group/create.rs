@@ -1,7 +1,7 @@
 use egui::Ui;
 use storm_daenerys_common::types::group::Group;
 
-use crate::{api, ui::daenerys::DaenerysApp};
+use crate::{api, defines::AF_CREATE_CODE, ui::daenerys::DaenerysApp};
 
 pub fn render_create_group(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui) {
     // Group name.
@@ -32,7 +32,7 @@ pub fn render_create_group(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut 
             enabled = false;
         }
         ui.add_enabled_ui(enabled, |ui| {
-            let button_label = format!("{} {}", crate::defines::AF_CREATE_CODE, "create");
+            let button_label = format!("{} {}", AF_CREATE_CODE, "create");
 
             let button = egui::Button::new(button_label);
 

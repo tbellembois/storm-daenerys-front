@@ -3,11 +3,9 @@ mod defines;
 mod error;
 mod ui;
 mod worker;
-
-use std::env;
-
 use eframe::egui;
 use log::info;
+use std::env;
 use ui::daenerys::DaenerysApp;
 
 fn main() -> Result<(), eframe::Error> {
