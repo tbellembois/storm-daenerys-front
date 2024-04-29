@@ -2,7 +2,8 @@ use super::{add_group::render_add_group, add_user::render_add_user};
 use crate::{
     api::acl::save_acl,
     defines::{
-        AF_ADD_CODE, AF_ADMIN_CODE, AF_DELETE_CODE, AF_GROUP_CODE, AF_SAVE_CODE, AF_USER_CODE,
+        AF_ADD_CODE, AF_ADMIN_CODE, AF_DELETE_CODE, AF_EYE_CODE, AF_GROUP_CODE, AF_SAVE_CODE,
+        AF_USER_CODE,
     },
     ui::daenerys::{Action, DaenerysApp},
 };
@@ -38,15 +39,21 @@ pub fn render_show_edit_acl(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut
                                 ui.label(AF_USER_CODE.to_string());
 
                                 // User cn.
-                                let qualifier_display =
+                                let user_cn =
                                     active_directory_acl.qualifier_display.as_ref().unwrap();
-                                let color = if qualifier_display.starts_with('<') {
+                                let color = if user_cn.starts_with('<') {
                                     app.state.active_theme.fg_warn_text_color_visuals()
                                 } else {
                                     app.state
                                         .active_theme
                                         .fg_primary_text_color_visuals()
                                         .unwrap()
+                                };
+
+                                let qualifier_display = if active_directory_acl.is_read_only() {
+                                    format!("{} {}", user_cn, AF_EYE_CODE)
+                                } else {
+                                    user_cn.to_string()
                                 };
 
                                 ui.label(egui::RichText::new(qualifier_display).color(color));
@@ -59,10 +66,10 @@ pub fn render_show_edit_acl(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut
                                         )
                                         .changed()
                                     {
-                                        for active_directory_acl in
+                                        for app_active_directory_acl in
                                             app.active_directory.as_mut().unwrap().acls.iter_mut()
                                         {
-                                            if active_directory_acl
+                                            if app_active_directory_acl
                                                 .qualifier_cn
                                                 .as_ref()
                                                 .unwrap()
@@ -71,11 +78,7 @@ pub fn render_show_edit_acl(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut
                                                     .as_ref()
                                                     .unwrap())
                                             {
-                                                if active_directory_acl.perm == 7 {
-                                                    active_directory_acl.perm = 5;
-                                                } else {
-                                                    active_directory_acl.perm = 7;
-                                                }
+                                                app_active_directory_acl.toggle_read_only();
                                             }
                                         }
                                     };
@@ -87,8 +90,17 @@ pub fn render_show_edit_acl(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut
                             storm_daenerys_common::types::acl::Qualifier::Group(_) => {
                                 // Group icon.
                                 ui.label(AF_GROUP_CODE.to_string());
+
                                 // Group cn.
-                                ui.label(active_directory_acl.qualifier_cn.as_ref().unwrap());
+                                let group_cn = active_directory_acl.qualifier_cn.as_ref().unwrap();
+
+                                let qualifier_display = if active_directory_acl.is_read_only() {
+                                    format!("{} {}", group_cn, AF_EYE_CODE)
+                                } else {
+                                    group_cn.to_string()
+                                };
+
+                                ui.label(qualifier_display);
 
                                 if app.active_action == Action::DirectoryEditAcl && !is_admin {
                                     if ui
@@ -98,10 +110,10 @@ pub fn render_show_edit_acl(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut
                                         )
                                         .changed()
                                     {
-                                        for active_directory_acl in
+                                        for app_active_directory_acl in
                                             app.active_directory.as_mut().unwrap().acls.iter_mut()
                                         {
-                                            if active_directory_acl
+                                            if app_active_directory_acl
                                                 .qualifier_cn
                                                 .as_ref()
                                                 .unwrap()
@@ -110,11 +122,7 @@ pub fn render_show_edit_acl(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut
                                                     .as_ref()
                                                     .unwrap())
                                             {
-                                                if active_directory_acl.perm == 7 {
-                                                    active_directory_acl.perm = 5;
-                                                } else {
-                                                    active_directory_acl.perm = 7;
-                                                }
+                                                app_active_directory_acl.toggle_read_only();
                                             }
                                         }
                                     };

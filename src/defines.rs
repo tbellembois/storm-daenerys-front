@@ -19,4 +19,5 @@ pub const AF_GAUGE_CODE: char = '\u{f0a0}';
 pub const AF_LOCK_CODE: char = '\u{f023}';
 pub const AF_HALF_LOCK_CODE: char = '\u{f09c}';
 pub const AF_WARNING_CODE: char = '\u{f071}';
-pub const AF_QUOTA: char = '\u{51}';
+pub const AF_QUOTA_CODE: char = '\u{51}';
+pub const AF_EYE_CODE: char = '\u{f06e}';

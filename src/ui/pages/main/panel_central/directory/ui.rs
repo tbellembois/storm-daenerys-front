@@ -1,6 +1,6 @@
 use super::{acl::ui::render_show_edit_acl, quota::ui::render_edit_quota};
 use crate::{
-    defines::{AF_EDIT_CODE, AF_FOLDER_CODE, AF_QUOTA},
+    defines::{AF_EDIT_CODE, AF_FOLDER_CODE, AF_QUOTA_CODE},
     ui::daenerys::{Action, DaenerysApp},
 };
 use egui::Ui;
@@ -15,7 +15,7 @@ pub fn render_show_directory(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mu
     ));
     if let Some(quota) = app.active_directory.as_ref().unwrap().quota {
         if quota.ne(&0) {
-            ui.label(format!("{} {}", AF_QUOTA, human_bytes(quota as f64)));
+            ui.label(format!("{} {}", AF_QUOTA_CODE, human_bytes(quota as f64)));
         }
     }
 

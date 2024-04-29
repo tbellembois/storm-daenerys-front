@@ -1,6 +1,6 @@
 use crate::{
     api,
-    defines::{AF_FOLDER_CODE, AF_QUOTA, AF_REFRESH_CODE, AF_WARNING_CODE},
+    defines::{AF_FOLDER_CODE, AF_QUOTA_CODE, AF_REFRESH_CODE, AF_WARNING_CODE},
     ui::daenerys::{Action, DaenerysApp},
 };
 use egui::Ui;
@@ -88,7 +88,11 @@ pub fn render_directory_list(
                             // Directory quota.
                             if let Some(quota) = directory.quota {
                                 if quota.ne(&0) {
-                                    ui.label(format!("{} {}", AF_QUOTA, human_bytes(quota as f64)));
+                                    ui.label(format!(
+                                        "{} {}",
+                                        AF_QUOTA_CODE,
+                                        human_bytes(quota as f64)
+                                    ));
                                 }
                             }
 
