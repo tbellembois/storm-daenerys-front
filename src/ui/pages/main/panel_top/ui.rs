@@ -7,7 +7,7 @@ use crate::{
         AF_CONNECTED_USER_CODE, AF_ERROR_CODE, AF_FOLDER_CODE, AF_GAUGE_CODE, AF_GROUP_CODE,
         AF_INFO_CODE,
     },
-    ui::daenerys::{Action, DaenerysApp},
+    ui::daenerys::DaenerysApp,
 };
 
 pub fn render_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut eframe::Frame) {

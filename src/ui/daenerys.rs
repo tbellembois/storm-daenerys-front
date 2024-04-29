@@ -2,8 +2,8 @@ use super::state::{ApplicationState, Page};
 use crate::api;
 use crate::error::apperror::AppError;
 use crate::ui::pages::main;
-use crate::worker::builder::Worker;
-use crate::worker::message::{ToApp, ToWorker};
+// use crate::worker::builder::Worker;
+// use crate::worker::message::{ToApp, ToWorker};
 use eframe::{egui, CreationContext};
 use egui::Vec2;
 use egui_aesthetix::themes::{CarlDark, StandardDark, StandardLight};
@@ -14,9 +14,9 @@ use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::fmt::Display;
 use std::rc::Rc;
-use std::sync::mpsc::{self, Receiver, Sender};
+// use std::sync::mpsc::{self, Receiver, Sender};
 use std::sync::Once;
-use std::thread;
+// use std::thread;
 use storm_daenerys_common::defines::{
     DIRECTORY_NAME_RE_STRING, GROUP_CN_RE_STRING, QUOTA_FORMAT_RE_STRING,
 };
@@ -137,8 +137,8 @@ pub struct DaenerysApp {
 
     // Channels for communication beetween
     // application (GUI) and worker.
-    pub sender: Option<Sender<ToWorker>>,
-    receiver: Option<Receiver<ToApp>>,
+    // pub sender: Option<Sender<ToWorker>>,
+    // receiver: Option<Receiver<ToApp>>,
 
     // Current error if one.
     pub current_error: Option<AppError>,
@@ -236,8 +236,8 @@ impl Default for DaenerysApp {
             edited_directory_quota_unit: QuotaUnit::Megabyte,
             state: Default::default(),
             themes: Default::default(),
-            sender: Default::default(),
-            receiver: Default::default(),
+            // sender: Default::default(),
+            // receiver: Default::default(),
             active_action: Action::Home,
         }
     }
@@ -246,18 +246,18 @@ impl Default for DaenerysApp {
 impl DaenerysApp {
     pub fn new(cc: &CreationContext, api_url: String, app_version: String) -> Self {
         // Create channels.
-        let (app_tx, app_rx) = mpsc::channel();
-        let (worker_tx, worker_rx) = mpsc::channel();
+        // let (app_tx, app_rx) = mpsc::channel();
+        // let (worker_tx, worker_rx) = mpsc::channel();
 
-        dbg!("Spawning new worker.");
+        // dbg!("Spawning new worker.");
 
         // Spawn a thread with a new worker.
-        let context = cc.egui_ctx.clone();
-        thread::spawn(move || {
-            Worker::new(worker_tx, app_rx, context).init();
-        });
+        // let context = cc.egui_ctx.clone();
+        // thread::spawn(move || {
+        //     Worker::new(worker_tx, app_rx, context).init();
+        // });
 
-        dbg!("New worker spawned.");
+        // dbg!("New worker spawned.");
 
         // Load custom fonts and styles.
         setup_custom_fonts(&cc.egui_ctx);
@@ -286,8 +286,8 @@ impl DaenerysApp {
             api_url,
             state,
             themes,
-            sender: Some(app_tx),
-            receiver: Some(worker_rx),
+            // sender: Some(app_tx),
+            // receiver: Some(worker_rx),
             ..Default::default()
         }
     }
