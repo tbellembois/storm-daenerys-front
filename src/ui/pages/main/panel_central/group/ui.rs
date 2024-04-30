@@ -83,6 +83,7 @@ pub fn render_show_group(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui
                 let button = egui::Button::new(button_label);
 
                 if !is_group_invite
+                    && !is_group_auto
                     && !app.is_working
                     && ui.add_sized([150., 30.], button).clicked()
                 {
