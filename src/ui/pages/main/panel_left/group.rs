@@ -90,9 +90,9 @@ pub fn render_group_list(
                             // Save the clicked group name.
                             if ui.add_sized([200., 30.], button).clicked() {
                                 app.active_action = Action::GroupEdit;
-                                app.active_group = Some(Box::new(group.clone()));
+                                app.current_group = Some(Box::new(group.clone()));
 
-                                app.active_directory = None;
+                                app.current_directory = None;
                                 app.current_error = None;
                                 app.current_info = None;
                                 app.du = None;

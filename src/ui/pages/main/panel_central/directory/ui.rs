@@ -11,9 +11,9 @@ pub fn render_show_directory(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mu
     ui.heading(format!(
         "{} {}",
         AF_FOLDER_CODE,
-        app.active_directory.as_ref().unwrap().name
+        app.current_directory.as_ref().unwrap().name
     ));
-    if let Some(quota) = app.active_directory.as_ref().unwrap().quota {
+    if let Some(quota) = app.current_directory.as_ref().unwrap().quota {
         if quota.ne(&0) {
             ui.label(format!("{} {}", AF_QUOTA_CODE, human_bytes(quota as f64)));
         }

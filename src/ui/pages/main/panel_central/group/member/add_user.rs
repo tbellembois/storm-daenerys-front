@@ -46,18 +46,18 @@ pub fn render_add_user(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui) 
                         // Find already exist.
                         let mut found: bool = false;
 
-                        if app.active_group.as_ref().unwrap().member.is_some() {
-                            for m in app.active_group.as_ref().unwrap().member.as_ref().unwrap() {
+                        if app.current_group.as_ref().unwrap().member.is_some() {
+                            for m in app.current_group.as_ref().unwrap().member.as_ref().unwrap() {
                                 if m.eq(&user.id.clone()) {
                                     found = true;
                                 }
                             }
                         } else {
-                            app.active_group.as_mut().unwrap().member = Some(Vec::new());
+                            app.current_group.as_mut().unwrap().member = Some(Vec::new());
                         }
 
                         if !found {
-                            app.active_group
+                            app.current_group
                                 .as_mut()
                                 .unwrap()
                                 .member

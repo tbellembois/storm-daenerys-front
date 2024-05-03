@@ -54,7 +54,7 @@ pub fn render_edit_quota(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui
         let button = egui::Button::new(button_label);
 
         if ui.add_sized([150., 30.], button).clicked() {
-            let directory_name = app.active_directory.as_ref().unwrap().name.clone();
+            let directory_name = app.current_directory.as_ref().unwrap().name.clone();
 
             app.current_info = Some(format!("saving quota for {}", directory_name));
 

@@ -15,7 +15,7 @@ pub fn render_show_group(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui
     match &app.root_groups {
         Some(root_groups) => {
             for root_group in root_groups {
-                if app.active_group.as_ref().unwrap().cn.eq(&format!(
+                if app.current_group.as_ref().unwrap().cn.eq(&format!(
                     "{}-{}",
                     app.group_prefix.as_ref().unwrap(),
                     root_group,
@@ -24,7 +24,7 @@ pub fn render_show_group(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui
                     break;
                 }
 
-                if app.active_group.as_ref().unwrap().cn.eq(&format!(
+                if app.current_group.as_ref().unwrap().cn.eq(&format!(
                     "{}-{}-invite",
                     app.group_prefix.as_ref().unwrap(),
                     root_group,
@@ -36,13 +36,13 @@ pub fn render_show_group(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui
         }
         None => {
             is_group_auto = app
-                .active_group
+                .current_group
                 .as_ref()
                 .unwrap()
                 .cn
                 .eq(app.group_prefix.as_ref().unwrap());
             is_group_invite = app
-                .active_group
+                .current_group
                 .as_ref()
                 .unwrap()
                 .cn
@@ -54,9 +54,11 @@ pub fn render_show_group(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui
     ui.heading(format!(
         "{} {}",
         AF_GROUP_CODE,
-        app.active_group.as_ref().unwrap().cn
+        app.current_group.as_ref().unwrap().cn
     ));
-    ui.label(egui::RichText::new(app.active_group.as_ref().unwrap().description.clone()).italics());
+    ui.label(
+        egui::RichText::new(app.current_group.as_ref().unwrap().description.clone()).italics(),
+    );
 
     ui.add_space(20.0);
 
@@ -73,8 +75,8 @@ pub fn render_show_group(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui
                 let button = egui::Button::new(button_label);
 
                 if !is_group_auto && ui.add_sized([150., 30.], button).clicked() {
-                    app.edit_group_clicked_backup = Some(Box::new(Group {
-                        ..*app.active_group.as_ref().unwrap().clone()
+                    app.current_group_backup = Some(Box::new(Group {
+                        ..*app.current_group.as_ref().unwrap().clone()
                     }));
                     app.active_action = Action::GroupEditUsers;
                 }
@@ -98,7 +100,7 @@ pub fn render_show_group(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui
                     app.is_working = true;
                     app.delete_group_promise = Some(delete_group(
                         ctx,
-                        app.active_group.as_ref().unwrap().cn.clone(),
+                        app.current_group.as_ref().unwrap().cn.clone(),
                         app.api_url.clone(),
                     ));
 

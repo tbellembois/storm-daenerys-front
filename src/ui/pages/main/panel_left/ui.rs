@@ -46,8 +46,8 @@ pub fn render_left_panel(app: &mut DaenerysApp, ctx: &Context) {
             if ui.add_sized([150., 30.], button).clicked() {
                 app.active_action = Action::DirectoryCreate;
 
-                app.active_directory = None;
-                app.active_group = None;
+                app.current_directory = None;
+                app.current_group = None;
                 app.du = None;
 
                 app.create_directory_name.clear();
@@ -69,8 +69,8 @@ pub fn render_left_panel(app: &mut DaenerysApp, ctx: &Context) {
             if ui.add_sized([150., 30.], button).clicked() {
                 app.active_action = Action::GroupCreate;
 
-                app.active_directory = None;
-                app.active_group = None;
+                app.current_directory = None;
+                app.current_group = None;
                 app.du = None;
 
                 app.create_group_name.clear();

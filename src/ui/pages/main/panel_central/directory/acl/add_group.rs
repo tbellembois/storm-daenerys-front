@@ -12,7 +12,7 @@ pub fn render_add_group(app: &mut DaenerysApp, ui: &mut Ui) {
             if ui.link(group.clone().cn).clicked() {
                 // Find already exist.
                 let mut found: bool = false;
-                for acl in &app.active_directory.as_ref().unwrap().acls {
+                for acl in &app.current_directory.as_ref().unwrap().acls {
                     if let Qualifier::Group(_) = acl.qualifier {
                         if acl.qualifier_cn.as_ref().unwrap().eq(&group.cn.clone()) {
                             found = true;
@@ -21,7 +21,7 @@ pub fn render_add_group(app: &mut DaenerysApp, ui: &mut Ui) {
                 }
 
                 if !found {
-                    app.active_directory.as_mut().unwrap().acls.push(AclEntry {
+                    app.current_directory.as_mut().unwrap().acls.push(AclEntry {
                         qualifier: storm_daenerys_common::types::acl::Qualifier::Group(0), // FIXME
                         qualifier_cn: Some(group.cn.clone().to_string()),
                         qualifier_display: Some(group.cn.clone().to_string()),

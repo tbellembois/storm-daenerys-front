@@ -66,7 +66,7 @@ pub fn render_directory_list(
                                     if ui.add_sized([200., 30.], button).clicked() {
                                         // Save the clicked directory.
                                         app.active_action = Action::DirectoryEdit;
-                                        app.active_directory = Some(Box::new(directory.clone()));
+                                        app.current_directory = Some(Box::new(directory.clone()));
 
                                         // And its quota in bytes to populate the quota edition input text.
                                         if let Some(quota) = directory.quota {
@@ -77,7 +77,7 @@ pub fn render_directory_list(
                                         }
 
                                         app.edited_directory_quota_unit = QuotaUnit::Megabyte;
-                                        app.active_group = None;
+                                        app.current_group = None;
                                         app.current_error = None;
                                         app.current_info = None;
                                         app.du = None;

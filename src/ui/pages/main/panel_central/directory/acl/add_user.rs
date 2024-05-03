@@ -46,7 +46,7 @@ pub fn render_add_user(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui) 
                     {
                         // Find already exist.
                         let mut found: bool = false;
-                        for acl in &app.active_directory.as_ref().unwrap().acls {
+                        for acl in &app.current_directory.as_ref().unwrap().acls {
                             if let Qualifier::User(_) = acl.qualifier {
                                 if acl.qualifier_cn.as_ref().unwrap().eq(&user.id.clone()) {
                                     found = true;
@@ -55,7 +55,7 @@ pub fn render_add_user(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui) 
                         }
 
                         if !found {
-                            app.active_directory.as_mut().unwrap().acls.push(AclEntry {
+                            app.current_directory.as_mut().unwrap().acls.push(AclEntry {
                                 qualifier: storm_daenerys_common::types::acl::Qualifier::User(0), // FIXME
                                 qualifier_cn: Some(user.id.clone()),
                                 qualifier_display: Some(user.id.clone()),

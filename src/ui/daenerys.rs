@@ -22,11 +22,11 @@ use storm_daenerys_common::defines::{
 };
 use storm_daenerys_common::types::acl::Qualifier;
 use storm_daenerys_common::types::config::Config;
+use storm_daenerys_common::types::directory::Directory;
 use storm_daenerys_common::types::directory::Quota;
 use storm_daenerys_common::types::group::Group;
 use storm_daenerys_common::types::quota::QuotaUnit;
 use storm_daenerys_common::types::user::User;
-use storm_daenerys_common::types::{acl::AclEntry, directory::Directory};
 
 static START: Once = Once::new();
 
@@ -145,13 +145,12 @@ pub struct DaenerysApp {
     // Current info if one.
     pub current_info: Option<String>,
 
-    // Active directory been showned/edited.
-    pub active_directory: Option<Box<Directory>>,
-    // Active group been showned/edited.
-    pub active_group: Option<Box<Group>>,
-
-    // Edit group clicked - backup before edition.
-    pub edit_group_clicked_backup: Option<Box<Group>>,
+    // Directory been showned/edited.
+    pub current_directory: Option<Box<Directory>>,
+    // Group been showned/edited.
+    pub current_group: Option<Box<Group>>,
+    // Group been showned/edited - backup before edition.
+    pub current_group_backup: Option<Box<Group>>,
 
     // Directory name input of the create directory form.
     pub create_directory_name: String,
@@ -197,13 +196,13 @@ impl Default for DaenerysApp {
             delete_group_promise: Default::default(),
             current_error: Default::default(),
             current_info: Default::default(),
-            edit_group_clicked_backup: Default::default(),
+            current_group_backup: Default::default(),
             user_search: Default::default(),
             create_group_name: Default::default(),
             create_group_description: Default::default(),
             create_directory_name: Default::default(),
-            active_directory: Default::default(),
-            active_group: Default::default(),
+            current_directory: Default::default(),
+            current_group: Default::default(),
             admin: Default::default(),
             current_admin_restriction: Default::default(),
             api_url: "http://localhost:3000".to_string(),
@@ -466,6 +465,7 @@ impl eframe::App for DaenerysApp {
                             self.get_directories_promise = Some(
                                 api::directory::get_root_directories(ctx, self.api_url.clone()),
                             );
+                            self.active_action = Action::DirectoryEdit;
                         }
                         Err(e) => {
                             self.current_error = Some(AppError::InternalError(e.to_string()));
@@ -491,6 +491,7 @@ impl eframe::App for DaenerysApp {
                             self.get_directories_promise = Some(
                                 api::directory::get_root_directories(ctx, self.api_url.clone()),
                             );
+                            self.active_action = Action::DirectoryEdit;
                         }
                         Err(e) => {
                             self.current_error = Some(AppError::InternalError(e.to_string()));
@@ -533,10 +534,9 @@ impl eframe::App for DaenerysApp {
 
             if count == total_promises {
                 self.is_working = false;
-
                 self.current_info = Some("group updated successfully".to_string());
-
-                self.get_groups_promise = Some(api::group::get_groups(ctx, self.api_url.clone()));
+                self.active_action = Action::GroupEdit;
+                // self.get_groups_promise = Some(api::group::get_groups(ctx, self.api_url.clone()));
             }
         }
 

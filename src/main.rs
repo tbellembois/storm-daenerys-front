@@ -9,6 +9,8 @@ use std::env;
 use ui::daenerys::DaenerysApp;
 
 fn main() -> Result<(), eframe::Error> {
+    env_logger::init();
+
     // Get application version.
     let app_version = env!("CARGO_PKG_VERSION");
     info!("app_version: {app_version}");

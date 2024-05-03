@@ -7,7 +7,7 @@ use crate::{
 use egui::Ui;
 
 pub fn render_show_edit_member(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui) {
-    match &app.active_group.as_ref().unwrap().clone().member {
+    match &app.current_group.as_ref().unwrap().clone().member {
         Some(members) => {
             let scroll_height = ui.available_height() - 150.;
 
@@ -82,9 +82,9 @@ pub fn render_show_edit_member(app: &mut DaenerysApp, ctx: &egui::Context, ui: &
                                     let button = egui::Button::new(button_label);
 
                                     if ui.add_sized([150., 25.], button).clicked()
-                                        && app.active_group.as_ref().unwrap().member.is_some()
+                                        && app.current_group.as_ref().unwrap().member.is_some()
                                     {
-                                        app.active_group
+                                        app.current_group
                                             .as_mut()
                                             .unwrap()
                                             .member
@@ -126,14 +126,14 @@ pub fn render_show_edit_member(app: &mut DaenerysApp, ctx: &egui::Context, ui: &
         if ui.add_sized([150., 30.], button).clicked() {
             app.current_info = Some(format!(
                 "saving group {}",
-                app.active_group.as_ref().unwrap().cn
+                app.current_group.as_ref().unwrap().cn
             ));
 
             app.is_working = true;
             app.save_group_promises = Some(save_group(
                 ctx,
-                *app.edit_group_clicked_backup.as_ref().unwrap().clone(),
-                *app.active_group.as_ref().unwrap().clone(),
+                *app.current_group_backup.as_ref().unwrap().clone(),
+                *app.current_group.as_ref().unwrap().clone(),
                 app.api_url.clone(),
             ));
         }

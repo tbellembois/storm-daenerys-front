@@ -18,29 +18,25 @@ pub fn render_show_edit_acl(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut
             egui::Grid::new("acl_list_edit")
                 .num_columns(4)
                 .show(ui, |ui| {
-                    // Sort ACLs by user display name.
-                    let mut active_directory_sorted_acls =
-                        app.active_directory.as_ref().unwrap().clone().acls;
-                    active_directory_sorted_acls
+                    // Sort current directory ACLs.
+                    app.current_directory
+                        .as_mut()
+                        .unwrap()
+                        .acls
                         .sort_by(|a, b| a.qualifier_display.cmp(&b.qualifier_display));
 
-                    for active_directory_acl in active_directory_sorted_acls {
-                        let is_admin: bool = active_directory_acl
-                            .qualifier_cn
-                            .as_ref()
-                            .unwrap()
-                            .eq(&app.admin.clone().unwrap());
+                    // Loop throught non mutable clone of ACLs.
+                    for acl in app.current_directory.as_ref().unwrap().acls.clone() {
+                        let is_admin: bool = acl.is_admin(&app.admin.clone().unwrap());
+                        let mut read_only: bool = acl.is_readonly();
 
-                        let mut read_only: bool = active_directory_acl.is_readonly();
-
-                        match active_directory_acl.qualifier {
+                        match acl.qualifier {
                             storm_daenerys_common::types::acl::Qualifier::User(_) => {
                                 // User icon.
                                 ui.label(AF_USER_CODE.to_string());
 
                                 // User cn.
-                                let user_cn =
-                                    active_directory_acl.qualifier_display.as_ref().unwrap();
+                                let user_cn = acl.qualifier_display.as_ref().unwrap();
                                 let color = if user_cn.starts_with('<') {
                                     app.state.active_theme.fg_warn_text_color_visuals()
                                 } else {
@@ -50,7 +46,7 @@ pub fn render_show_edit_acl(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut
                                         .unwrap()
                                 };
 
-                                let qualifier_display = if active_directory_acl.is_read_only() {
+                                let qualifier_display = if read_only {
                                     format!("{} {}", user_cn, AF_EYE_CODE)
                                 } else {
                                     user_cn.to_string()
@@ -66,19 +62,18 @@ pub fn render_show_edit_acl(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut
                                         )
                                         .changed()
                                     {
-                                        for app_active_directory_acl in
-                                            app.active_directory.as_mut().unwrap().acls.iter_mut()
+                                        // Loop throught mutable ACLs of current directory
+                                        // and toggle read only on the one with the cn been checked.
+                                        for app_current_directory_acl in
+                                            app.current_directory.as_mut().unwrap().acls.iter_mut()
                                         {
-                                            if app_active_directory_acl
+                                            if app_current_directory_acl
                                                 .qualifier_cn
                                                 .as_ref()
                                                 .unwrap()
-                                                .eq(active_directory_acl
-                                                    .qualifier_cn
-                                                    .as_ref()
-                                                    .unwrap())
+                                                .eq(acl.qualifier_cn.as_ref().unwrap())
                                             {
-                                                app_active_directory_acl.toggle_read_only();
+                                                app_current_directory_acl.toggle_read_only();
                                             }
                                         }
                                     };
@@ -92,9 +87,9 @@ pub fn render_show_edit_acl(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut
                                 ui.label(AF_GROUP_CODE.to_string());
 
                                 // Group cn.
-                                let group_cn = active_directory_acl.qualifier_cn.as_ref().unwrap();
+                                let group_cn = acl.qualifier_cn.as_ref().unwrap();
 
-                                let qualifier_display = if active_directory_acl.is_read_only() {
+                                let qualifier_display = if acl.is_read_only() {
                                     format!("{} {}", group_cn, AF_EYE_CODE)
                                 } else {
                                     group_cn.to_string()
@@ -110,17 +105,16 @@ pub fn render_show_edit_acl(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut
                                         )
                                         .changed()
                                     {
+                                        // Loop throught mutable ACLs of current directory
+                                        // and toggle read only on the one with the cn been checked.
                                         for app_active_directory_acl in
-                                            app.active_directory.as_mut().unwrap().acls.iter_mut()
+                                            app.current_directory.as_mut().unwrap().acls.iter_mut()
                                         {
                                             if app_active_directory_acl
                                                 .qualifier_cn
                                                 .as_ref()
                                                 .unwrap()
-                                                .eq(active_directory_acl
-                                                    .qualifier_cn
-                                                    .as_ref()
-                                                    .unwrap())
+                                                .eq(acl.qualifier_cn.as_ref().unwrap())
                                             {
                                                 app_active_directory_acl.toggle_read_only();
                                             }
@@ -140,12 +134,11 @@ pub fn render_show_edit_acl(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut
                             let button = egui::Button::new(button_label);
 
                             if ui.add_sized([150., 25.], button).clicked() {
-                                app.active_directory.as_mut().unwrap().acls.retain(|a| {
+                                app.current_directory.as_mut().unwrap().acls.retain(|a| {
                                     match a.qualifier_cn.clone() {
-                                        Some(qualidier_cn) => qualidier_cn.ne(active_directory_acl
-                                            .qualifier_cn
-                                            .as_ref()
-                                            .unwrap()),
+                                        Some(qualidier_cn) => {
+                                            qualidier_cn.ne(acl.qualifier_cn.as_ref().unwrap())
+                                        }
                                         None => true, // non User(u) or Group(g) acl
                                     }
                                 });
@@ -187,13 +180,13 @@ pub fn render_show_edit_acl(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut
             let button = egui::Button::new(button_label);
 
             if ui.add_sized([150., 30.], button).clicked() {
-                let directory_name = app.active_directory.as_ref().unwrap().name.clone();
+                let directory_name = app.current_directory.as_ref().unwrap().name.clone();
 
                 app.current_info = Some(format!("saving acl for {}", directory_name));
 
                 let set_acl = SetAcl {
                     name: directory_name,
-                    acls: app.active_directory.as_ref().unwrap().acls.clone(),
+                    acls: app.current_directory.as_ref().unwrap().acls.clone(),
                 };
 
                 app.is_working = true;
