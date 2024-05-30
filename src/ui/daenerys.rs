@@ -587,8 +587,7 @@ impl eframe::App for DaenerysApp {
                             self.current_info = Some("directory renamed successfully".to_string());
                             self.rename_directory_promise = None;
 
-                            self.state.active_page = Page::Main;
-
+                            self.active_action = Action::Home;
                             self.get_directories_promise = Some(
                                 api::directory::get_root_directories(ctx, self.api_url.clone()),
                             );
@@ -614,8 +613,7 @@ impl eframe::App for DaenerysApp {
                             self.current_info = Some("directory deleted successfully".to_string());
                             self.delete_directory_promise = None;
 
-                            self.state.active_page = Page::Main;
-
+                            self.active_action = Action::Home;
                             self.get_directories_promise = Some(
                                 api::directory::get_root_directories(ctx, self.api_url.clone()),
                             );

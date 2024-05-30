@@ -24,16 +24,30 @@ pub fn render_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efram
             ..Default::default()
         })
         .show(ctx, |ui| {
-            // Connected user.
-            if let Some(connected_user) = &app.connected_user {
-                ui.label(egui::RichText::new(format!(
-                    "{} {}",
-                    AF_CONNECTED_USER_CODE, connected_user
-                )));
-            }
+            ui.horizontal(|ui| {
+                ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
+                    // STORM logo.
+                    ui.add_sized(
+                        [200., 70.],
+                        egui::Image::new(egui::include_image!("../../../media/storm-logo.svg")),
+                    );
+                });
 
-            // Root quota.
-            render_quota(app, ui);
+                ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                    ui.vertical(|ui| {
+                        // Connected user.
+                        if let Some(connected_user) = &app.connected_user {
+                            ui.label(egui::RichText::new(format!(
+                                "{} {}",
+                                AF_CONNECTED_USER_CODE, connected_user
+                            )));
+                        }
+
+                        // Root quota.
+                        render_quota(app, ui);
+                    })
+                });
+            });
 
             ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
                 // Switch theme.
