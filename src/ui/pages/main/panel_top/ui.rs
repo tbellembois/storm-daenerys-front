@@ -22,14 +22,6 @@ pub fn render_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efram
             ..Default::default()
         })
         .show(ctx, |ui| {
-            // STORM logo.
-            ui.add_sized(
-                [200., 70.],
-                egui::Image::new(egui::include_image!("../../../media/storm-logo.svg")),
-            );
-
-            ui.add_space(10.0);
-
             // Connected user.
             if let Some(connected_user) = &app.connected_user {
                 ui.label(egui::RichText::new(format!(

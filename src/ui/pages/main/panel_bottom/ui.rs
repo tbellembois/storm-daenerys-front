@@ -17,6 +17,12 @@ pub fn render_bottom_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut ef
                 // Logo associates.
                 ui.image(egui::include_image!("../../../media/partenaires.png"));
 
+                // STORM logo.
+                ui.add_sized(
+                    [200., 70.],
+                    egui::Image::new(egui::include_image!("../../../media/storm-logo.svg")),
+                );
+
                 // Application version.
                 ui.label(app.app_version.clone());
                 ui.label(egui::RichText::new("version:").italics());
