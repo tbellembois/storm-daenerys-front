@@ -21,9 +21,7 @@ pub fn render_group_list(
                         .unwrap(),
                 ),
             );
-            // });
 
-            // ui.with_layout(egui::Layout::right_to_left(egui::Align::TOP), |ui| {
             // Reload button.
             let button = egui::Button::new(format!("{} reload", AF_REFRESH_CODE));
             if ui.add_sized([30., 30.], button).clicked() {

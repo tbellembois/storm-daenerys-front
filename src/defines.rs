@@ -3,6 +3,7 @@ pub const AF_FOLDER_CODE: char = '\u{f07b}';
 pub const AF_REFRESH_CODE: char = '\u{f021}';
 pub const AF_EDIT_CODE: char = '\u{f304}';
 pub const AF_ADD_CODE: char = '\u{2b}';
+pub const AF_RENAME_CODE: char = '\u{f5b7}';
 pub const AF_SEARCH_CODE: char = '\u{f03a}';
 pub const AF_CANCEL_CODE: char = '\u{f053}';
 pub const AF_CREATE_CODE: char = '\u{f0e7}';

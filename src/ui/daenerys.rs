@@ -40,6 +40,8 @@ pub enum Action {
     DirectoryEditQuota,
     DirectoryEditAclAddUser,
     DirectoryEditAclAddGroup,
+    DirectoryEditRename,
+    DirectoryEditDelete,
     GroupEdit,
     GroupCreate,
     GroupEditDeleteConfirm,
@@ -63,6 +65,8 @@ impl Display for Action {
             Action::GroupEditAddUser => write!(f, "group_edit_add_user"),
             Action::GroupEditUsers => write!(f, "group_edit_users"),
             Action::DiskUsage => write!(f, "disk_usage"),
+            Action::DirectoryEditRename => write!(f, "directory_edit_rename"),
+            Action::DirectoryEditDelete => write!(f, "directory_edit_delete"),
         }
     }
 }
@@ -117,8 +121,12 @@ pub struct DaenerysApp {
     pub get_groups_promise: Option<Promise<Result<Option<Vec<Group>>, String>>>,
     // Promise returned when calling the backend GET /users endpoint.
     pub get_users_promise: Option<Promise<Result<Option<Vec<User>>, String>>>,
-    // Promises returned when calling the backend POST /directories endpoint.
+    // Promise returned when calling the backend POST /directories endpoint.
     pub create_directory_promise: Option<Promise<Result<(), String>>>,
+    // Promise returned when calling the backend PUT /directories endpoint.
+    pub rename_directory_promise: Option<Promise<Result<(), String>>>,
+    // Promise returned when calling the backend DELETE /directories endpoint.
+    pub delete_directory_promise: Option<Promise<Result<(), String>>>,
     // Promise returned when calling the backend POST /acls endpoint.
     pub save_directory_acl_promise: Option<Promise<Result<(), String>>>,
     // Promise returned when calling the backend POST /quota endpoint.
@@ -223,6 +231,8 @@ impl Default for DaenerysApp {
             // sender: Default::default(),
             // receiver: Default::default(),
             active_action: Action::Home,
+            rename_directory_promise: Default::default(),
+            delete_directory_promise: Default::default(),
         }
     }
 }
@@ -551,6 +561,60 @@ impl eframe::App for DaenerysApp {
                         Ok(_) => {
                             self.current_info = Some("directory created successfully".to_string());
                             self.create_directory_promise = None;
+
+                            self.get_directories_promise = Some(
+                                api::directory::get_root_directories(ctx, self.api_url.clone()),
+                            );
+                        }
+                        Err(e) => {
+                            self.current_error = Some(AppError::InternalError(e.to_string()));
+                            self.current_info = None;
+                        }
+                    };
+                }
+            }
+        }
+
+        // Rename directory promise.
+        if let Some(p) = &self.rename_directory_promise {
+            match p.ready() {
+                None => (),
+                Some(try_result) => {
+                    self.is_working = false;
+
+                    match try_result {
+                        Ok(_) => {
+                            self.current_info = Some("directory renamed successfully".to_string());
+                            self.rename_directory_promise = None;
+
+                            self.state.active_page = Page::Main;
+
+                            self.get_directories_promise = Some(
+                                api::directory::get_root_directories(ctx, self.api_url.clone()),
+                            );
+                        }
+                        Err(e) => {
+                            self.current_error = Some(AppError::InternalError(e.to_string()));
+                            self.current_info = None;
+                        }
+                    };
+                }
+            }
+        }
+
+        // Delete directory promise.
+        if let Some(p) = &self.delete_directory_promise {
+            match p.ready() {
+                None => (),
+                Some(try_result) => {
+                    self.is_working = false;
+
+                    match try_result {
+                        Ok(_) => {
+                            self.current_info = Some("directory deleted successfully".to_string());
+                            self.delete_directory_promise = None;
+
+                            self.state.active_page = Page::Main;
 
                             self.get_directories_promise = Some(
                                 api::directory::get_root_directories(ctx, self.api_url.clone()),

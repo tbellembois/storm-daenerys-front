@@ -2961,7 +2961,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "storm_daenerys_common"
 version = "1.0.0"
-source = "git+https://github.com/tbellembois/storm-daenerys-common.git#ce0c92636c51dee3641b2253aec6fced31a01482"
+source = "git+https://github.com/tbellembois/storm-daenerys-common.git#36e2e6de386d3b362603bd646e293af9a4d738f7"
 dependencies = [
  "log",
  "serde",

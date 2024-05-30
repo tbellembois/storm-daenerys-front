@@ -3,9 +3,77 @@ use log::debug;
 use poll_promise::Promise;
 
 use storm_daenerys_common::types::{
-    directory::{CreateDirectory, Directory},
+    directory::{CreateDirectory, Directory, RenameDirectory},
     error::CommonError,
 };
+
+pub fn delete_directory(
+    ctx: &egui::Context,
+    delete_directory: CreateDirectory,
+    api_url: String,
+) -> Promise<Result<(), String>> {
+    debug!("Delete directory: {:?}", &delete_directory);
+
+    let ctx = ctx.clone();
+    let (sender, promise) = Promise::new();
+
+    let request_payload = match serde_json::to_string(&delete_directory) {
+        Ok(request_payload) => request_payload,
+        Err(e) => {
+            sender.send(Err(e.to_string()));
+            return promise;
+        }
+    };
+
+    let request = ehttp::Request {
+        method: "DELETE".to_owned(),
+        url: format!("{}/directories", api_url),
+        body: request_payload.as_bytes().to_vec(),
+        headers: ehttp::Headers::new(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
+    };
+
+    ehttp::fetch(request, move |response| {
+        let delete_directory_result = response.and_then(parse_create_rename_directory_response);
+        sender.send(delete_directory_result);
+        ctx.request_repaint(); // wake up UI thread
+    });
+
+    promise
+}
+
+pub fn rename_directory(
+    ctx: &egui::Context,
+    rename_directory: RenameDirectory,
+    api_url: String,
+) -> Promise<Result<(), String>> {
+    debug!("Rename directory: {:?}", &rename_directory);
+
+    let ctx = ctx.clone();
+    let (sender, promise) = Promise::new();
+
+    let request_payload = match serde_json::to_string(&rename_directory) {
+        Ok(request_payload) => request_payload,
+        Err(e) => {
+            sender.send(Err(e.to_string()));
+            return promise;
+        }
+    };
+
+    let request = ehttp::Request {
+        method: "PUT".to_owned(),
+        url: format!("{}/directories", api_url),
+        body: request_payload.as_bytes().to_vec(),
+        headers: ehttp::Headers::new(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
+    };
+
+    ehttp::fetch(request, move |response| {
+        let rename_directory_result = response.and_then(parse_create_rename_directory_response);
+        sender.send(rename_directory_result);
+        ctx.request_repaint(); // wake up UI thread
+    });
+
+    promise
+}
 
 pub fn create_directory(
     ctx: &egui::Context,
@@ -33,7 +101,7 @@ pub fn create_directory(
     };
 
     ehttp::fetch(request, move |response| {
-        let create_directory_result = response.and_then(parse_create_directory_response);
+        let create_directory_result = response.and_then(parse_create_rename_directory_response);
         sender.send(create_directory_result);
         ctx.request_repaint(); // wake up UI thread
     });
@@ -96,7 +164,7 @@ fn parse_get_directories_response(
     }
 }
 
-fn parse_create_directory_response(response: ehttp::Response) -> Result<(), String> {
+fn parse_create_rename_directory_response(response: ehttp::Response) -> Result<(), String> {
     let status = &response.status;
     let status_text = &response.status_text;
     let maybe_text_response = response.text();

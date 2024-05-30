@@ -1,9 +1,8 @@
+use crate::{api, defines::AF_RENAME_CODE, ui::daenerys::DaenerysApp};
 use egui::Ui;
-use storm_daenerys_common::types::directory::CreateDirectory;
+use storm_daenerys_common::types::directory::RenameDirectory;
 
-use crate::{api, defines::AF_CREATE_CODE, ui::daenerys::DaenerysApp};
-
-pub fn render_create_directory(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui) {
+pub fn render_rename(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui) {
     // Directory name.
     ui.vertical(|ui| {
         ui.horizontal(|ui| {
@@ -29,23 +28,24 @@ pub fn render_create_directory(app: &mut DaenerysApp, ctx: &egui::Context, ui: &
             enabled = false;
         }
         ui.add_enabled_ui(enabled, |ui| {
-            let button_label = format!("{} {}", AF_CREATE_CODE, "create");
+            let button_label = format!("{} {}", AF_RENAME_CODE, "rename");
             let button = egui::Button::new(button_label);
 
             if ui.add_sized([150., 30.], button).clicked() {
                 app.current_info = Some(format!(
-                    "creating directory {}",
+                    "renaming directory {}",
                     app.create_directory_name.clone()
                 ));
 
-                let create_directory = CreateDirectory {
-                    name: app.create_directory_name.clone(),
+                let rename_directory = RenameDirectory {
+                    name: app.current_directory.as_ref().unwrap().name.clone(),
+                    new_name: app.create_directory_name.clone(),
                 };
 
                 app.is_working = true;
-                app.create_directory_promise = Some(api::directory::create_directory(
+                app.rename_directory_promise = Some(api::directory::rename_directory(
                     ctx,
-                    create_directory,
+                    rename_directory,
                     app.api_url.clone(),
                 ));
 
