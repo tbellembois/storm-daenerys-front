@@ -11,41 +11,40 @@ pub fn render_group_list(
     ui: &mut Ui,
     scroll_height: f32,
 ) {
-    // Refresh button.
     ui.horizontal_top(|ui| {
         ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
             ui.label(
-                egui::RichText::new("my storm groups").size(15.0).color(
+                egui::RichText::new("storm groups").size(18.0).color(
                     app.state
                         .active_theme
                         .fg_primary_text_color_visuals()
                         .unwrap(),
                 ),
             );
-        });
+            // });
 
-        // Reload button.
-        ui.with_layout(egui::Layout::right_to_left(egui::Align::TOP), |ui| {
+            // ui.with_layout(egui::Layout::right_to_left(egui::Align::TOP), |ui| {
+            // Reload button.
             let button = egui::Button::new(format!("{} reload", AF_REFRESH_CODE));
             if ui.add_sized([30., 30.], button).clicked() {
                 app.get_groups_promise = Some(api::group::get_groups(ctx, app.api_url.clone()));
             }
+
+            // Create group button.
+            let button_label = format!("{} {}", AF_ADD_CODE, "create group");
+            let button = egui::Button::new(button_label);
+
+            if ui.add_sized([150., 30.], button).clicked() {
+                app.active_action = Action::GroupCreate;
+
+                app.current_directory = None;
+                app.current_group = None;
+                app.du = None;
+
+                app.create_group_name.clear();
+                app.create_group_description.clear();
+            }
         });
-
-        // Create group button.
-        let button_label = format!("{} {}", AF_ADD_CODE, "create group");
-        let button = egui::Button::new(button_label);
-
-        if ui.add_sized([150., 30.], button).clicked() {
-            app.active_action = Action::GroupCreate;
-
-            app.current_directory = None;
-            app.current_group = None;
-            app.du = None;
-
-            app.create_group_name.clear();
-            app.create_group_description.clear();
-        }
     });
 
     // Group list.

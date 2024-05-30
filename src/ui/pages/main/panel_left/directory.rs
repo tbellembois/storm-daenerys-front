@@ -13,21 +13,20 @@ pub fn render_directory_list(
     ui: &mut Ui,
     scroll_height: f32,
 ) {
-    // Refresh button.
     ui.horizontal_top(|ui| {
         ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
             ui.label(
-                egui::RichText::new("my root directories").size(15.0).color(
+                egui::RichText::new("root directories").size(18.0).color(
                     app.state
                         .active_theme
                         .fg_primary_text_color_visuals()
                         .unwrap(),
                 ),
             );
-        });
+            // });
 
-        // Reload button.
-        ui.with_layout(egui::Layout::right_to_left(egui::Align::TOP), |ui| {
+            // ui.with_layout(egui::Layout::right_to_left(egui::Align::TOP), |ui| {
+            // Reload button.
             let button = egui::Button::new(format!("{} reload", AF_REFRESH_CODE));
             if ui.add_sized([30., 30.], button).clicked() {
                 app.get_directories_promise = Some(api::directory::get_root_directories(
@@ -35,21 +34,21 @@ pub fn render_directory_list(
                     app.api_url.clone(),
                 ));
             }
+
+            // Create directory button.
+            let button_label = format!("{} {}", AF_ADD_CODE, "create directory");
+            let button = egui::Button::new(button_label);
+
+            if ui.add_sized([150., 30.], button).clicked() {
+                app.active_action = Action::DirectoryCreate;
+
+                app.current_directory = None;
+                app.current_group = None;
+                app.du = None;
+
+                app.create_directory_name.clear();
+            }
         });
-
-        // Create directory button.
-        let button_label = format!("{} {}", AF_ADD_CODE, "create directory");
-        let button = egui::Button::new(button_label);
-
-        if ui.add_sized([150., 30.], button).clicked() {
-            app.active_action = Action::DirectoryCreate;
-
-            app.current_directory = None;
-            app.current_group = None;
-            app.du = None;
-
-            app.create_directory_name.clear();
-        }
     });
 
     // Directory list.
@@ -114,7 +113,6 @@ pub fn render_directory_list(
                             ui.end_row()
                         }
                     });
-                ui.add_space(20.0);
             }
         });
 }

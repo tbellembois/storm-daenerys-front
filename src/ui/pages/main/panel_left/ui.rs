@@ -1,4 +1,4 @@
-use super::{directory::render_directory_list, group::render_group_list, quota::render_quota};
+use super::{directory::render_directory_list, group::render_group_list};
 use crate::ui::daenerys::DaenerysApp;
 use eframe::egui::{self, Context};
 use egui::Frame;
@@ -14,7 +14,7 @@ pub fn render_left_panel(app: &mut DaenerysApp, ctx: &Context) {
         .resizable(false)
         .show_separator_line(true)
         .show(ctx, |ui| {
-            ui.set_width(300.0);
+            ui.set_width(400.0);
 
             // Calculate scroll height.
             let available_height: f32 = ui.available_size().y;
@@ -23,11 +23,6 @@ pub fn render_left_panel(app: &mut DaenerysApp, ctx: &Context) {
             } else {
                 (available_height - 100.) / 2.
             };
-
-            // Root quota.
-            render_quota(app, ui);
-
-            ui.add_space(20.0);
 
             // Directory list.
             if app.show_directory_list {

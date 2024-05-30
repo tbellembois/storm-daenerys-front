@@ -10,6 +10,8 @@ use crate::{
     ui::daenerys::DaenerysApp,
 };
 
+use super::quota::render_quota;
+
 pub fn render_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut eframe::Frame) {
     egui::TopBottomPanel::top("error_info_panel")
         .min_height(40.)
@@ -30,7 +32,8 @@ pub fn render_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efram
                 )));
             }
 
-            ui.add_space(10.0);
+            // Root quota.
+            render_quota(app, ui);
 
             ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
                 // Switch theme.
