@@ -331,7 +331,7 @@ impl eframe::App for DaenerysApp {
 
                     match try_du {
                         Ok(du) => {
-                            self.du = du.clone();
+                            self.du.clone_from(du);
 
                             self.active_action = Action::DiskUsage;
                             self.get_du_promise = None;
@@ -353,10 +353,10 @@ impl eframe::App for DaenerysApp {
                         Ok(config) => {
                             self.admin = Some(config.admin.clone());
                             self.connected_user = Some(config.connected_user.clone());
-                            self.current_admin_restriction =
-                                config.current_admin_restriction.clone();
+                            self.current_admin_restriction
+                                .clone_from(&config.current_admin_restriction);
                             self.group_prefix = Some(config.users_dsi_api_group_prefix.clone());
-                            self.root_groups = config.root_groups.clone();
+                            self.root_groups.clone_from(&config.root_groups);
                             self.quota = Some(config.quota.clone());
 
                             self.get_config_prefix_promise = None;
@@ -382,7 +382,7 @@ impl eframe::App for DaenerysApp {
 
                     match try_directories {
                         Ok(directories) => {
-                            self.directories = directories.clone();
+                            self.directories.clone_from(directories);
 
                             if self.directories.is_some() {
                                 // Filter directory ACLs.
@@ -622,7 +622,7 @@ impl eframe::App for DaenerysApp {
 
                     match try_groups {
                         Ok(groups) => {
-                            self.groups = groups.clone();
+                            self.groups.clone_from(groups);
                             if self.groups.is_some() {
                                 self.groups.as_mut().unwrap().sort_by(|groupa, groupb| {
                                     let auto_group = self.group_prefix.as_ref().unwrap();
@@ -666,7 +666,7 @@ impl eframe::App for DaenerysApp {
 
                     match try_users {
                         Ok(users) => {
-                            self.users = users.clone();
+                            self.users.clone_from(users);
 
                             self.get_users_promise = None;
                         }

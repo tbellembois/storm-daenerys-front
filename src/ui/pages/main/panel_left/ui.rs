@@ -1,8 +1,5 @@
 use super::{directory::render_directory_list, group::render_group_list, quota::render_quota};
-use crate::{
-    defines::AF_ADD_CODE,
-    ui::daenerys::{Action, DaenerysApp},
-};
+use crate::ui::daenerys::DaenerysApp;
 use eframe::egui::{self, Context};
 use egui::Frame;
 
@@ -37,44 +34,9 @@ pub fn render_left_panel(app: &mut DaenerysApp, ctx: &Context) {
                 render_directory_list(app, ctx, ui, scroll_height)
             }
 
-            ui.add_space(20.0);
-
-            // Create directory button.
-            let button_label = format!("{} {}", AF_ADD_CODE, "create directory");
-            let button = egui::Button::new(button_label);
-
-            if ui.add_sized([150., 30.], button).clicked() {
-                app.active_action = Action::DirectoryCreate;
-
-                app.current_directory = None;
-                app.current_group = None;
-                app.du = None;
-
-                app.create_directory_name.clear();
-            }
-
-            ui.add_space(20.0);
-
             // Group list.
             if app.show_group_list {
                 render_group_list(app, ctx, ui, scroll_height);
-            }
-
-            ui.add_space(20.0);
-
-            // Create group button.
-            let button_label = format!("{} {}", AF_ADD_CODE, "create group");
-            let button = egui::Button::new(button_label);
-
-            if ui.add_sized([150., 30.], button).clicked() {
-                app.active_action = Action::GroupCreate;
-
-                app.current_directory = None;
-                app.current_group = None;
-                app.du = None;
-
-                app.create_group_name.clear();
-                app.create_group_description.clear();
             }
         });
 }

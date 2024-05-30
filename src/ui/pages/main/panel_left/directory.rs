@@ -1,6 +1,6 @@
 use crate::{
     api,
-    defines::{AF_FOLDER_CODE, AF_QUOTA_CODE, AF_REFRESH_CODE, AF_WARNING_CODE},
+    defines::{AF_ADD_CODE, AF_FOLDER_CODE, AF_QUOTA_CODE, AF_REFRESH_CODE, AF_WARNING_CODE},
     ui::daenerys::{Action, DaenerysApp},
 };
 use egui::Ui;
@@ -17,7 +17,7 @@ pub fn render_directory_list(
     ui.horizontal_top(|ui| {
         ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
             ui.label(
-                egui::RichText::new("my root directories").size(20.0).color(
+                egui::RichText::new("my root directories").size(15.0).color(
                     app.state
                         .active_theme
                         .fg_primary_text_color_visuals()
@@ -26,6 +26,7 @@ pub fn render_directory_list(
             );
         });
 
+        // Reload button.
         ui.with_layout(egui::Layout::right_to_left(egui::Align::TOP), |ui| {
             let button = egui::Button::new(format!("{} reload", AF_REFRESH_CODE));
             if ui.add_sized([30., 30.], button).clicked() {
@@ -35,6 +36,20 @@ pub fn render_directory_list(
                 ));
             }
         });
+
+        // Create directory button.
+        let button_label = format!("{} {}", AF_ADD_CODE, "create directory");
+        let button = egui::Button::new(button_label);
+
+        if ui.add_sized([150., 30.], button).clicked() {
+            app.active_action = Action::DirectoryCreate;
+
+            app.current_directory = None;
+            app.current_group = None;
+            app.du = None;
+
+            app.create_directory_name.clear();
+        }
     });
 
     // Directory list.

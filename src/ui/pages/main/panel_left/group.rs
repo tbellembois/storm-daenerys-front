@@ -1,6 +1,6 @@
 use crate::{
     api,
-    defines::{AF_GROUP_CODE, AF_HALF_LOCK_CODE, AF_LOCK_CODE, AF_REFRESH_CODE},
+    defines::{AF_ADD_CODE, AF_GROUP_CODE, AF_HALF_LOCK_CODE, AF_LOCK_CODE, AF_REFRESH_CODE},
     ui::daenerys::{Action, DaenerysApp},
 };
 use egui::Ui;
@@ -15,7 +15,7 @@ pub fn render_group_list(
     ui.horizontal_top(|ui| {
         ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
             ui.label(
-                egui::RichText::new("my storm groups").size(20.0).color(
+                egui::RichText::new("my storm groups").size(15.0).color(
                     app.state
                         .active_theme
                         .fg_primary_text_color_visuals()
@@ -24,12 +24,28 @@ pub fn render_group_list(
             );
         });
 
+        // Reload button.
         ui.with_layout(egui::Layout::right_to_left(egui::Align::TOP), |ui| {
             let button = egui::Button::new(format!("{} reload", AF_REFRESH_CODE));
             if ui.add_sized([30., 30.], button).clicked() {
                 app.get_groups_promise = Some(api::group::get_groups(ctx, app.api_url.clone()));
             }
         });
+
+        // Create group button.
+        let button_label = format!("{} {}", AF_ADD_CODE, "create group");
+        let button = egui::Button::new(button_label);
+
+        if ui.add_sized([150., 30.], button).clicked() {
+            app.active_action = Action::GroupCreate;
+
+            app.current_directory = None;
+            app.current_group = None;
+            app.du = None;
+
+            app.create_group_name.clear();
+            app.create_group_description.clear();
+        }
     });
 
     // Group list.
