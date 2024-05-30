@@ -45,6 +45,7 @@ pub fn render_show_directory(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mu
                 app.active_action = Action::DirectoryEditQuota;
             }
 
+            let mut show_delete_rename = false;
             if let Some(admin_restriction) = &app.current_admin_restriction {
                 if app
                     .current_directory
@@ -53,34 +54,38 @@ pub fn render_show_directory(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mu
                     .name
                     .starts_with(admin_restriction)
                 {
-                    let button_label = format!("{} {}", AF_RENAME_CODE, "rename");
-                    let button = egui::Button::new(button_label);
+                    show_delete_rename = true;
+                }
+            } else {
+                show_delete_rename = true;
+            }
 
-                    if ui.add_sized([150., 30.], button).clicked() {
-                        app.active_action = Action::DirectoryEditRename;
-                    }
+            if show_delete_rename {
+                let button_label = format!("{} {}", AF_RENAME_CODE, "rename");
+                let button = egui::Button::new(button_label);
 
-                    let button_label = format!("{} {}", AF_DELETE_CODE, "delete");
-                    let button = egui::Button::new(button_label);
+                if ui.add_sized([150., 30.], button).clicked() {
+                    app.active_action = Action::DirectoryEditRename;
+                }
 
-                    if ui.add_sized([150., 30.], button).clicked() {
-                        let current_directory =
-                            app.current_directory.as_ref().unwrap().name.clone();
+                let button_label = format!("{} {}", AF_DELETE_CODE, "delete");
+                let button = egui::Button::new(button_label);
 
-                        app.current_info =
-                            Some(format!("deleting directory {}", current_directory));
+                if ui.add_sized([150., 30.], button).clicked() {
+                    let current_directory = app.current_directory.as_ref().unwrap().name.clone();
 
-                        let delete_directory = CreateDirectory {
-                            name: current_directory,
-                        };
+                    app.current_info = Some(format!("deleting directory {}", current_directory));
 
-                        app.is_working = true;
-                        app.delete_directory_promise = Some(api::directory::delete_directory(
-                            ctx,
-                            delete_directory,
-                            app.api_url.clone(),
-                        ));
-                    }
+                    let delete_directory = CreateDirectory {
+                        name: current_directory,
+                    };
+
+                    app.is_working = true;
+                    app.delete_directory_promise = Some(api::directory::delete_directory(
+                        ctx,
+                        delete_directory,
+                        app.api_url.clone(),
+                    ));
                 }
             }
         });
