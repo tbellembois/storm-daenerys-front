@@ -7,7 +7,15 @@ pub fn render_create_group(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut 
     // Group name.
     ui.vertical(|ui| {
         ui.horizontal(|ui| {
-            ui.label(format!("{}-", app.group_prefix.as_ref().unwrap()));
+            if let Some(admin_restriction) = &app.current_admin_restriction {
+                ui.label(format!(
+                    "{}-{}-",
+                    app.group_prefix.as_ref().unwrap(),
+                    admin_restriction.to_lowercase()
+                ));
+            } else {
+                ui.label(format!("{}-", app.group_prefix.as_ref().unwrap()));
+            }
             ui.add_sized(
                 [400., 30.],
                 egui::TextEdit::singleline(&mut app.create_group_name)

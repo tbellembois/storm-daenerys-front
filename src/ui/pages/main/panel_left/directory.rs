@@ -13,17 +13,19 @@ pub fn render_directory_list(
     ui: &mut Ui,
     scroll_height: f32,
 ) {
+    ui.with_layout(egui::Layout::top_down(egui::Align::Center), |ui| {
+        ui.label(
+            egui::RichText::new("ROOT DIRECTORIES").size(18.0).color(
+                app.state
+                    .active_theme
+                    .fg_primary_text_color_visuals()
+                    .unwrap(),
+            ),
+        );
+    });
+
     ui.horizontal_top(|ui| {
         ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
-            ui.label(
-                egui::RichText::new("root directories").size(18.0).color(
-                    app.state
-                        .active_theme
-                        .fg_primary_text_color_visuals()
-                        .unwrap(),
-                ),
-            );
-
             // Reload button.
             let button = egui::Button::new(format!("{} reload", AF_REFRESH_CODE));
             if ui.add_sized([30., 30.], button).clicked() {
@@ -49,6 +51,8 @@ pub fn render_directory_list(
         });
     });
 
+    ui.separator();
+
     // Directory list.
     egui::ScrollArea::vertical()
         .id_source("directory_scroll")
@@ -56,7 +60,7 @@ pub fn render_directory_list(
         .show(ui, |ui| {
             if app.directories.is_some() {
                 egui::Grid::new("directory_list")
-                    .num_columns(2)
+                    .num_columns(3)
                     .show(ui, |ui| {
                         for directory in app.directories.as_ref().unwrap().iter() {
                             // Icon.

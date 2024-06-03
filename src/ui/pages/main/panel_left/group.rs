@@ -11,17 +11,19 @@ pub fn render_group_list(
     ui: &mut Ui,
     scroll_height: f32,
 ) {
+    ui.with_layout(egui::Layout::top_down(egui::Align::Center), |ui| {
+        ui.label(
+            egui::RichText::new("STORM GROUPS").size(18.0).color(
+                app.state
+                    .active_theme
+                    .fg_primary_text_color_visuals()
+                    .unwrap(),
+            ),
+        );
+    });
+
     ui.horizontal_top(|ui| {
         ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
-            ui.label(
-                egui::RichText::new("storm groups").size(18.0).color(
-                    app.state
-                        .active_theme
-                        .fg_primary_text_color_visuals()
-                        .unwrap(),
-                ),
-            );
-
             // Reload button.
             let button = egui::Button::new(format!("{} reload", AF_REFRESH_CODE));
             if ui.add_sized([30., 30.], button).clicked() {
@@ -44,6 +46,8 @@ pub fn render_group_list(
             }
         });
     });
+
+    ui.separator();
 
     // Group list.
     egui::ScrollArea::vertical()

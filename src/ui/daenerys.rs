@@ -174,10 +174,6 @@ pub struct DaenerysApp {
 
     // Spinner? shown on API calls.
     pub is_working: bool,
-    // Show/hide directory list.
-    pub show_directory_list: bool,
-    // Show/hide group list.
-    pub show_group_list: bool,
 }
 
 impl Default for DaenerysApp {
@@ -219,8 +215,6 @@ impl Default for DaenerysApp {
             quota: Default::default(),
             central_panel_available_size: Default::default(),
             group_prefix: Default::default(),
-            show_directory_list: true,
-            show_group_list: true,
             get_user_display_promises: HashMap::new(),
             user_display_cache: HashMap::new(),
             connected_user: Default::default(),

@@ -16,7 +16,7 @@ pub fn render_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efram
     egui::TopBottomPanel::top("error_info_panel")
         .min_height(40.)
         .max_height(40.)
-        .show_separator_line(true)
+        .show_separator_line(false)
         .frame(Frame {
             inner_margin: app.state.active_theme.margin_style().into(),
             fill: app.state.active_theme.bg_secondary_color_visuals(),
@@ -80,18 +80,6 @@ pub fn render_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efram
                     app.get_du_promise =
                         Some(api::root::get_du(ctx, app.api_url.clone(), du_width));
                 };
-
-                // Hide directories button.
-                let button = egui::Button::new(format!("{} toogle directory view", AF_FOLDER_CODE));
-                if ui.add_sized([150., 30.], button).clicked() {
-                    app.show_directory_list = !app.show_directory_list;
-                }
-
-                // Hide groups button.
-                let button = egui::Button::new(format!("{} toogle group view", AF_GROUP_CODE));
-                if ui.add_sized([150., 30.], button).clicked() {
-                    app.show_group_list = !app.show_group_list;
-                }
 
                 // Current error label.
                 if let Some(current_error) = &app.current_error {

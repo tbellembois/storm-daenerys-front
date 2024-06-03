@@ -8,7 +8,7 @@ pub fn render_create_directory(app: &mut DaenerysApp, ctx: &egui::Context, ui: &
     ui.vertical(|ui| {
         ui.horizontal(|ui| {
             if let Some(admin_restriction) = &app.current_admin_restriction {
-                ui.label(format!("{}@_", admin_restriction));
+                ui.label(format!("{}@_", admin_restriction.to_uppercase()));
             }
             ui.add_sized(
                 [400., 30.],
