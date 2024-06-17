@@ -26,12 +26,17 @@ pub fn render_quota(app: &mut DaenerysApp, ui: &mut Ui) {
                 format!("{:.1} {}B", n, prefix)
             }
         };
+        ui.vertical(|ui| {
+            ui.horizontal_top(|ui| {
+                ui.label("quota:");
+                ui.label(formated_total);
 
-        ui.horizontal_top(|ui| {
-            ui.label("quota:");
-            ui.label(formated_total);
-            ui.add(egui::ProgressBar::new(float_used).show_percentage());
-            ui.label(formated_used);
+                ui.label("used:");
+                ui.label(formated_used);
+            });
+            ui.horizontal_top(|ui| {
+                ui.add(egui::ProgressBar::new(float_used).show_percentage());
+            });
         });
     }
 }
