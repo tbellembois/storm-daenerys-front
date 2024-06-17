@@ -29,9 +29,9 @@ pub fn render_quota(app: &mut DaenerysApp, ui: &mut Ui) {
 
         ui.horizontal_top(|ui| {
             ui.label("quota:");
-            ui.label(formated_used);
-            ui.add(egui::ProgressBar::new(float_used).show_percentage());
             ui.label(formated_total);
+            ui.add(egui::ProgressBar::new(float_used).show_percentage());
+            ui.label(formated_used);
         });
     }
 }
