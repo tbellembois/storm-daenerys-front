@@ -3,7 +3,7 @@ name = "storm_daenerys_front"
 version = "1.0.4"
 authors = ["Thomas Bellembois <thomas.bellembois@uca.fr]>"]
 description = "STORM Daenerys frontend"
-repository = "https://git.mesocentre.uca.fr/mesocentre/storm-daenerys-frontend"
+repository = "https://git.mesocentre.uca.fr/mesocentre/storm-daenerys-front"
 rust-version = "1.77"
 edition = "2021"
 
@@ -22,7 +22,7 @@ chrono = "0.4"
 eframe = "0.28.1"
 egui = "0.28.1"
 egui_extras = { version = "0.28.1", features = ["svg", "all_loaders"]}
-egui-aesthetix = { version = "0.2.3", features = ["all_themes"] }
+egui-aesthetix = { version = "0.2.4", features = ["all_themes"] }
 ehttp = "0.5"
 env_logger = "0.11"
 human_bytes = "0.4.3"
