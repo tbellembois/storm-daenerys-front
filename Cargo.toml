@@ -19,14 +19,14 @@ path = "src/lib.rs"
 
 [dependencies]
 chrono = "0.4"
-eframe = "0.27.2"
-egui = "0.27.2"
-egui_extras = { version = "0.27.2", features = ["svg", "all_loaders"]}
+eframe = "0.28.1"
+egui = "0.28.1"
+egui_extras = { version = "0.28.1", features = ["svg", "all_loaders"]}
 egui-aesthetix = { version = "0.2.3", features = ["all_themes"] }
-ehttp = "0.4"
+ehttp = "0.5"
 env_logger = "0.11"
 human_bytes = "0.4.3"
-image = { version = "0.24", default-features = false, features = ["png"] }
+image = { version = "0.25", default-features = false, features = ["png"] }
 log = "0.4"
 number_prefix = "0.4"
 poll-promise = "0.3"

@@ -30,11 +30,11 @@ fn main() -> Result<(), eframe::Error> {
         Box::new(|cc| {
             egui_extras::install_image_loaders(&cc.egui_ctx);
 
-            Box::new(DaenerysApp::new(
+            Ok(Box::new(DaenerysApp::new(
                 cc,
                 "http://localhost:3000".to_string(),
                 app_version.to_string(),
-            ))
+            )))
         }),
     )
 }
