@@ -3,10 +3,7 @@ use egui::Frame;
 
 use crate::{
     api,
-    defines::{
-        AF_CONNECTED_USER_CODE, AF_ERROR_CODE, AF_FOLDER_CODE, AF_GAUGE_CODE, AF_GROUP_CODE,
-        AF_INFO_CODE,
-    },
+    defines::{AF_CONNECTED_USER_CODE, AF_ERROR_CODE, AF_GAUGE_CODE, AF_INFO_CODE},
     ui::daenerys::DaenerysApp,
 };
 

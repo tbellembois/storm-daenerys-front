@@ -41,7 +41,7 @@ pub enum Action {
     DirectoryEditAclAddUser,
     DirectoryEditAclAddGroup,
     DirectoryEditRename,
-    DirectoryEditDelete,
+    // DirectoryEditDelete,
     GroupEdit,
     GroupCreate,
     GroupEditDeleteConfirm,
@@ -66,7 +66,7 @@ impl Display for Action {
             Action::GroupEditUsers => write!(f, "group_edit_users"),
             Action::DiskUsage => write!(f, "disk_usage"),
             Action::DirectoryEditRename => write!(f, "directory_edit_rename"),
-            Action::DirectoryEditDelete => write!(f, "directory_edit_delete"),
+            // Action::DirectoryEditDelete => write!(f, "directory_edit_delete"),
         }
     }
 }

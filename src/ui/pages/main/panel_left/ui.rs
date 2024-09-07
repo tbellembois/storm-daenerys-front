@@ -1,4 +1,4 @@
-use super::{directory::render_directory_list, group::render_group_list};
+use super::directory::render_directory_list;
 use crate::ui::daenerys::DaenerysApp;
 use eframe::egui::{self, Context};
 use egui::Frame;
