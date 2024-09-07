@@ -4,6 +4,9 @@ use poll_promise::Promise;
 
 use storm_daenerys_common::types::{error::CommonError, quota::SetQuota};
 
+#[cfg(target_arch = "wasm32")]
+use ehttp::Mode;
+
 pub fn save_quota(
     ctx: &egui::Context,
     set_quota: SetQuota,
@@ -27,6 +30,8 @@ pub fn save_quota(
         url: format!("{}/quota", api_url),
         body: request_payload.as_bytes().to_vec(),
         headers: ehttp::Headers::new(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
+        #[cfg(target_arch = "wasm32")]
+        mode: Mode::default(),
     };
 
     ehttp::fetch(request, move |response| {

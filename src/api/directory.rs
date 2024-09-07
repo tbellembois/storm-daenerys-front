@@ -7,6 +7,9 @@ use storm_daenerys_common::types::{
     error::CommonError,
 };
 
+#[cfg(target_arch = "wasm32")]
+use ehttp::Mode;
+
 pub fn delete_directory(
     ctx: &egui::Context,
     delete_directory: CreateDirectory,
@@ -30,6 +33,8 @@ pub fn delete_directory(
         url: format!("{}/directories", api_url),
         body: request_payload.as_bytes().to_vec(),
         headers: ehttp::Headers::new(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
+        #[cfg(target_arch = "wasm32")]
+        mode: Mode::default(),
     };
 
     ehttp::fetch(request, move |response| {
@@ -64,6 +69,8 @@ pub fn rename_directory(
         url: format!("{}/directories", api_url),
         body: request_payload.as_bytes().to_vec(),
         headers: ehttp::Headers::new(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
+        #[cfg(target_arch = "wasm32")]
+        mode: Mode::default(),
     };
 
     ehttp::fetch(request, move |response| {
@@ -98,6 +105,8 @@ pub fn create_directory(
         url: format!("{}/directories", api_url),
         body: request_payload.as_bytes().to_vec(),
         headers: ehttp::Headers::new(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
+        #[cfg(target_arch = "wasm32")]
+        mode: Mode::default(),
     };
 
     ehttp::fetch(request, move |response| {

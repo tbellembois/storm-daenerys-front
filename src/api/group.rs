@@ -7,6 +7,9 @@ use storm_daenerys_common::types::{
     group::{AddDelUserToGroup, Group},
 };
 
+#[cfg(target_arch = "wasm32")]
+use ehttp::Mode;
+
 pub fn save_group(
     ctx: &egui::Context,
     group_backup: Group,
@@ -113,6 +116,8 @@ pub fn del_user_from_group(
         url: format!("{}/groups/user", api_url),
         body: request_payload.as_bytes().to_vec(),
         headers: ehttp::Headers::new(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
+        #[cfg(target_arch = "wasm32")]
+        mode: Mode::default(),
     };
 
     ehttp::fetch(request, move |response| {
@@ -149,6 +154,8 @@ pub fn add_user_to_group(
         url: format!("{}/groups/user", api_url),
         body: request_payload.as_bytes().to_vec(),
         headers: ehttp::Headers::new(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
+        #[cfg(target_arch = "wasm32")]
+        mode: Mode::default(),
     };
 
     ehttp::fetch(request, move |response| {
@@ -183,6 +190,8 @@ pub fn create_group(
         url: format!("{}/groups", api_url),
         body: request_payload.as_bytes().to_vec(),
         headers: ehttp::Headers::new(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
+        #[cfg(target_arch = "wasm32")]
+        mode: Mode::default(),
     };
 
     ehttp::fetch(request, move |response| {
@@ -211,6 +220,8 @@ pub fn delete_group(
         url: format!("{}/groups/{}", api_url, cn),
         body: request_payload.as_bytes().to_vec(),
         headers: ehttp::Headers::new(&[("Accept", "*/*")]),
+        #[cfg(target_arch = "wasm32")]
+        mode: Mode::default(),
     };
 
     ehttp::fetch(request, move |response| {

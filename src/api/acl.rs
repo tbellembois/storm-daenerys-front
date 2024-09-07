@@ -4,6 +4,9 @@ use poll_promise::Promise;
 
 use storm_daenerys_common::types::{acl::SetAcl, error::CommonError};
 
+#[cfg(target_arch = "wasm32")]
+use ehttp::Mode;
+
 pub fn save_acl(
     ctx: &egui::Context,
     set_acl: SetAcl,
@@ -27,6 +30,8 @@ pub fn save_acl(
         url: format!("{}/acls", api_url),
         body: request_payload.as_bytes().to_vec(),
         headers: ehttp::Headers::new(&[("Accept", "*/*"), ("Content-Type", "application/json")]),
+        #[cfg(target_arch = "wasm32")]
+        mode: Mode::default(),
     };
 
     ehttp::fetch(request, move |response| {
