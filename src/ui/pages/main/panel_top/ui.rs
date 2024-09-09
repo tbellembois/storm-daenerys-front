@@ -12,7 +12,7 @@ use super::quota::render_quota;
 pub fn render_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut eframe::Frame) {
     egui::TopBottomPanel::top("error_info_panel")
         .min_height(40.)
-        .max_height(40.)
+        .max_height(200.)
         .show_separator_line(false)
         .frame(Frame {
             inner_margin: app.state.active_theme.margin_style().into(),
