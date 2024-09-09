@@ -72,10 +72,7 @@ pub fn render_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efram
                 if ui.add_sized([150., 30.], button).clicked() {
                     app.is_working = true;
 
-                    let available_width = app.central_panel_available_size.x;
-                    let du_width = available_width as u32;
-                    app.get_du_promise =
-                        Some(api::root::get_du(ctx, app.api_url.clone(), du_width));
+                    app.get_du_promise = Some(api::root::get_du(ctx, app.api_url.clone()));
                 };
 
                 // Current error label.

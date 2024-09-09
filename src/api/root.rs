@@ -22,11 +22,7 @@ pub fn get_config(ctx: &egui::Context, api_url: String) -> Promise<Result<Config
     promise
 }
 
-pub fn get_du(
-    ctx: &egui::Context,
-    api_url: String,
-    width: u32,
-) -> Promise<Result<Option<String>, String>> {
+pub fn get_du(ctx: &egui::Context, api_url: String) -> Promise<Result<Option<String>, String>> {
     debug!("Get du.");
 
     // Begin download.
@@ -34,7 +30,7 @@ pub fn get_du(
     // We use the `poll-promise` library to communicate with the UI thread.
     let ctx = ctx.clone();
     let (sender, promise) = Promise::new();
-    let request = ehttp::Request::get(format!("{}/du?width={}", api_url, width));
+    let request = ehttp::Request::get(format!("{}/du", api_url));
 
     ehttp::fetch(request, move |response| {
         let du = response.and_then(parse_get_du_response);
