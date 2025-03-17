@@ -7,7 +7,7 @@ pub fn render_disk_usage(app: &mut DaenerysApp, ui: &mut Ui) {
     let scroll_height: f32 = available_height - 50.;
 
     egui::ScrollArea::vertical()
-        .id_source("du_scroll")
+        .id_salt("du_scroll")
         .max_height(scroll_height)
         .show(ui, |ui| {
             ui.label("disk usage is updated every two hours");

@@ -4,7 +4,7 @@ use crate::{
     defines::{AF_ADD_CODE, AF_DELETE_CODE, AF_SAVE_CODE},
     ui::daenerys::{Action, DaenerysApp},
 };
-use egui::Ui;
+use egui::{Color32, Ui};
 
 pub fn render_show_edit_member(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui) {
     match &app.current_group.as_ref().unwrap().clone().member {
@@ -12,7 +12,7 @@ pub fn render_show_edit_member(app: &mut DaenerysApp, ctx: &egui::Context, ui: &
             let scroll_height = ui.available_height() - 150.;
 
             egui::ScrollArea::vertical()
-                .id_source("group_detail_scroll")
+                .id_salt("group_detail_scroll")
                 .max_height(scroll_height)
                 .show(ui, |ui| {
                     egui::Grid::new("group_detail")
@@ -41,14 +41,11 @@ pub fn render_show_edit_member(app: &mut DaenerysApp, ctx: &egui::Context, ui: &
                                     Some(maybe_display_name) => match maybe_display_name {
                                         Some(display_name) => (
                                             format!("{} ({})", display_name, member),
-                                            app.state
-                                                .active_theme
-                                                .fg_primary_text_color_visuals()
-                                                .unwrap(),
+                                            Color32::WHITE,
                                         ),
                                         None => (
                                             format!("<invalid account> ({})", member),
-                                            app.state.active_theme.fg_warn_text_color_visuals(),
+                                            Color32::RED,
                                         ),
                                     },
                                     None => {
@@ -63,13 +60,7 @@ pub fn render_show_edit_member(app: &mut DaenerysApp, ctx: &egui::Context, ui: &
                                             );
                                         }
 
-                                        (
-                                            member.to_string(),
-                                            app.state
-                                                .active_theme
-                                                .fg_primary_text_color_visuals()
-                                                .unwrap(),
-                                        )
+                                        (member.to_string(), Color32::WHITE)
                                     }
                                 };
 

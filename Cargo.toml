@@ -1,10 +1,10 @@
 [package]
 name = "storm_daenerys_front"
-version = "1.0.4"
+version = "1.0.5"
 authors = ["Thomas Bellembois <thomas.bellembois@uca.fr]>"]
 description = "STORM Daenerys frontend"
 repository = "https://git.mesocentre.uca.fr/mesocentre/storm-daenerys-front"
-rust-version = "1.77"
+rust-version = "1.85"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -19,10 +19,11 @@ path = "src/lib.rs"
 
 [dependencies]
 chrono = "0.4"
-eframe = "0.28.1"
-egui = "0.28.1"
-egui_extras = { version = "0.28.1", features = ["svg", "all_loaders"]}
-egui-aesthetix = { version = "0.2.4", features = ["all_themes"] }
+eframe = "0.30"
+egui = "0.30"
+egui_extras = { version = "0.30", features = ["svg", "all_loaders"]}
+#egui-theme-switch = "0.3.0"
+#egui-aesthetix = { version = "0.2.4", features = ["all_themes"] }
 ehttp = "0.5"
 env_logger = "0.11"
 human_bytes = "0.4.3"
@@ -30,7 +31,7 @@ image = { version = "0.25", default-features = false, features = ["png"] }
 log = "0.4"
 number_prefix = "0.4"
 poll-promise = "0.3"
-regex = "1.10"
+regex = "1.11"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 

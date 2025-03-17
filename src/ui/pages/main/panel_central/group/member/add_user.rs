@@ -11,8 +11,7 @@ pub fn render_add_user(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui) 
 
     // Search user form.
     ui.horizontal_top(|ui| {
-        ui.add_sized(
-            [400., 30.],
+        ui.add(
             egui::TextEdit::singleline(&mut app.user_search)
                 .hint_text("enter at least 2 characters and click search"),
         );
@@ -35,7 +34,7 @@ pub fn render_add_user(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui) 
 
     if app.users.is_some() {
         egui::ScrollArea::vertical()
-            .id_source("group_search_user_scroll")
+            .id_salt("group_search_user_scroll")
             .max_height(scroll_height)
             .show(ui, |ui| {
                 for user in app.users.as_ref().unwrap().clone() {

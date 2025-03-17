@@ -6,14 +6,11 @@ use crate::ui::pages::main;
 // use crate::worker::message::{ToApp, ToWorker};
 use eframe::{egui, CreationContext};
 use egui::Vec2;
-use egui_aesthetix::themes::{CarlDark, StandardDark, StandardLight};
-use egui_aesthetix::{self, Aesthetix};
 use poll_promise::Promise;
 use regex::Regex;
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::fmt::Display;
-use std::rc::Rc;
 // use std::sync::mpsc::{self, Receiver, Sender};
 use std::sync::Once;
 // use std::thread;
@@ -76,8 +73,6 @@ pub struct DaenerysApp {
     pub state: ApplicationState,
     // Action in progress.
     pub active_action: Action,
-    // Holds the supported themes that the user can switch between.
-    pub themes: Vec<Rc<dyn Aesthetix>>,
     // Application version.
     pub app_version: String,
     // API URL.
@@ -221,7 +216,6 @@ impl Default for DaenerysApp {
             edited_directory_quota: Default::default(),
             edited_directory_quota_unit: QuotaUnit::Megabyte,
             state: Default::default(),
-            themes: Default::default(),
             // sender: Default::default(),
             // receiver: Default::default(),
             active_action: Action::Home,
@@ -250,22 +244,8 @@ impl DaenerysApp {
         // Load custom fonts and styles.
         setup_custom_fonts(&cc.egui_ctx);
 
-        // Load themes.
-        let themes: Vec<Rc<dyn Aesthetix>> = vec![
-            Rc::new(StandardDark),
-            Rc::new(StandardLight),
-            Rc::new(CarlDark),
-        ];
-        let active_theme: Rc<dyn Aesthetix> = match themes.first() {
-            Some(theme) => theme.clone(),
-            None => panic!("The first theme in the list of available themes could not be loaded."),
-        };
-
         // Create application state.
-        let state = ApplicationState::new(active_theme);
-
-        // Initialize the custom theme/styles for egui.
-        cc.egui_ctx.set_style(state.active_theme.custom_style());
+        let state = ApplicationState::new();
 
         // Create application.
         DaenerysApp {
@@ -273,7 +253,6 @@ impl DaenerysApp {
             app_version,
             api_url,
             state,
-            themes,
             // sender: Some(app_tx),
             // receiver: Some(worker_rx),
             ..Default::default()
@@ -756,17 +735,21 @@ fn setup_custom_fonts(ctx: &egui::Context) {
     // .ttf and .otf files supported.
     fonts.font_data.insert(
         "Font-Awesome-6-Brands-Regular-400".to_owned(),
-        egui::FontData::from_static(include_bytes!(
+        std::sync::Arc::new(egui::FontData::from_static(include_bytes!(
             "fonts/Font-Awesome-6-Brands-Regular-400.otf"
-        )),
+        ))),
     );
     fonts.font_data.insert(
         "Font-Awesome-6-Free-Regular-400".to_owned(),
-        egui::FontData::from_static(include_bytes!("fonts/Font-Awesome-6-Free-Regular-400.otf")),
+        std::sync::Arc::new(egui::FontData::from_static(include_bytes!(
+            "fonts/Font-Awesome-6-Free-Regular-400.otf"
+        ))),
     );
     fonts.font_data.insert(
         "Font-Awesome-6-Free-Solid-900".to_owned(),
-        egui::FontData::from_static(include_bytes!("fonts/Font-Awesome-6-Free-Solid-900.otf")),
+        std::sync::Arc::new(egui::FontData::from_static(include_bytes!(
+            "fonts/Font-Awesome-6-Free-Solid-900.otf"
+        ))),
     );
 
     // Start at 1 not 0 to keep the default font.

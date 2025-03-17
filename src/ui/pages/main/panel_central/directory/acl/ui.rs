@@ -7,7 +7,7 @@ use crate::{
     },
     ui::daenerys::{Action, DaenerysApp},
 };
-use egui::Ui;
+use egui::{Color32, Ui};
 use storm_daenerys_common::types::acl::SetAcl;
 
 pub fn render_show_edit_acl(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui) {
@@ -38,12 +38,9 @@ pub fn render_show_edit_acl(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut
                                 // User cn.
                                 let user_cn = acl.qualifier_display.as_ref().unwrap();
                                 let color = if user_cn.starts_with('<') {
-                                    app.state.active_theme.fg_warn_text_color_visuals()
+                                    Color32::RED
                                 } else {
-                                    app.state
-                                        .active_theme
-                                        .fg_primary_text_color_visuals()
-                                        .unwrap()
+                                    Color32::WHITE
                                 };
 
                                 let qualifier_display = if read_only {

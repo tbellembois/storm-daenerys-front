@@ -12,8 +12,7 @@ pub fn render_edit_quota(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui
     ui.add_space(10.0);
 
     ui.horizontal_top(|ui| {
-        ui.add_sized(
-            [200., 30.],
+        ui.add(
             egui::TextEdit::singleline(&mut app.edited_directory_quota).hint_text("enter quota"),
         );
         egui::ComboBox::from_label("")

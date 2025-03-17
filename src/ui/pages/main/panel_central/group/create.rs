@@ -16,16 +16,14 @@ pub fn render_create_group(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut 
             } else {
                 ui.label(format!("{}-", app.group_prefix.as_ref().unwrap()));
             }
-            ui.add_sized(
-                [400., 30.],
+            ui.add(
                 egui::TextEdit::singleline(&mut app.create_group_name)
                     .hint_text("group name (no space, no accent or special character except _)"),
             );
         });
 
         // Group description.
-        ui.add_sized(
-            [400., 30.],
+        ui.add(
             egui::TextEdit::singleline(&mut app.create_group_description).hint_text("description"),
         );
 

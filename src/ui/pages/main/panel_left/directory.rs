@@ -3,7 +3,7 @@ use crate::{
     defines::{AF_ADD_CODE, AF_FOLDER_CODE, AF_QUOTA_CODE, AF_REFRESH_CODE, AF_WARNING_CODE},
     ui::daenerys::{Action, DaenerysApp},
 };
-use egui::Ui;
+use egui::{vec2, Color32, Layout, Ui};
 use human_bytes::human_bytes;
 use storm_daenerys_common::types::quota::QuotaUnit;
 
@@ -13,14 +13,13 @@ pub fn render_directory_list(
     ui: &mut Ui,
     scroll_height: f32,
 ) {
+    ui.style_mut().spacing.item_spacing = vec2(16.0, 16.0);
+
     ui.with_layout(egui::Layout::top_down(egui::Align::Center), |ui| {
         ui.label(
-            egui::RichText::new("ROOT DIRECTORIES").size(18.0).color(
-                app.state
-                    .active_theme
-                    .fg_primary_text_color_visuals()
-                    .unwrap(),
-            ),
+            egui::RichText::new("ROOT DIRECTORIES")
+                .size(18.0)
+                .color(Color32::WHITE),
         );
     });
 
@@ -51,70 +50,69 @@ pub fn render_directory_list(
         });
     });
 
-    ui.separator();
+    // ui.separator();
 
     // Directory list.
     egui::ScrollArea::vertical()
-        .id_source("directory_scroll")
+        .id_salt("directory_scroll")
         .max_height(scroll_height)
         .show(ui, |ui| {
+            ui.style_mut().spacing.item_spacing = vec2(5.0, 5.0);
+
             if app.directories.is_some() {
-                egui::Grid::new("directory_list")
-                    .num_columns(3)
-                    .show(ui, |ui| {
-                        for directory in app.directories.as_ref().unwrap().iter() {
-                            // Icon.
-                            let directory_icon = if directory.valid {
-                                format!("{}", AF_FOLDER_CODE)
-                            } else {
-                                format!("{}", AF_WARNING_CODE)
-                            };
-                            // Text.
-                            ui.add_sized([30., 30.], egui::Label::new(directory_icon));
+                ui.with_layout(Layout::top_down(egui::Align::LEFT), |ui| {
+                    for directory in app.directories.as_ref().unwrap().iter() {
+                        // Icon.
+                        let directory_icon = if directory.valid {
+                            format!("{}", AF_FOLDER_CODE)
+                        } else {
+                            format!("{}", AF_WARNING_CODE)
+                        };
 
-                            // Disable button id directory is invalid.
-                            let enabled = directory.valid;
-                            ui.horizontal(|ui| {
-                                ui.add_enabled_ui(enabled, |ui| {
-                                    let button_label = directory.name.to_string();
-                                    let button = egui::Button::new(button_label);
-
-                                    if ui.add_sized([200., 30.], button).clicked() {
-                                        // Save the clicked directory.
-                                        app.active_action = Action::DirectoryEdit;
-                                        app.current_directory = Some(Box::new(directory.clone()));
-
-                                        // And its quota in bytes to populate the quota edition input text.
-                                        if let Some(quota) = directory.quota {
-                                            let quota_in_mb = quota / 1024 / 1024;
-                                            app.edited_directory_quota = quota_in_mb.to_string()
-                                        } else {
-                                            app.edited_directory_quota = 0.to_string();
-                                        }
-
-                                        app.edited_directory_quota_unit = QuotaUnit::Megabyte;
-                                        app.current_group = None;
-                                        app.current_error = None;
-                                        app.current_info = None;
-                                        app.du = None;
-                                    };
-                                });
-                            });
-
-                            // Directory quota.
-                            if let Some(quota) = directory.quota {
+                        // Directory quota.
+                        let quota = match directory.quota {
+                            Some(quota) => {
                                 if quota.ne(&0) {
-                                    ui.label(format!(
-                                        "{} {}",
-                                        AF_QUOTA_CODE,
-                                        human_bytes(quota as f64)
-                                    ));
+                                    format!("[{}:{}]", AF_QUOTA_CODE, human_bytes(quota as f64))
+                                } else {
+                                    "".to_string()
                                 }
                             }
+                            None => "".to_string(),
+                        };
 
-                            ui.end_row()
-                        }
-                    });
+                        // Disable button id directory is invalid.
+                        let enabled = directory.valid;
+                        ui.horizontal(|ui| {
+                            ui.add_enabled_ui(enabled, |ui| {
+                                let button_label =
+                                    format!("{} {} {}", directory_icon, directory.name, quota);
+                                let button = egui::Button::new(button_label);
+
+                                // if ui.add_sized([100., 20.], button).clicked() {
+                                if ui.add(button).clicked() {
+                                    // Save the clicked directory.
+                                    app.active_action = Action::DirectoryEdit;
+                                    app.current_directory = Some(Box::new(directory.clone()));
+
+                                    // And its quota in bytes to populate the quota edition input text.
+                                    if let Some(quota) = directory.quota {
+                                        let quota_in_mb = quota / 1024 / 1024;
+                                        app.edited_directory_quota = quota_in_mb.to_string()
+                                    } else {
+                                        app.edited_directory_quota = 0.to_string();
+                                    }
+
+                                    app.edited_directory_quota_unit = QuotaUnit::Megabyte;
+                                    app.current_group = None;
+                                    app.current_error = None;
+                                    app.current_info = None;
+                                    app.du = None;
+                                };
+                            });
+                        });
+                    }
+                });
             }
         });
 }

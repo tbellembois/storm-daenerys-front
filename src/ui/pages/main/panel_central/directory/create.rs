@@ -10,8 +10,7 @@ pub fn render_create_directory(app: &mut DaenerysApp, ctx: &egui::Context, ui: &
             if let Some(admin_restriction) = &app.current_admin_restriction {
                 ui.label(format!("{}@_", admin_restriction.to_uppercase()));
             }
-            ui.add_sized(
-                [400., 30.],
+            ui.add(
                 egui::TextEdit::singleline(&mut app.create_directory_name).hint_text(
                     "directory name (no space, no accent or special character except - and _)",
                 ),

@@ -11,9 +11,10 @@ use egui::Frame;
 pub fn render_central_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut eframe::Frame) {
     egui::CentralPanel::default()
         .frame(Frame {
-            inner_margin: app.state.active_theme.margin_style().into(),
-            fill: app.state.active_theme.bg_primary_color_visuals(),
-            stroke: egui::Stroke::new(1.0, app.state.active_theme.bg_secondary_color_visuals()),
+            inner_margin: 15.0.into(),
+            // inner_margin: app.state.active_theme.margin_style().into(),
+            // fill: app.state.active_theme.bg_primary_color_visuals(),
+            // stroke: egui::Stroke::new(1.0, app.state.active_theme.bg_secondary_color_visuals()),
             ..Default::default()
         })
         .show(ctx, |ui| {

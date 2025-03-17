@@ -9,8 +9,7 @@ pub fn render_rename(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui) {
             if let Some(admin_restriction) = &app.current_admin_restriction {
                 ui.label(format!("{}@_", admin_restriction));
             }
-            ui.add_sized(
-                [400., 30.],
+            ui.add(
                 egui::TextEdit::singleline(&mut app.create_directory_name).hint_text(
                     "directory name (no space, no accent or special character except - and _)",
                 ),

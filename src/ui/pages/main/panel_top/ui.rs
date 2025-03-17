@@ -1,5 +1,5 @@
 use eframe::egui::{self, Context, RichText};
-use egui::Frame;
+use egui::{Color32, Frame};
 
 use crate::{
     api,
@@ -15,9 +15,10 @@ pub fn render_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efram
         .max_height(200.)
         .show_separator_line(false)
         .frame(Frame {
-            inner_margin: app.state.active_theme.margin_style().into(),
-            fill: app.state.active_theme.bg_secondary_color_visuals(),
-            stroke: egui::Stroke::new(1.0, app.state.active_theme.bg_secondary_color_visuals()),
+            inner_margin: 15.0.into(),
+            // inner_margin: app.state.active_theme.margin_style().into(),
+            // fill: app.state.active_theme.bg_secondary_color_visuals(),
+            // stroke: egui::Stroke::new(1.0, app.state.active_theme.bg_secondary_color_visuals()),
             ..Default::default()
         })
         .show(ctx, |ui| {
@@ -48,23 +49,23 @@ pub fn render_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efram
 
             ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
                 // Switch theme.
-                egui::ComboBox::from_id_source("settings_theme_combo_box")
-                    .width(200.0)
-                    .selected_text(app.state.active_theme.name())
-                    .show_ui(ui, |ui_combobox| {
-                        for theme in app.themes.iter() {
-                            let res: egui::Response = ui_combobox.selectable_value(
-                                &mut app.state.active_theme,
-                                theme.clone(),
-                                theme.name(),
-                            );
-                            if res.changed() {
-                                ui_combobox
-                                    .ctx()
-                                    .set_style(app.state.active_theme.custom_style());
-                            }
-                        }
-                    });
+                // egui::ComboBox::from_id_salt("settings_theme_combo_box")
+                //     .width(200.0)
+                //     .selected_text(app.state.active_theme.name())
+                //     .show_ui(ui, |ui_combobox| {
+                //         for theme in app.themes.iter() {
+                //             let res: egui::Response = ui_combobox.selectable_value(
+                //                 &mut app.state.active_theme,
+                //                 theme.clone(),
+                //                 theme.name(),
+                //             );
+                //             if res.changed() {
+                //                 ui_combobox
+                //                     .ctx()
+                //                     .set_style(app.state.active_theme.custom_style());
+                //             }
+                //         }
+                //     });
 
                 // Disk usage button.
                 let button = egui::Button::new(format!("{} show disk usage", AF_GAUGE_CODE));
@@ -79,7 +80,7 @@ pub fn render_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efram
                 if let Some(current_error) = &app.current_error {
                     ui.label(
                         RichText::new(format!("{} {}", AF_ERROR_CODE, current_error))
-                            .color(app.state.active_theme.fg_error_text_color_visuals()),
+                            .color(Color32::RED),
                     );
                 }
 
@@ -87,7 +88,7 @@ pub fn render_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efram
                 if let Some(current_info) = &app.current_info {
                     ui.label(
                         RichText::new(format!("{} {}", AF_INFO_CODE, current_info))
-                            .color(app.state.active_theme.fg_success_text_color_visuals()),
+                            .color(Color32::GREEN),
                     );
                 }
             });

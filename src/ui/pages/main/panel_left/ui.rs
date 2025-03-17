@@ -6,15 +6,16 @@ use egui::Frame;
 pub fn render_left_panel(app: &mut DaenerysApp, ctx: &Context) {
     egui::SidePanel::left("directory_list")
         .frame(Frame {
-            inner_margin: app.state.active_theme.margin_style().into(),
-            fill: app.state.active_theme.bg_secondary_color_visuals(),
-            stroke: egui::Stroke::new(1.0, app.state.active_theme.bg_secondary_color_visuals()),
+            inner_margin: 15.0.into(),
+            // inner_margin: app.state.active_theme.margin_style().into(),
+            // fill: app.state.active_theme.bg_secondary_color_visuals(),
+            // stroke: egui::Stroke::new(1.0, app.state.active_theme.bg_secondary_color_visuals()),
             ..Default::default()
         })
         .resizable(false)
         .show_separator_line(true)
         .show(ctx, |ui| {
-            ui.set_width(400.0);
+            // ui.set_width(400.0);
 
             // Calculate scroll height.
             let available_height: f32 = ui.available_size().y;

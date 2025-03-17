@@ -7,9 +7,9 @@ pub fn render_bottom_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut ef
         .min_height(60.)
         .show_separator_line(true)
         .frame(Frame {
-            inner_margin: app.state.active_theme.margin_style().into(),
-            fill: app.state.active_theme.bg_secondary_color_visuals(),
-            stroke: egui::Stroke::new(1.0, app.state.active_theme.bg_secondary_color_visuals()),
+            // inner_margin: app.state.active_theme.margin_style().into(),
+            // fill: app.state.active_theme.bg_secondary_color_visuals(),
+            // stroke: egui::Stroke::new(1.0, app.state.active_theme.bg_secondary_color_visuals()),
             ..Default::default()
         })
         .show(ctx, |ui| {

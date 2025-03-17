@@ -17,7 +17,7 @@ fn main() -> Result<(), eframe::Error> {
 
     // Set window options.
     let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([400.0, 400.0]),
+        viewport: egui::ViewportBuilder::default().with_inner_size([1024.0, 768.0]),
         ..Default::default()
     };
 
