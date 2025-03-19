@@ -22,3 +22,4 @@ pub const AF_HALF_LOCK_CODE: char = '\u{f09c}';
 pub const AF_WARNING_CODE: char = '\u{f071}';
 pub const AF_QUOTA_CODE: char = '\u{51}';
 pub const AF_EYE_CODE: char = '\u{f06e}';
+pub const AF_TOGGLE_OFF_CODE: char = '\u{f204}';

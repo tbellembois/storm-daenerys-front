@@ -1,4 +1,4 @@
-use egui::{vec2, Ui};
+use egui::Ui;
 
 pub fn render_home(ui: &mut Ui) {
     ui.with_layout(egui::Layout::top_down(egui::Align::Center), |ui| {

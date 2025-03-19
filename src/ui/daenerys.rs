@@ -147,6 +147,8 @@ pub struct DaenerysApp {
     pub current_error: Option<AppError>,
     // Current info if one.
     pub current_info: Option<String>,
+    // Toggle side panels.
+    pub toggle_side_panels: bool,
 
     // Directory been showned/edited.
     pub current_directory: Option<Box<Directory>>,
@@ -221,6 +223,7 @@ impl Default for DaenerysApp {
             active_action: Action::Home,
             rename_directory_promise: Default::default(),
             delete_directory_promise: Default::default(),
+            toggle_side_panels: true,
         }
     }
 }

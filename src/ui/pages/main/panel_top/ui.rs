@@ -3,7 +3,9 @@ use egui::{Color32, Frame};
 
 use crate::{
     api,
-    defines::{AF_CONNECTED_USER_CODE, AF_ERROR_CODE, AF_GAUGE_CODE, AF_INFO_CODE},
+    defines::{
+        AF_CONNECTED_USER_CODE, AF_ERROR_CODE, AF_GAUGE_CODE, AF_INFO_CODE, AF_TOGGLE_OFF_CODE,
+    },
     ui::daenerys::DaenerysApp,
 };
 
@@ -74,6 +76,14 @@ pub fn render_top_panel(app: &mut DaenerysApp, ctx: &Context, _frame: &mut efram
                     app.is_working = true;
 
                     app.get_du_promise = Some(api::root::get_du(ctx, app.api_url.clone()));
+                };
+
+                // Toggle show/hide side panels.
+                let button =
+                    egui::Button::new(format!("{} show/hide side panels", AF_TOGGLE_OFF_CODE));
+
+                if ui.add_sized([150., 30.], button).clicked() {
+                    app.toggle_side_panels = !app.toggle_side_panels;
                 };
 
                 // Current error label.

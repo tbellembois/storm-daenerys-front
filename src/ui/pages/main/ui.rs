@@ -9,7 +9,9 @@ use eframe::egui;
 pub fn update(app: &mut DaenerysApp, ctx: &egui::Context, frame: &mut eframe::Frame) {
     render_top_panel(app, ctx, frame);
     render_bottom_panel(app, ctx, frame);
-    render_left_panel(app, ctx);
-    render_right_panel(app, ctx);
+    if app.toggle_side_panels {
+        render_left_panel(app, ctx);
+        render_right_panel(app, ctx);
+    }
     render_central_panel(app, ctx, frame);
 }
