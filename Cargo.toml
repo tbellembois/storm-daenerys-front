@@ -1,6 +1,6 @@
 [package]
 name = "storm_daenerys_front"
-version = "1.0.5"
+version = "1.0.6"
 authors = ["Thomas Bellembois <thomas.bellembois@uca.fr]>"]
 description = "STORM Daenerys frontend"
 repository = "https://git.mesocentre.uca.fr/mesocentre/storm-daenerys-front"
@@ -21,7 +21,7 @@ path = "src/lib.rs"
 chrono = "0.4"
 eframe = "0.30"
 egui = "0.30"
-egui_extras = { version = "0.30", features = ["svg", "all_loaders"]}
+egui_extras = { version = "0.30", features = ["svg", "all_loaders"] }
 #egui-theme-switch = "0.3.0"
 #egui-aesthetix = { version = "0.2.4", features = ["all_themes"] }
 ehttp = "0.5"

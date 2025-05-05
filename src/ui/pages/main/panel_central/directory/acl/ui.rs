@@ -221,6 +221,6 @@ pub fn render_show_edit_acl(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut
 
     // Add group.
     if app.active_action == Action::DirectoryEditAclAddGroup {
-        render_add_group(app, ui)
+        render_add_group(app, ctx, ui)
     }
 }

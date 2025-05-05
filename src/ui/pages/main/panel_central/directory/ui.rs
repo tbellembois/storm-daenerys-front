@@ -31,7 +31,7 @@ pub fn render_show_directory(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mu
         ui.add_space(20.0);
 
         ui.horizontal_top(|ui| {
-            let button_label = format!("{} {}", AF_EDIT_CODE, "edit ACLs");
+            let button_label = format!("{} {}", AF_EDIT_CODE, "edit access rights");
             let button = egui::Button::new(button_label);
 
             if ui.add_sized([150., 30.], button).clicked() {

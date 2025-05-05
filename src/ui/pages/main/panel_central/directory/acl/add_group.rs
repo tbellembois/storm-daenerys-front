@@ -1,11 +1,8 @@
-use crate::{
-    defines::AF_CANCEL_CODE,
-    ui::daenerys::{Action, DaenerysApp},
-};
+use crate::{api::acl::save_acl, defines::AF_SAVE_CODE, ui::daenerys::DaenerysApp};
 use egui::Ui;
-use storm_daenerys_common::types::acl::{AclEntry, Qualifier};
+use storm_daenerys_common::types::acl::{AclEntry, Qualifier, SetAcl};
 
-pub fn render_add_group(app: &mut DaenerysApp, ui: &mut Ui) {
+pub fn render_add_group(app: &mut DaenerysApp, ctx: &egui::Context, ui: &mut Ui) {
     // Group list.
     if app.groups.is_some() {
         for group in app.groups.as_ref().unwrap() {
@@ -33,10 +30,28 @@ pub fn render_add_group(app: &mut DaenerysApp, ui: &mut Ui) {
     }
 
     // Done button.
-    let button_label = format!("{} {}", AF_CANCEL_CODE, "done");
+    // let button_label = format!("{} {}", AF_CANCEL_CODE, "done");
+    // let button = egui::Button::new(button_label);
+
+    // if ui.add_sized([150., 30.], button).clicked() {
+    //     app.active_action = Action::DirectoryEditAcl;
+    // }
+
+    // Save button.
+    let button_label = format!("{} {}", AF_SAVE_CODE, "save");
     let button = egui::Button::new(button_label);
 
     if ui.add_sized([150., 30.], button).clicked() {
-        app.active_action = Action::DirectoryEditAcl;
+        let directory_name = app.current_directory.as_ref().unwrap().name.clone();
+
+        app.current_info = Some(format!("saving acl for {}", directory_name));
+
+        let set_acl = SetAcl {
+            name: directory_name,
+            acls: app.current_directory.as_ref().unwrap().acls.clone(),
+        };
+
+        app.is_working = true;
+        app.save_directory_acl_promise = Some(save_acl(ctx, set_acl, app.api_url.clone()));
     }
 }
